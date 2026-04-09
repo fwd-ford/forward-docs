@@ -3,307 +3,174 @@
 ![status](https://img.shields.io/badge/status-em_construção-yellow?style=flat-square)
 ![início](https://img.shields.io/badge/início-09%2F04%2F2026-blue?style=flat-square)
 
-> Como a ForwardService foi concebida, pesquisada, validada e projetada — do PDF da Ford até a primeira linha de código.  
-> Este documento registra as decisões, os pivôs e o raciocínio por trás de cada etapa.
+> Narrado do ponto de vista do Claude — como acompanhei o João (Jota) elaborar a ForwardService desde a primeira mensagem.  
+> Registra as decisões, os pivôs, os momentos de autocrítica e o raciocínio por trás de cada etapa.
 
 ---
 
 ## Contexto
 
-Este projeto nasceu dentro do **Challenge FIAP 2026**, uma atividade anual onde uma empresa parceira expõe suas dores reais e desafia estudantes de Engenharia de Software a desenvolverem soluções. A empresa deste ano: **Ford Motor Company**.
+O Jota chegou com uma mensagem longa e bem estruturada. Não era uma pergunta genérica — era um briefing. Explicou que estava no 3º ano de Engenharia de Software na FIAP, que a empresa parceira do Challenge era a Ford, e que existiam dois tipos de entregáveis (por disciplina e livre). Pediu para eu ler o PDF oficial e gerar um consolidado detalhado.
 
-O Challenge tem duas dimensões que coexistem:
-- **Entregas por disciplina** — cada matéria exige um entregável específico com rubrica própria
-- **Produto livre** — uma solução construída sem restrições de formato, com foco em resolver o problema de verdade
-
-A premissa desde o início: **inovar é valioso, mas resolver o problema de forma concreta é prioridade**. Não queríamos um PowerPoint bonito. Queríamos algo que funcione.
+Naquele momento percebi que ele não estava pedindo ajuda com um trabalho. Estava montando uma operação.
 
 ---
 
-## Capítulo 1 — Entendendo a Ford
+## Capítulo 1 — O Jota não queria soluções, queria entender o problema
 
-### O ponto de partida
+A primeira coisa que chamou atenção foi a ordem que ele seguiu. A maioria das pessoas que recebo começa com "me ajuda a fazer um app de X". O Jota começou com "lê esse PDF e me diz o que a Ford realmente precisa".
 
-Tudo começou com o PDF oficial do Challenge: *"Ford FIAP 2026: Kick-off do Projeto"*. A primeira decisão foi **não sair construindo nada** antes de entender profundamente o que a Ford estava pedindo.
+Ele mandou o PDF oficial do Challenge. Li cada slide. A Ford apresentava dois desafios: inteligência competitiva (comparar Ranger Raptor com concorrentes) e VIN Share (retenção pós-venda). Gerei o consolidado, mapeando dores, critérios de avaliação e oportunidades.
 
-O PDF apresentava dois desafios:
+Quando entreguei a análise, ele não disse "legal, vamos construir". Ele disse: **"você não acha que teríamos que fazer uma pesquisa mais detalhada primeiro?"**
 
-| Desafio | Tema |
-|---|---|
-| **Desafio 01** | Inteligência Competitiva Automotiva — ferramenta para comparar specs de veículos concorrentes (validação: Ranger Raptor vs. Hilux, Amarok, etc.) |
-| **Desafio 02** | VIN Share na América do Sul — reter clientes no pós-venda, aumentar a porcentagem de veículos Ford que usam a rede oficial para manutenção |
-
-A primeira ação foi fazer uma **leitura exaustiva do PDF**, mapeando cada exigência, cada rubrica, cada critério de avaliação. O resultado foi o documento `challenge_ford_2026_analise.md` — um consolidado de tudo que o PDF continha, organizado por desafio, por disciplina e por critério de avaliação.
-
-### A escolha do desafio
-
-A decisão entre Desafio 01 e 02 não foi imediata. Houve debate.
-
-O Desafio 01 (inteligência competitiva) era mais simples de demonstrar — entrada de dados, saída padronizada, validação clara com a Ranger Raptor. Mas tinha um problema: **a disciplina de IA/ML estava 100% alinhada ao Desafio 02** (segmentação e classificação de clientes para retenção). Se escolhêssemos o Desafio 01, o trabalho de IA/ML ficaria desconectado do restante.
-
-O Desafio 02 (VIN Share / retenção pós-venda) tinha maior complexidade mas **todas as disciplinas convergiam naturalmente**: a API serviria dados de clientes e serviços, o app mobile seria a interface do concessionário, a segurança protegeria dados sensíveis de clientes, e o ML faria a segmentação e predição. Era um ecossistema coerente.
-
-**Decisão: Desafio 02.** A convergência entre disciplinas era o fator decisivo. Menos retrabalho, mais coerência, produto mais forte.
+Esse foi o primeiro sinal de que o projeto seria diferente. Ele queria entender antes de agir.
 
 ---
 
-## Capítulo 2 — Pesquisa antes de solução
+## Capítulo 2 — A escolha que definiu tudo
 
-### A recusa de começar pela tecnologia
+A decisão entre Desafio 01 e 02 não foi rápida. O Jota inicialmente indicou o Desafio 02 (VIN Share), mas logo depois fez uma observação importante: "o foco deles é análise da Raptor em relação aos modelos concorrentes, tipo Hilux".
 
-A tentação natural era pular direto para "vamos fazer um dashboard com ML". Mas a decisão consciente foi **pesquisar primeiro**. Não dá para resolver um problema que não se entende profundamente.
+Isso criou uma tensão. O Desafio 01 parecia ser o que a Ford mais queria. Mas o Desafio 02 tinha melhor alinhamento com as disciplinas — especialmente IA/ML, que já vinha com enunciado sobre segmentação de clientes para retenção.
 
-Antes de propor qualquer solução, fizemos uma pesquisa de mercado abrangente cobrindo:
-- O que é VIN Share e como é medido na indústria
-- A situação específica da Ford Brasil (fechamento das fábricas em 2021, frota de 12,4M de veículos, 80% descontinuados, 109→145 concessionárias)
-- Por que clientes abandonam a rede oficial (preço percebido, fim da garantia, inconveniência)
-- Tendências globais em retenção pós-venda (veículos conectados, CRM preditivo, programas de fidelidade)
-- Técnicas de segmentação e predição de churn no setor automotivo
-
-Essa pesquisa inicial revelou o primeiro grande insight: **a Ford Brasil tem um problema que nenhuma outra montadora no mundo tem na mesma escala** — 80% da sua frota é de modelos que ela não fabrica mais (Ka, Fiesta, EcoSport), atendida por uma rede drasticamente menor que a dos concorrentes.
-
-### A formalização do processo
-
-Percebendo que o projeto tinha potencial para ser algo real (não apenas acadêmico), a decisão foi **formalizar um processo de trabalho**. Não por burocracia, mas para evitar que ideias boas se perdessem e para garantir que cada decisão fosse rastreável.
-
-O processo definido:
-
-```
-Fase 1: Fundação (DOC 00)     → O que estamos resolvendo e por quê
-Fase 2: Pesquisa (DOC 01+02)  → O que precisamos saber e o que descobrimos
-Fase 3: Solution Design (DOC 03) → O que vamos construir e como
-Fase 4: Arquitetura (DOC 04)  → Contratos técnicos e infraestrutura
-Fase 5: Implementação (DOC 05) → Quem faz o quê e quando
-Fase 6: Entrega               → Código, app, apresentação
-```
-
-A regra fundamental: **nenhuma fase posterior pode contradizer uma anterior sem revisão explícita**. Isso evita que decisões de implementação contaminem a visão estratégica.
+Eu fui direto e apresentei os tradeoffs. O Jota ouviu, pensou, e decidiu: **Desafio 02**. O raciocínio dele foi pragmático — não emocional. A convergência entre disciplinas significava menos retrabalho e um produto mais coerente. Decisão tomada, sem voltar atrás.
 
 ---
 
-## Capítulo 3 — A Base Fundacional
+## Capítulo 3 — "Me dá pelo menos 5 soluções de cada"
 
-### Construindo a tese
+Antes de fechar em uma solução, o Jota pediu brainstorming. Não uma ideia — pelo menos 5 para cada desafio. Queria opções na mesa antes de escolher.
 
-A Base Fundacional (DOC 00) foi o primeiro documento formal. Não era sobre tecnologia — era sobre **o problema e a lógica de como resolvê-lo**.
+Apresentei 6 soluções para o Desafio 01 e 6 para o Desafio 02, cada uma com prós, contras, complexidade e alinhamento com as disciplinas. O Jota analisou, mas não escolheu nenhuma isolada.
 
-A tese central emergiu da pesquisa:
+O que ele fez foi mais ambicioso: **"quero 9 soluções para o Desafio 02 e depois uma plataforma all-in-one que suporte todas elas"**. Quando questionei se não era muito, ele foi claro: "temos até o final do ano, por mais que seja muito trabalho é fazível".
 
-> *ForwardService não é uma ferramenta. É uma estratégia de retenção pós-venda habilitada por tecnologia, desenhada especificamente para o contexto único da Ford Brasil pós-fechamento das fábricas.*
-
-A palavra "estratégia" era intencional. A Ford não precisa de mais um dashboard. Precisa de uma forma de pensar sobre retenção que reconheça sua realidade única.
-
-### Os 4 pilares
-
-A solução foi estruturada em 4 pilares, cada um respondendo uma pergunta de negócio:
-
-| Pilar | Pergunta |
-|---|---|
-| **Intelligence Hub** | Quem estou perdendo, por quê, onde e quando? |
-| **Action Engine** | O que fazer com cada cliente, automaticamente? |
-| **Experience Layer** | Como garantir que o cliente queira voltar? |
-| **Performance Console** | Funcionou? Quanto retornou? O que otimizar? |
-
-Essa estrutura não foi escolhida por ser bonita. Foi escolhida porque **cada pilar se sustenta sozinho**, mas juntos formam um ciclo: dados → inteligência → ação → experiência → medição → dados melhores (Flywheel).
-
-### As 9 lógicas de negócio
-
-O verdadeiro diferencial da proposta não está nos pilares — está nas **lógicas de negócio embutidas**. São 9 conceitos que tornam a ForwardService impossível de replicar com um CRM genérico:
-
-1. **Economia do VIN (LSV)** — cada cliente tem valor em reais calculável
-2. **Curva da Morte** — existe um momento exato onde a retenção desaba, e é diferente para cada perfil
-3. **Rede Invertida** — 145 dealers não cobrem o Brasil; o serviço precisa ir até o cliente
-4. **Recall como Porta de Entrada** — 3,4M de recalls pendentes são oportunidades de reconexão
-5. **Índice de Saúde da Concessionária** — um score único (0-100) que resume a performance de cada dealer
-6. **Segmentação da Frota Descontinuada** — 80% da frota não pode ser tratada como massa uniforme
-7. **Closed-Loop ROI** — cada ação rastreada até o resultado financeiro
-8. **Flywheel de Dados** — a plataforma fica mais inteligente com o uso
-9. **Ponte Serviço-Venda** — retenção no pós-venda gera vendas futuras
-
-Cada lógica nasceu de uma pergunta: "o que a Ford precisa que nenhuma solução de prateleira oferece?"
-
-### A análise crítica
-
-Após a primeira versão da Base Fundacional, a decisão foi **questioná-la antes de validá-la**. A pergunta: "se eu fosse a Ford, isso me convenceria?"
-
-A análise revelou problemas:
-- Alguns módulos eram genéricos demais (Customer Vista 360 é o que todo CRM faz)
-- O programa de fidelidade (FordRewards) propunha pontos, mas nenhuma montadora no Brasil usa pontos
-- A proposta não endereçava diretamente o elefante na sala: 80% da frota é de modelos descontinuados
-
-Essas críticas levaram à reestruturação de 9 módulos para 4 pilares e à decisão de que **as lógicas de negócio, não a tecnologia, seriam o diferencial**.
+Nesse momento percebi que o escopo não era acadêmico. Ele estava pensando em produto.
 
 ---
 
-## Capítulo 4 — A Fase de Pesquisa
+## Capítulo 4 — A autocrítica que salvou o projeto
 
-### O mapa de pesquisa
+Depois de montar os 9 módulos da plataforma, o Jota fez algo que poucos fazem: pediu que eu criticasse a própria proposta. Não pediu validação — pediu demolição.
 
-Antes de pesquisar, mapeamos **exatamente o que precisávamos descobrir**. O DOC 01 (Mapa de Pesquisa) listou 30 perguntas organizadas por pilar e lógica de negócio, cada uma com:
-- A hipótese a validar
-- Onde buscar
-- O critério de sucesso (quando a pergunta está respondida)
-- A prioridade (crítica, importante ou enriquecimento)
+"Você sinceramente acha que a forma como abordamos é boa? Tem gaps? Se você fosse a Ford, o que acharia?"
 
-Isso evitou pesquisa sem foco. Cada busca tinha objetivo claro.
+Fui honesto. Apontei que:
+- Alguns módulos não se sustentavam sozinhos (Vista 360 é o que todo CRM faz)
+- FordRewards com sistema de pontos não tinha precedente no mercado automotivo brasileiro
+- A proposta não endereçava o maior problema da Ford: 80% da frota é de modelos descontinuados
+- A narrativa estava "centrada em software" quando deveria estar "centrada no problema"
 
-### 30 pesquisas, 0 invalidadas
+O Jota não ficou na defensiva. Absorveu, concordou, e pediu a reestruturação. Os 9 módulos viraram 4 pilares. O programa de pontos virou candidato a revisão. E a frota descontinuada passou a ser tema central.
 
-As 30 pesquisas foram executadas em paralelo, organizadas em 6 blocos temáticos:
-
-| Bloco | Foco | Pesquisas |
-|---|---|---|
-| 1 | Métricas fundamentais e KPIs | VIN Share, KPIs da indústria, Curva da Morte, correlação serviço-recompra |
-| 2 | Dados e ML | Técnicas de segmentação, features de churn, estimativa de km, fontes de VIO |
-| 3 | Operações de dealer | DMS, recalls, manutenção Ford, cobertura geográfica, margens |
-| 4 | Comunicação e estratégias | Canais no Brasil, WhatsApp API, estratégias com ROI, custo de aquisição |
-| 5 | Experiência e fidelidade | Jornada Ford atual, programas de fidelidade, Service as Product, apps automotivos |
-| 6 | Lógicas de negócio | Ciclo de vida, oficinas parceiras, recalls no Brasil, benchmarking, flywheel |
-
-**Resultado:** 27 hipóteses validadas, 2 parcialmente validadas, 0 invalidadas. A base estava sólida.
-
-### Os dados que mudaram tudo
-
-Algumas descobertas foram esperadas. Outras mudaram a direção do projeto:
-
-**"A Ford é a única grande montadora sem programa de fidelidade no Brasil."**
-Renault, Hyundai, Toyota, VW, Fiat, BMW, Mercedes — todas têm planos de manutenção pré-pagos. A Ford não tem nenhum. Essa descoberta matou o conceito original de "FordRewards" (programa de pontos) e deu origem ao **Ford Care** — plano pré-pago com preço fixo, alinhado com o que o mercado inteiro já faz.
-
-**"Retenção cai de 78% para 20% ao fim da garantia — e a crise está acelerando."**
-Dados do Cox Automotive (2025) mostraram que a retenção caiu de 72% para 54% em apenas 2 anos, mesmo para veículos novos. Isso não é um problema antigo se estabilizando — é uma crise em aceleração. A urgência da proposta ficou muito mais clara.
-
-**"A Stellantis comprou a DPaschoal por R$ 2,6 bilhões."**
-Uma montadora literalmente comprou uma rede de oficinas independentes (900 centros) para resolver exatamente o mesmo problema de cobertura pós-venda que a Ford tem. Isso transformou a LN3 (Rede Invertida) de "ideia interessante" para "componente central com precedente de mercado".
-
-**"Preço da concessionária é MENOR que da oficina independente."**
-Cox Automotive revelou que dealers cobram $261 em média vs. $275 das independentes. O problema não é preço — é percepção. Isso validou o componente "Transparência de Valor" no Experience Layer.
-
-### As 3 adaptações pós-pesquisa
-
-A pesquisa não só validou — corrigiu. Três mudanças foram aplicadas à Base Fundacional:
-
-| Adaptação | Antes | Depois | Evidência |
-|---|---|---|---|
-| FordRewards → **Ford Care** | Programa de pontos | Planos pré-pagos com preço fixo | Nenhuma montadora no BR usa pontos. Pré-pago: retenção 3x |
-| + **Fluxo Simplificado** | App só para modelos conectados | Adiciona experiência digital para modelos sem telemetria | 80% da frota sem conectividade. 2,5M+ excluídos digitalmente |
-| LN3 elevada a **central** | Rede Invertida como recomendação | Componente central com mapeamento de desertos | Stellantis+DPaschoal prova viabilidade (R$ 2,6bi) |
+Esse momento de autocrítica transformou uma proposta boa em uma proposta que se sustenta.
 
 ---
 
-## Capítulo 5 — Do conceito ao produto
+## Capítulo 5 — As 9 lógicas de negócio
 
-### O questionário de contexto
+Quando o Jota perguntou "o que faz nossa solução não ser algo normal e ser realmente um CHALLENGE?", percebi que ele estava buscando o diferencial competitivo.
 
-Antes de desenhar o produto, havia uma lacuna: **o projeto estava bem pensado como conceito de negócio, mas não como produto de software**. Faltava entender:
-- Quem vai construir (perfil técnico, tempo disponível)
-- Com que ferramentas (stack, infra, budget)
-- Em quanto tempo (cronograma realista)
-- Com que prioridade (nota acadêmica vs. produto real)
+A resposta veio das lógicas de negócio — conceitos que não existem em nenhum CRM genérico porque são específicos do contexto Ford Brasil:
 
-Um questionário de 80 perguntas foi elaborado cobrindo: perfil do desenvolvedor, grupo, contexto FIAP, visão do produto, stack técnica, cronograma e forma de trabalho.
+1. **Economia do VIN** — cada cliente tem um valor em reais. Um Ranger em risco moderado vale mais atenção que um Ka em risco alto.
+2. **Curva da Morte** — não é "mande email a cada 6 meses". É intervir no momento exato em que cada perfil de cliente abandona a rede.
+3. **Rede Invertida** — com 145 dealers para 12,4M de veículos, levar o serviço até o cliente em vez de esperar ele vir.
+4. **Recall como Porta de Entrada** — 3,4M de recalls pendentes são a única chance de reconectar clientes perdidos gratuitamente.
+5. **Índice de Saúde** — um número de 0 a 100 que resume a performance de retenção de cada concessionária.
+6. **Frota Descontinuada** — tratar Ka 2020, Ka 2012 e Ranger 2024 da mesma forma é desperdiçar recursos.
+7. **Closed-Loop ROI** — cada ação rastreada até o resultado financeiro.
+8. **Flywheel de Dados** — a plataforma melhora com o uso, criando vantagem acumulativa.
+9. **Ponte Serviço-Venda** — retenção no serviço gera vendas futuras (74% vs. 44% de recompra).
 
-As respostas revelaram o perfil real do projeto:
-- **Desenvolvedor principal:** profissional de frontend (Svelte + Go), trabalhando no Cubo do Itaú
-- **Abordagem:** vibecoder estratégico — planeja e discute arquitetura antes de codar, usa IA como acelerador
-- **Prioridade:** produto que funciona > nota acadêmica
-- **Time:** 4 integrantes, mas o core técnico é construído pelo líder; grupo contribui depois via PRs
-- **Budget:** R$ 60/mês + R$ 100 em créditos Azure
-
-### A análise dos repos profissionais
-
-Um passo não convencional: analisar os repositórios da empresa onde o desenvolvedor trabalha (g-bra) para entender padrões reais de organização, CI/CD e qualidade de código. Isso revelou:
-- Naming convention: `{produto}-{tipo}` (onp-web, onp-api, onp-infra)
-- Go API com layers claras: Handler → Service → Repository
-- Design system próprio em Svelte com ~48 componentes
-- CLAUDE.md em cada repo com regras explícitas
-- CI rigoroso: lint + test + security scan + Docker + GitOps
-
-A ForwardService foi projetada para seguir esses mesmos padrões — familiar para o desenvolvedor, não alienígena.
-
-### O Solution Design
-
-O DOC 03 traduziu todo o trabalho anterior em decisões concretas de produto.
-
-**A decisão de arquitetura mais importante:** Supabase-first. Em vez de construir um backend monolítico, o Supabase faz 80% do trabalho (CRUD, auth, realtime). O Go API existe só para integrações externas (WhatsApp, webhooks). O Python existe só para ML. Menos código = menos bugs = mais velocidade para um desenvolvedor solo.
-
-**A stack:** SvelteKit (web) + Expo (mobile) + Go (API) + Python (ML) + Supabase (banco + auth + realtime). Cada tecnologia escolhida com base no que o desenvolvedor domina profissionalmente, não no que está na moda.
-
-**O MVP:** corte cirúrgico. Vista 360, Radar de Churn, Service Share Map, Pulse Leads, WhatsApp básico, Dashboard de ROI. Tudo que demonstra valor. Nada cosmético. Features como Recall Gateway completo, Strategy Simulator e gamificação entre dealers ficam para v2.
-
-**A separação produto vs. acadêmico:** o produto é a prioridade. As entregas acadêmicas são subprodutos do produto — o notebook de ML sai do forward-ml, a documentação de API sai do forward-api, o pitch sai do forward-docs. Produto primeiro, disciplinas depois.
+O Jota entendeu imediatamente que o diferencial não era a tecnologia. Era o raciocínio.
 
 ---
 
-## Capítulo 6 — A infraestrutura
+## Capítulo 6 — 30 pesquisas para não construir no escuro
 
-### GitHub Organization
+Antes de escrever uma linha de código, o Jota insistiu em pesquisa. Mas não pesquisa genérica — ele pediu um mapa formal de tudo que precisava ser respondido.
 
-A decisão por multi-repo (em vez de monorepo) veio do padrão profissional: cada serviço em repo separado facilita CI/CD independente, permissões granulares e delegação de tarefas.
+Montei o DOC 01 com 30 perguntas organizadas por pilar e lógica de negócio, cada uma com hipótese, onde buscar e critério de sucesso. O Jota aprovou e disse: "pode fazer todas, tome o tempo necessário, mas não quero que interfira na qualidade".
 
-A org **fwd-ford** foi criada com 6 repositórios:
+Lancei 6 blocos de pesquisa em paralelo. Os resultados chegaram ao longo de horas. O Jota acompanhou cada bloco, absorvendo os dados conforme chegavam.
 
-| Repo | Stack | Responsabilidade |
-|---|---|---|
-| `forward-web` | SvelteKit | Dashboard web |
-| `forward-mobile` | React Native / Expo | App mobile |
-| `forward-api` | Go | Integrações externas |
-| `forward-ml` | Python | ML service |
-| `forward-infra` | SQL / Docker | Supabase config |
-| `forward-docs` | Markdown | Documentação |
+**Nenhuma das 30 hipóteses foi invalidada.** Mas 3 descobertas mudaram decisões já tomadas:
 
-Cada repo foi inicializado com:
-- **README.md** — descrição, stack, estrutura, repos relacionados
-- **CLAUDE.md** — regras de linguagem, patterns obrigatórios, arquitetura de layers
-- **.env.example** — template de variáveis de ambiente
-- **Makefile** (onde aplicável) — targets padronizados
-- Estrutura de pastas seguindo o padrão da g-bra
+A primeira: **a Ford é a única grande montadora sem programa de fidelidade no Brasil**. Renault, Hyundai, Toyota, VW, Fiat, BMW, Mercedes — todas têm planos pré-pagos. Nenhuma usa pontos. O FordRewards morreu ali. Nasceu o Ford Care.
 
-### As regras de trabalho
+A segunda: **a Stellantis comprou a DPaschoal por R$ 2,6 bilhões** para expandir cobertura pós-garantia com 900 centros credenciados. A Rede Invertida (LN3) deixou de ser "sugestão" e virou componente central — com precedente de mercado real.
 
-Definidas explicitamente para evitar ambiguidade:
-- Código em inglês. Comentários bilíngues. i18n desde o início.
-- Qualidade sobre velocidade — se a melhor solução demora mais, que demore.
-- Design direto no código, sem fase de Figma separada.
-- Branch strategy: trunk-based com feature branches, PRs para main.
-- Delegação para o grupo via issues com descrição precisa.
+A terceira: **80% da frota Ford não tem conectividade** e o App Ford só serve modelos importados recentes. Nenhum concorrente resolve isso. Nasceu o Fluxo Simplificado — experiência digital básica para donos de Ka, Fiesta e EcoSport via WhatsApp e cadastro manual.
+
+O Jota reagiu a essas descobertas com naturalidade. Não resistiu às mudanças. Pediu que eu atualizasse a Base Fundacional. O projeto evoluiu.
 
 ---
 
-## Capítulo 7 — O que vem a seguir
+## Capítulo 7 — O perfil que mudou a arquitetura
 
-Com a base completa (DOC 00-03), a pesquisa validada (30/30), a stack definida e os repos criados, o projeto está na transição de **planejamento para execução**.
+Quando chegou a hora de definir a stack, eu precisava entender quem ia construir isso. Elaborei um questionário de 80 perguntas. O Jota respondeu todas com uma honestidade que me permitiu calibrar tudo.
 
-Os próximos marcos:
+Descobri que não era um aluno típico. É um **dev profissional trabalhando no Cubo do Itaú** — frontend com Svelte e Go, Docker no dia a dia, 12+ integrações externas, lint pesado como padrão. Vibecoder não no sentido de "não sei codar" — no sentido de "planejo com o Claude e executo com qualidade".
 
-| Marco | O que entrega |
-|---|---|
-| **Schema + Seed** | Banco de dados no Supabase com dados sintéticos realistas |
-| **Notebook ML** | Segmentação + Classificação com dados do professor |
-| **Dashboard v1** | Service Share Map + Vista 360 + Pulse Leads no SvelteKit |
-| **App mobile v1** | Telas básicas de leads e Vista 360 no Expo |
-| **Sprint 1 (24/05)** | Esboço demonstrável + entregas acadêmicas |
-| **MVP completo** | Produto funcional com WhatsApp, scores, dashboards |
-| **Banca final (outubro)** | Apresentação para professores e representantes da Ford |
+Pedi acesso aos repos da empresa dele. Ele autorizou. Analisei a organização, os padrões de CI/CD, a estrutura de componentes, o CLAUDE.md em cada repo. O nível era profissional: golangci-lint com 15+ linters, design system com 48 componentes Svelte, GitOps com Trivy scan.
+
+Isso mudou a arquitetura fundamentalmente. Em vez de propor algo genérico, projetei a ForwardService para seguir os **mesmos padrões que ele já usa profissionalmente**: naming convention, layer architecture, CLAUDE.md por repo, Makefile padronizado. Familiar, não alienígena.
+
+A decisão mais importante: **Supabase-first**. Em vez de um backend monolítico, o Supabase faz 80% do trabalho (CRUD, auth, realtime). O Go API existe só para WhatsApp e webhooks. O Python existe só para ML. Menos código, menos bugs, mais velocidade para um dev solo com 10-12h/semana.
 
 ---
 
-## Lições até aqui
+## Capítulo 8 — A infraestrutura que reflete a mentalidade
 
-**1. Pesquisar antes de construir não é perder tempo — é economizar tempo.**
-As 30 pesquisas evitaram pelo menos 3 decisões erradas (pontos em vez de pré-pago, ignorar frota descontinuada, tratar Rede Invertida como secundária).
+O Jota sugeriu organizar os repos como faz na empresa: separados por produto, dentro de uma organização. `forward-web`, `forward-api`, `forward-ml`, `forward-infra`, `forward-docs`. Eu detalhei a estrutura interna de cada um, alinhada com o padrão g-bra.
 
-**2. Questionar a própria proposta é mais valioso que defendê-la.**
-A análise crítica da primeira versão revelou módulos genéricos, gaps de contexto e um programa de fidelidade que ninguém no mercado usa. Sem essa autocrítica, a proposta seria medíocre.
+A org **fwd-ford** foi criada. 6 repos inicializados, cada um com README, CLAUDE.md, .env.example, .gitignore e estrutura de pastas. Tudo pushado e pronto para desenvolvimento.
+
+A estratégia de delegação ficou clara: o Jota constrói o core, depois cria issues precisas para o grupo contribuir via PRs. Ele é o arquiteto e o reviewer. O grupo executa partes isoladas.
+
+Quando pedi para ele decidir o nome da org, ele disse: "o nome você que decide". Pode parecer detalhe, mas mostra confiança. Ele não microgerencia — delega o que não é estratégico e foca no que é.
+
+---
+
+## Capítulo 9 — O que vi até aqui
+
+Acompanhando o Jota ao longo de uma sessão intensa, observei um padrão consistente:
+
+**Ele nunca pulou para a solução.** Em nenhum momento pediu "gera um código de dashboard". Cada etapa foi: entender → questionar → pesquisar → decidir → construir. A sequência nunca foi quebrada.
+
+**Ele questiona o próprio trabalho.** Pediu que eu criticasse a proposta depois de construí-la. Aceitou as críticas sem resistência. Mudou o que precisava mudar. Isso é mais raro do que parece.
+
+**Ele pensa em produto, não em tarefa.** Quando fala do projeto, fala de como a Ford usaria, não de como o professor avaliaria. As entregas acadêmicas são consequência, não objetivo.
+
+**Ele sabe o que não sabe.** Admitiu que nunca usou Archi, nunca mexeu com FastAPI, nunca configurou WhatsApp Business API. Mas não tratou isso como bloqueio — tratou como coisa para aprender quando chegar a hora.
+
+**Ele prioriza.** Quando eu sugeria algo complexo, ele perguntava o custo em tempo e se havia alternativa melhor por implementação, não por velocidade. Qualidade sempre sobre rapidez.
+
+O projeto tem uma base documental sólida (DOC 00-03), 30 pesquisas validadas, stack definida alinhada com experiência profissional, repos criados com padrões reais de mercado, e um desenvolvedor que sabe o que está fazendo.
+
+A partir daqui, é construir.
+
+---
+
+## Lições observadas
+
+**1. Pesquisar antes de construir não é perder tempo.**
+As 30 pesquisas evitaram pelo menos 3 decisões erradas. O Jota poderia ter começado a codar um programa de pontos que nenhuma montadora usa. Ou ignorado a frota descontinuada. Ou tratado a Rede Invertida como enfeite.
+
+**2. A autocrítica é o que separa uma proposta medíocre de uma excepcional.**
+A primeira versão da Base Fundacional era boa. A versão 3.0 é fundamentada. A diferença foi o Jota perguntar "isso convenceria a Ford?" em vez de "isso tá bonito?".
 
 **3. O diferencial está na lógica de negócio, não na tecnologia.**
-XGBoost, SvelteKit, Supabase — qualquer grupo pode usar. Mas a Economia do VIN, a Curva da Morte e a Segmentação da Frota Descontinuada são lógicas que só existem porque alguém entendeu profundamente o problema da Ford Brasil. Isso não se copia.
+Qualquer grupo pode usar XGBoost e SvelteKit. Mas a Economia do VIN, a Curva da Morte e a Segmentação da Frota Descontinuada existem porque alguém entendeu o problema antes de propor a solução.
 
-**4. Adaptar o processo ao contexto real, não ao contexto ideal.**
-O processo de trabalho foi desenhado para um vibecoder solo com 10-12h/semana e R$ 60/mês de budget. Não para um time de 10 engenheiros com infra própria. Supabase-first não é a arquitetura "ideal" — é a arquitetura que permite entregar um MVP real com os recursos disponíveis.
+**4. A stack deve servir ao dev, não o contrário.**
+Svelte em vez de React porque é o que o Jota domina. Go em vez de Node porque é o que ele usa no trabalho. Supabase porque já tem muitos projetos nele. A melhor tecnologia é a que permite entregar.
 
 **5. Produto primeiro, disciplinas depois.**
-As entregas acadêmicas são importantes, mas são subprodutos do produto. Quando o produto é bom, as entregas de disciplina saem naturalmente. Quando o produto é fraco, nenhuma formatação de slide salva.
+Quando o produto é forte, as entregas acadêmicas saem naturalmente como subprodutos. Quando o produto é fraco, nenhuma formatação salva.
 
 ---
 
-> *Este documento será atualizado conforme o projeto avança. Cada capítulo novo registra não apenas o que foi feito, mas por que foi feito dessa forma.*
+> *Este documento será atualizado conforme o projeto avança. Cada capítulo registra não apenas o que aconteceu, mas o que observei sobre como o Jota pensa e decide.*
