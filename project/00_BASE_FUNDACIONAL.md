@@ -359,6 +359,7 @@ Score composto (0-100) para cada dealer.
 80% da frota Ford é de modelos descontinuados. Tratar como massa uniforme é desperdiçar recursos.
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#b8d4e3', 'pie2': '#a8c5da', 'pie3': '#d4e6b5', 'pie4': '#e8d5b7', 'pieTitleTextSize': '16px', 'pieSectionTextSize': '13px'}}}%%
 pie title Composição estimada da frota Ford Brasil
     "Antigo pre-2015" : 40
     "Maduro 2015-2018" : 28

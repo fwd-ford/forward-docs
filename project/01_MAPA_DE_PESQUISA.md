@@ -16,10 +16,10 @@ flowchart LR
     D -->|"Sim"| E["✅ Avança para<br>Solution Design"]
     D -->|"Não"| F["🔄 Ajusta Base<br>Fundacional"]
 
-    style A fill:#1a3a5c,color:#fff
-    style C fill:#2d6a4f,color:#fff
-    style E fill:#2d6a4f,color:#fff
-    style F fill:#9d0208,color:#fff
+    style A fill:#d0dff0,color:#333,stroke:#a8c0db
+    style C fill:#c8e6c9,color:#333,stroke:#a5d6a7
+    style E fill:#c8e6c9,color:#333,stroke:#a5d6a7
+    style F fill:#f4cccc,color:#333,stroke:#e6a8a8
 ```
 
 ### Legenda de prioridade
@@ -574,9 +574,9 @@ flowchart TB
         LN81["LN8.1 Flywheel<br>de dados cases"]
     end
 
-    style CRITICAS fill:#9d0208,color:#fff
-    style IMPORTANTES fill:#d4a017,color:#000
-    style ENRIQUECIMENTO fill:#2d6a4f,color:#fff
+    style CRITICAS fill:#f4cccc,color:#333,stroke:#e6a8a8
+    style IMPORTANTES fill:#fff2cc,color:#333,stroke:#e6d9a0
+    style ENRIQUECIMENTO fill:#c8e6c9,color:#333,stroke:#a5d6a7
 ```
 
 ---
