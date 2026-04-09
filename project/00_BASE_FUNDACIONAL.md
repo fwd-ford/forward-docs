@@ -12,6 +12,18 @@
 
 ---
 
+## TL;DR — A ideia em 30 segundos
+
+A Ford fechou suas fábricas no Brasil em 2021, mas ainda tem **~12,4 milhões de veículos circulando** — 80% de modelos descontinuados (Ka, Fiesta, EcoSport). A rede de concessionárias caiu pela metade e esses clientes estão migrando para oficinas independentes. A **ForwardService** é uma plataforma que usa dados e inteligência artificial para identificar quais clientes estão prestes a abandonar a rede Ford, agir proativamente (via WhatsApp, ofertas personalizadas, recall como reconexão), e medir o retorno financeiro de cada ação. O objetivo: aumentar o **VIN Share** — a porcentagem de donos de Ford que fazem manutenção na rede oficial.
+
+**Os documentos do projeto:**
+- **DOC 00 (este):** A tese, os pilares, as lógicas de negócio — a âncora de tudo
+- **DOC 01:** Mapa das 30 pesquisas planejadas para validar a tese
+- **DOC 02:** Resultados das pesquisas — dados, fontes e conclusões
+- **DOC 03:** Solution Design — o que vamos construir, com qual tecnologia, em que ordem
+
+---
+
 ## Sumário
 
 1. [A Tese](#parte-1--a-tese)
@@ -39,7 +51,7 @@ A Ford Brasil vive uma situação **única no mundo automotivo**:
 | Vendas anuais (importados) | ~49.000/ano |
 | Market share de serviço (dealers globalmente) | **29%** — 71% vai para independentes |
 
-Cada VIN que abandona a rede oficial é receita recorrente perdida. O indicador: **VIN Share** — porcentagem de veículos Ford que usam a rede oficial para manutenção.
+Cada VIN (Vehicle Identification Number — o número de chassi que identifica um veículo único) que abandona a rede oficial é receita recorrente perdida. O indicador central do projeto: **VIN Share** — a porcentagem de veículos Ford que fazem manutenção na rede oficial em relação ao total de Fords em circulação numa região.
 
 ```mermaid
 flowchart LR
@@ -69,19 +81,13 @@ Dados que fundamentam a urgência:
 
 Reposiciona o serviço pós-venda de **centro de custo** para **produto gerenciável com ROI mensurável**.
 
-```markmap
-# ForwardService
-## Proatividade
-- Age antes do cliente sair
-## Personalização
-- Abordagem certa no momento certo
-## Mensurabilidade
-- Cada real tem retorno rastreável
-## Especificidade
-- Feita para Ford Brasil
-## Flywheel
-- Mais inteligente a cada ciclo
-```
+| Princípio | O que significa |
+|---|---|
+| **Proatividade** | Age antes do cliente sair — não espera ele sumir |
+| **Personalização** | Abordagem certa, no canal certo, no momento certo |
+| **Mensurabilidade** | Cada real investido tem retorno rastreável |
+| **Especificidade** | Feita para o contexto único da Ford Brasil |
+| **Flywheel** | Fica mais inteligente a cada ciclo de uso |
 
 ---
 
@@ -123,11 +129,12 @@ Transforma dados brutos em inteligência acionável. É o cérebro da plataforma
 | **Fleet Segmentation** | Lógica específica para frota descontinuada | Sub-segmentos (recente/maduro/antigo) com estratégia própria |
 | **Calculadora de LSV** | Lifetime Service Value de cada VIN | Valor em reais de cada cliente para priorização econômica |
 
-**Validação pela pesquisa:**
-- Técnica recomendada: RFM + K-Means, 4-6 clusters, Silhouette > 0.4 (P1.3)
-- Algoritmo: XGBoost com SHAP para interpretabilidade, AUC 0.82-0.90 (P1.4)
-- Km sem telemetria: regressão sobre leituras de odômetro nas OS (P1.5)
-- VIO: dados internos Ford + FENABRAVE + curvas Sindipeças (P1.6)
+**Validação pela pesquisa** (referências ao DOC 02 — Resultados da Pesquisa)**:**
+
+- **Segmentação (P1.3):** técnica recomendada é RFM (Recência, Frequência, Valor) + K-Means, 4-6 clusters, Silhouette > 0.4
+- **Predição de churn (P1.4):** algoritmo XGBoost com SHAP para interpretabilidade, acurácia AUC 0.82-0.90
+- **Estimativa de km (P1.5):** para veículos sem telemetria (80% da frota), usa regressão sobre leituras de odômetro registradas nas Ordens de Serviço
+- **Veículos em circulação (P1.6):** estimativa do VIO (Vehicles in Operation) via dados internos Ford + FENABRAVE + curvas de sobrevivência Sindipeças
 
 ---
 
@@ -148,11 +155,12 @@ Transforma inteligência em ação concreta e personalizada.
 | **Recall Gateway** | Trata recalls como porta de reconexão | Workflow: recall → check-up → oferta de retorno → follow-up |
 | **Estratégia Descontinuados** | Ações específicas por sub-segmento de frota | Tom adaptado por fase do ciclo de vida |
 
-**Validação pela pesquisa:**
-- Canal primário: WhatsApp (97% abertura, 45-60% conversão) — R$ 0,30-0,80/conversa (P2.1)
-- Lembrete proativo via WhatsApp: ROI 300:1+ (P2.3)
-- Recall como reconexão: 20-35% aceitam serviços adicionais, ROI virtualmente infinito (P2.3)
-- CAV de cliente ativo: R$ 1-5 vs. perdido: R$ 25-150 vs. novo: R$ 80-300 (LN7.1)
+**Validação pela pesquisa** (referências ao DOC 02)**:**
+
+- **Canais (P2.1):** WhatsApp é o canal primário no Brasil — 97% de abertura, 45-60% de conversão, custo de R$ 0,30-0,80 por conversa
+- **Lembrete proativo (P2.3):** envio de lembrete de revisão via WhatsApp tem ROI de 300:1 ou mais
+- **Recall como reconexão (P2.3):** 20-35% dos clientes que vêm por recall aceitam serviços adicionais — custo marginal zero
+- **Custo de Aquisição de Visita — CAV (LN7.1):** trazer um cliente ativo custa R$ 1-5; reconquistar um perdido custa R$ 25-150; adquirir um novo custa R$ 80-300
 
 ---
 
@@ -193,17 +201,17 @@ Fecha o ciclo. Mede tudo. Prova ROI. Otimiza continuamente.
 | Componente | O que faz | Entrega |
 |---|---|---|
 | **Closed-Loop ROI** | Rastreia cada ação até o resultado financeiro | ROI por ação, perfil, concessionária, período, canal |
-| **IHC** | Score composto de saúde de retenção por dealer (0-100) | Um número que resume a performance de cada concessionária |
+| **IHC (Índice de Saúde da Concessionária)** | Score composto de saúde de retenção por dealer (0-100) | Um número que resume a performance de cada concessionária |
 | **Dealer Benchmark** | Compara concessionárias entre si com gamificação | Ranking + best practices + categorias (ouro/prata/bronze) |
 | **Strategy Simulator** | Simulação "what-if" de estratégias | "Se investir R$ X em [ação] para [público], retorno: R$ Y" |
 | **Flywheel Dashboard** | Evolução da inteligência da plataforma | Precisão do modelo ao longo do tempo, conversão crescente |
 
-**Validação pela pesquisa:**
-- NADA 20 Groups já opera no Brasil via Fenabrave (52 dealers, 3 grupos) (P4.2)
-- Ford President's Award já combina NPS + CVP + Sales (LN5.1)
-- Nissan usa 30 KPIs com gamificação (espadas samurai) — funciona (LN5.1)
-- Margem de erro ±25% é aceitável para simulações iniciais (P4.3)
-- +5% retenção = +25-95% lucro (Bain) — justifica investimento (P4.3)
+**Validação pela pesquisa** (referências ao DOC 02)**:**
+
+- **Benchmarking (P4.2):** o modelo NADA 20 Groups (padrão-ouro de comparação entre dealers nos EUA) já opera no Brasil via Fenabrave — 52 concessionárias em 3 grupos
+- **Scorecards existentes (LN5.1):** o Ford President's Award já combina NPS + CVP + Sales Effectiveness; Nissan usa 30 KPIs com gamificação (espadas katana por categoria)
+- **Simulação de ROI (P4.3):** margem de erro de ±25% é aceitável para simulações iniciais segundo práticas de mercado
+- **Impacto financeiro (P4.3):** aumentar retenção em apenas 5% gera de +25% a +95% de aumento no lucro (Bain & Company)
 
 ---
 
@@ -211,31 +219,17 @@ Fecha o ciclo. Mede tudo. Prova ROI. Otimiza continuamente.
 
 9 lógicas que tornam a ForwardService **impossível de replicar com um CRM genérico**.
 
-```markmap
-# Lógicas de Negócio
-## Inteligência
-### LN1 — Economia do VIN (LSV)
-- Valor em reais de cada cliente
-### LN2 — Curva da Morte
-- Janela de vulnerabilidade por perfil
-### LN6 — Frota Descontinuada
-- 80% da frota, segmentação por fase
-## Ação
-### LN3 — Rede Invertida ⭐
-- Serviço vai até o cliente
-- Componente central pós-pesquisa
-### LN4 — Recall Gateway
-- 3,4M pendentes = oportunidade
-### LN9 — Ponte Serviço-Venda
-- 74% recompram vs. 44%
-## Gestão
-### LN5 — Índice de Saúde (IHC)
-- Score 0-100 por dealer
-### LN7 — Closed-Loop ROI
-- Cada ação rastreada até o R$
-### LN8 — Flywheel de Dados
-- Mais inteligente a cada ciclo
-```
+| Grupo | Lógica | O que faz |
+|---|---|---|
+| **Inteligência** | **LN1** — Economia do VIN (LSV) | Calcula o valor em reais de cada cliente ao longo da vida |
+| | **LN2** — Curva da Morte | Identifica a janela de vulnerabilidade por perfil de cliente |
+| | **LN6** — Frota Descontinuada | Segmenta os 80% da frota que são modelos descontinuados por fase (recente/maduro/antigo) |
+| **Ação** | **LN3** — Rede Invertida | O serviço vai até o cliente (componente central pós-pesquisa) |
+| | **LN4** — Recall Gateway | Transforma 3,4M de recalls pendentes em oportunidade de reconexão |
+| | **LN9** — Ponte Serviço-Venda | Clientes retidos recompram mais (74% vs. 44%) |
+| **Gestão** | **LN5** — Índice de Saúde (IHC) | Score 0-100 que resume a performance de cada concessionária |
+| | **LN7** — Closed-Loop ROI | Rastreia cada ação até o resultado financeiro em R$ |
+| | **LN8** — Flywheel de Dados | A plataforma fica mais inteligente a cada ciclo |
 
 **Dependências entre lógicas:**
 
@@ -255,7 +249,7 @@ flowchart LR
 
 ### LN1 — Economia do VIN (Lifetime Service Value)
 
-Cada VIN tem valor econômico calculável ao longo da vida útil.
+Cada VIN (número de chassi = veículo único) tem valor econômico calculável ao longo da vida útil. O LSV (Lifetime Service Value) estima quanto um cliente vai gastar em serviços durante todo o ciclo de propriedade do veículo.
 
 ```
 LSV = Σ (receita por serviço ao longo do ciclo)
@@ -264,7 +258,12 @@ LSV = Σ (receita por serviço ao longo do ciclo)
     − (custo de retenção)
 ```
 
-**Dados da pesquisa:** Revisão Ranger: R$ 1.455-2.007/visita, total ~R$ 7.384 em 60K km. Ka: R$ 705-1.368/visita. LTV completo de um cliente (vendas + serviço + indicações): até $175.000 (Demand Local). Margem bruta de serviço: 50-55% combinada (NADA).
+**Dados da pesquisa que alimentam essa fórmula:**
+
+- **Revisão Ranger:** R$ 1.455-2.007 por visita, total de ~R$ 7.384 nas 6 revisões programadas (até 60K km)
+- **Revisão Ka:** R$ 705-1.368 por visita
+- **LTV completo** (vendas + serviço + indicações ao longo da vida): até US$ 175.000 por cliente (Demand Local)
+- **Margem bruta de serviço:** 50-55% combinada entre peças e mão de obra (NADA 2025)
 
 **Impacto:** Leads priorizados por LSV. Um Ranger com LSV de R$ 22.000 em risco moderado vale mais atenção que um Ka com LSV de R$ 3.000 em risco alto.
 
@@ -289,7 +288,7 @@ xychart-beta
 | **Abandono** | Meses 0-12 | Nunca pretendeu voltar |
 | **Fiel** | Meses 60-72 | Veículo envelhecendo |
 
-**Dado-chave:** Contratos de serviço estendidos elevam satisfação para **86%** e são a principal ferramenta de mitigação (Cox Automotive).
+**Dado-chave:** Clientes com contratos de serviço estendidos (planos pré-pagos) mantêm taxa de retorno de **86%** — quase o dobro dos que não têm contrato. É a principal ferramenta para combater a Curva da Morte (Cox Automotive 2025).
 
 ---
 
@@ -311,7 +310,7 @@ flowchart LR
 
 **145 dealers Ford vs. 521 Fiat + 900 centros DPaschoal.** A conta não fecha sem expansão alternativa.
 
-**Nota de escopo:** Não implementamos vans. Identificamos desertos de serviço, simulamos impacto e recomendamos o modelo.
+**Nota de escopo:** A ForwardService não implementa vans nem oficinas parceiras. O que fazemos: identificar os "desertos de serviço" (regiões com alta densidade de VINs Ford e nenhuma concessionária próxima), simular o impacto financeiro da falta de cobertura, e recomendar onde faria sentido expandir.
 
 ---
 
@@ -332,7 +331,7 @@ flowchart TB
     M -- Não --> RE["Nova tentativa\ncom abordagem diferente"]
 ```
 
-**Dado-chave:** 20-35% dos clientes que vêm para recall aceitam serviços adicionais, ticket médio adicional de R$ 750-1.500 (DealerSocket/Solera). Nova lei: recall pendente **bloqueia licenciamento** (CRLV).
+**Dado-chave:** Entre os clientes que comparecem para recall, 20-35% aceitam serviços adicionais além do recall, com ticket médio adicional de R$ 750-1.500 (DealerSocket/Solera). Ou seja, o recall traz o cliente de graça (custo coberto pela montadora) e gera receita extra. Além disso, a nova lei (2023-2024) determina que recall não atendido em 1 ano **bloqueia o licenciamento** (CRLV) — criando urgência adicional para o cliente resolver.
 
 ---
 
@@ -359,7 +358,6 @@ Score composto (0-100) para cada dealer.
 80% da frota Ford é de modelos descontinuados. Tratar como massa uniforme é desperdiçar recursos.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#b8d4e3', 'pie2': '#a8c5da', 'pie3': '#d4e6b5', 'pie4': '#e8d5b7', 'pieTitleTextSize': '16px', 'pieSectionTextSize': '13px'}}}%%
 pie title Composição estimada da frota Ford Brasil
     "Antigo pre-2015" : 40
     "Maduro 2015-2018" : 28
@@ -394,7 +392,7 @@ flowchart LR
     F --> G["ROI calculado\nFeedback pro modelo"]
 ```
 
-**Dado-chave:** WhatsApp lembrete (1.000 envios): custo R$ 300-800, gera ~300-450 agendamentos × R$ 800 ticket = R$ 250-400K receita. ROI **300:1+** (P2.3).
+**Exemplo concreto de ROI (pesquisa P2.3):** Uma campanha de 1.000 lembretes de revisão via WhatsApp custa R$ 300-800. Desses, ~300-450 clientes agendam. Com ticket médio de R$ 800, isso gera R$ 250-400K de receita. Resultado: ROI de **300:1 ou mais** — cada R$ 1 investido retorna R$ 300+.
 
 ---
 
@@ -417,7 +415,7 @@ flowchart LR
 | Mês 7-12 (sazonalidade, feedback) | ~85% |
 | Ano 2+ (vantagem acumulativa) | ~90% |
 
-**Viabilidade confirmada:** 47K veículos novos/ano + base de centenas de milhares de VINs = massa crítica suficiente. O segredo são feedback loops rápidos (mensais), não volume absoluto (LN8.1).
+**Viabilidade confirmada (pesquisa LN8.1):** A Ford Brasil vende ~47K veículos novos/ano e tem uma base de centenas de milhares de VINs com histórico no DMS. Isso é massa crítica suficiente para treinar modelos de ML. O segredo não é volume absoluto de dados, mas sim ciclos de feedback rápidos — atualizar os modelos mensalmente, não anualmente.
 
 ---
 
@@ -497,7 +495,9 @@ flowchart TB
 
 ## Parte 6 — Avaliação de Maturidade
 
-| Aspecto | Normal | Bom | Excepcional (nosso alvo) | Status |
+Avaliação do nível de profundidade do projeto em cada aspecto. A coluna "Excepcional" é o nosso alvo — o que diferencia este trabalho de um TCC genérico.
+
+| Aspecto | Normal (TCC típico) | Bom (acima da média) | Excepcional (nosso alvo) | Status |
 |---|---|---|---|---|
 | **Problema** | "Melhorar retenção" | "Melhorar VIN Share" | Problema único da Ford Brasil com lógica inexistente no mercado | ✅ |
 | **Solução** | Dashboard + ML | Plataforma integrada | 4 pilares + 9 lógicas + flywheel + Ford Care + Fluxo Simplificado | ✅ |
@@ -525,8 +525,8 @@ flowchart LR
 |---|---|---|---|
 | **1. Fundação** | DOC 00 (este) | Tese, pilares, lógicas, escopo | ![done](https://img.shields.io/badge/v3.0-concluído-brightgreen?style=flat-square) |
 | **2. Pesquisa** | DOC 01 + 02 | 30 pesquisas, hipóteses validadas | ![done](https://img.shields.io/badge/30%2F30-concluído-brightgreen?style=flat-square) |
-| **3. Solution Design** | DOC 03 | Features concretas, wireframes, MVP | ![done](https://img.shields.io/badge/v1.0-concluído-brightgreen?style=flat-square) |
-| **4. Arquitetura** | DOC 04 | Stack, APIs, modelo de dados, TOGAF | ![next](https://img.shields.io/badge/próximo-yellow?style=flat-square) |
+| **3. Solution Design** | DOC 03 | Features concretas, wireframes, MVP | ![next](https://img.shields.io/badge/próximo-yellow?style=flat-square) |
+| **4. Arquitetura** | DOC 04 | Stack, APIs, modelo de dados, TOGAF | ![pending](https://img.shields.io/badge/pendente-lightgrey?style=flat-square) |
 | **5. Implementação** | DOC 05 | Backlog, tarefas, checklist disciplinas | ![pending](https://img.shields.io/badge/pendente-lightgrey?style=flat-square) |
 | **6. Entrega** | Artefatos finais | Código, app, notebook, apresentação | ![pending](https://img.shields.io/badge/pendente-lightgrey?style=flat-square) |
 
@@ -542,11 +542,9 @@ flowchart LR
 
 1. ~~Revisar Base Fundacional com o grupo~~ → v3.0 com adaptações pós-pesquisa
 2. ~~Executar pesquisa~~ → 30 pesquisas concluídas, 6 blocos
-3. ~~Consolidar DOC 02~~ → Resultados da Pesquisa completo (30/30)
-4. ~~Iniciar DOC 03~~ → Solution Design v1.0 (stack, MVP, cronograma, repos)
-5. **Criar DOC 04** — Arquitetura: contratos de API, Swagger, modelo de dados detalhado, TOGAF
-6. Alinhar com professores sobre orientações adicionais
-7. Obter bases de dados de IA/ML do professor Carlos Fontoura
+3. **Consolidar DOC 02** — Resultados da Pesquisa (em andamento)
+4. **Iniciar DOC 03** — Solution Design: features concretas, wireframes, definição de MVP
+5. Alinhar com professores sobre orientações adicionais
 
 ---
 

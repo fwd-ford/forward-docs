@@ -10,6 +10,19 @@
 
 ---
 
+## O que vamos construir — Visão geral
+
+A ForwardService é composta por **4 produtos que funcionam juntos**:
+
+1. **Dashboard Web** (SvelteKit) — Painel para gerentes e diretoria verem métricas, leads, mapas de cobertura e ROI. É onde a concessionária e a Ford acompanham tudo.
+2. **App Mobile** (React Native/Expo) — Duas versões: uma para o **atendente** da concessionária (ver perfil do cliente, enviar mensagem, gerenciar leads) e uma para o **cliente** (agendar serviço, ver status, consultar planos Ford Care).
+3. **API de integrações** (Go) — Serviço pequeno que conecta a plataforma ao WhatsApp (envio de mensagens) e a webhooks externos. Só existe para o que o banco de dados não resolve sozinho.
+4. **Serviço de ML** (Python) — Roda os modelos de segmentação e predição de churn. Calcula os scores e grava no banco. Entrega o Jupyter Notebook para a disciplina de IA/ML.
+
+Tudo se conecta via **Supabase** — um banco PostgreSQL na nuvem que já vem com autenticação, permissões por cargo (RLS) e atualizações em tempo real.
+
+---
+
 ## Sumário
 
 1. [Decisão de arquitetura](#parte-1--decisão-de-arquitetura)
@@ -27,7 +40,7 @@
 
 ## O insight central
 
-Com Supabase como BaaS, **não precisamos de um backend API separado para o MVP**. Pensa no que cada camada faz:
+Com Supabase como BaaS (Backend as a Service — banco de dados, autenticação e APIs prontos na nuvem), **não precisamos de um backend API separado para o MVP**. Veja o que cada camada da aplicação precisa e quem resolve:
 
 | Necessidade | Quem resolve | Backend Go/TS necessário? |
 |---|---|---|
@@ -68,7 +81,7 @@ flowchart TB
 
 | Abordagem | Prós | Contras | Pra quem |
 |---|---|---|---|
-| **Supabase-first** (nossa escolha) | Menos código, mais velocidade, Jota domina Supabase, auth pronto, realtime grátis | Lógica complexa fica espalhada | Vibecoder solo construindo MVP |
+| **Supabase-first** (nossa escolha) | Menos código, mais velocidade, auth pronto, realtime grátis, equipe já tem experiência | Lógica complexa fica espalhada | Grupo pequeno (1 dev principal) construindo MVP |
 | Backend monolítico (Go ou TS) | Tudo centralizado, controle total | Mais código, mais infra, mais tempo, reinventa auth | Time de 3+ devs |
 | Microserviços puros | Escalável, desacoplado | Overkill para MVP, complexidade operacional | Empresa com infra team |
 
@@ -82,7 +95,7 @@ flowchart TB
 
 | Critério | Go | TypeScript (Node) |
 |---|---|---|
-| Jota domina no trabalho | ✅ Sim | Parcial |
+| Experiência profissional da equipe | ✅ Uso diário | Parcial |
 | Performance | Melhor | Boa |
 | Ecosystem para APIs | Muito bom (Gin, Fiber, Echo) | Muito bom (Express, Fastify, Hono) |
 | Supabase SDK | SDK Go existe | SDK TS é first-class |
@@ -90,47 +103,18 @@ flowchart TB
 | Tipagem forte | ✅ Nativa | ✅ Com TS |
 | Deploy | Binário único | Node runtime |
 
-**Decisão: Go.** Jota trabalha com Go diariamente. A familiaridade supera a conveniência de compartilhar linguagem com o frontend. O Go API service é pequeno (integrações externas apenas), então o overhead de linguagem diferente é mínimo.
+**Decisão: Go.** A equipe tem experiência profissional diária com Go. A familiaridade supera a conveniência de compartilhar linguagem com o frontend. Como o Go API service é pequeno (apenas integrações externas), o overhead de ter uma linguagem diferente do frontend é mínimo.
 
 ## Stack final
 
-```markmap
-# ForwardService Stack
-## Frontend Web
-### SvelteKit
-- Dashboard dealers
-- Dashboard Ford
-- Performance Console
-- SSR + API routes
-## Mobile
-### React Native + Expo
-- App do atendente
-- App do cliente
-- Expo Router
-## Backend API
-### Go
-- Integração WhatsApp (Zenvia/Twilio)
-- Webhooks externos
-- Orquestração de comunicação
-## ML Service
-### Python
-- XGBoost + SHAP
-- Segmentação (K-Means)
-- Simulador de ROI
-- FastAPI (3-4 endpoints)
-## Banco + Auth
-### Supabase
-- PostgreSQL
-- Auth (JWT nativo)
-- Row Level Security (RBAC)
-- Realtime subscriptions
-- Storage (documentos, imagens)
-## Infra
-### Deploy
-- Vercel (SvelteKit)
-- Railway (Go API + Python ML)
-- Supabase Cloud (banco)
-```
+| Camada | Tecnologia | Responsabilidades |
+|---|---|---|
+| **Frontend Web** | SvelteKit | Dashboard dealers, Dashboard Ford, Performance Console, SSR + API routes |
+| **Mobile** | React Native + Expo | App do atendente, App do cliente, Expo Router |
+| **Backend API** | Go | Integração WhatsApp (Zenvia/Twilio), Webhooks externos, Orquestração de comunicação |
+| **ML Service** | Python + FastAPI | XGBoost + SHAP, Segmentação (K-Means), Simulador de ROI (3-4 endpoints) |
+| **Banco + Auth** | Supabase | PostgreSQL, Auth (JWT nativo), Row Level Security (RBAC), Realtime subscriptions, Storage |
+| **Infra / Deploy** | Vercel + Railway + Supabase Cloud | Vercel (SvelteKit), Railway (Go API + Python ML), Supabase Cloud (banco) |
 
 ### Custo mensal estimado
 
@@ -143,7 +127,7 @@ flowchart TB
 | LLM API | Claude ou OpenAI | R$ 20-40 |
 | **Total** | | **R$ 40-120/mês** |
 
-Dentro do budget de R$ 60/mês + R$ 100 Azure.
+Dentro do orçamento disponível do grupo para infraestrutura do projeto acadêmico (R$ 60/mês de bolso + R$ 100 de créditos Azure educacionais).
 
 ---
 
@@ -155,39 +139,16 @@ MVP não é "tudo feio". É **a menor coisa que demonstra o valor central da pro
 
 ## O que entra no MVP
 
-```markmap
-# MVP — ForwardService
-## Intelligence Hub
-### Customer Vista 360
-- Perfil do cliente com dados básicos
-- Score de churn (pré-calculado pelo Python)
-- LSV estimado
-- Perfil comportamental (cluster)
-### Service Share Map
-- Dashboard com VIN Share por região
-- Visualização de desertos de serviço
-## Action Engine
-### Pulse Leads
-- Lista de leads priorizados (risco × LSV)
-- Motivo do lead + ação recomendada
-### CommEngine (básico)
-- Template de mensagem por perfil
-- Integração WhatsApp (envio de lembrete)
-## Experience Layer
-### Journey Optimizer (básico)
-- Agendamento online
-- Status do serviço
-### Ford Care (conceito)
-- Tela de planos com preço fixo
-- Simulação "quanto você economiza"
-## Performance Console
-### Dashboard de ROI
-- Leads gerados vs. convertidos
-- Receita estimada por ação
-### IHC (básico)
-- Score por dealer (cálculo simples)
-- Ranking entre dealers
-```
+| Pilar | Feature no MVP | O que entrega |
+|---|---|---|
+| **Intelligence Hub** | Customer Vista 360 | Perfil do cliente com dados básicos, score de churn (pré-calculado pelo Python), LSV estimado, perfil comportamental (cluster) |
+| | Service Share Map | Dashboard com VIN Share por região, visualização de desertos de serviço |
+| **Action Engine** | Pulse Leads | Lista de leads priorizados (risco × LSV), motivo do lead + ação recomendada |
+| | CommEngine (básico) | Template de mensagem por perfil, integração WhatsApp (envio de lembrete) |
+| **Experience Layer** | Journey Optimizer (básico) | Agendamento online, status do serviço |
+| | Ford Care (conceito) | Tela de planos com preço fixo, simulação "quanto você economiza" |
+| **Performance Console** | Dashboard de ROI | Leads gerados vs. convertidos, receita estimada por ação |
+| | IHC (básico) | Score por dealer (cálculo simples), ranking entre dealers |
 
 ## O que NÃO entra no MVP
 
@@ -509,9 +470,9 @@ Como o produto cobre as entregas acadêmicas (5 disciplinas com entrega confirma
 
 | Disciplina | O que provavelmente herda | Ação |
 |---|---|---|
-| **CS Software Development** | Pode exigir código/metodologia própria | Jota confirmar com Prof. Reinaldo Ramos |
-| **Operating Systems** | Pode herdar nota ou exigir algo de Docker/infra | Jota confirmar com Prof. José Ricardo |
-| **Physical Computing IoT e IOB** | Pode exigir componente IoT/hardware | Jota confirmar com Prof. Lucas Demetrius |
+| **CS Software Development** | Pode exigir código/metodologia própria | Confirmar com Prof. Reinaldo Ramos |
+| **Operating Systems** | Pode herdar nota ou exigir algo de Docker/infra | Confirmar com Prof. José Ricardo |
+| **Physical Computing IoT e IOB** | Pode exigir componente IoT/hardware | Confirmar com Prof. Lucas Demetrius |
 
 ---
 
@@ -570,7 +531,7 @@ O objetivo da Sprint 1 é **ter material suficiente para impressionar**, não o 
 
 ## UI/UX — Princípios
 
-Como Jota é designer e vai direto pro código, os princípios em vez de mockups:
+O tech lead do grupo acumula a função de designer, então o processo é direto do conceito ao código — sem etapa separada de mockups. Os princípios que guiam as decisões visuais:
 
 | Princípio | Regra |
 |---|---|
@@ -594,7 +555,7 @@ Como Jota é designer e vai direto pro código, os princípios em vez de mockups
 
 ## Sistema de componentes
 
-Como Jota faz UI direto no código com Svelte:
+Bibliotecas de componentes escolhidas por stack:
 
 | Camada | Recomendação |
 |---|---|
@@ -621,11 +582,11 @@ Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente
 | `forward-infra` | SQL / Docker | Supabase Cloud | Migrations, seed, config, IaC |
 | `forward-docs` | Markdown | GitHub Pages (opcional) | Documentação, pesquisas, specs, entregas acadêmicas |
 
-**Branch strategy:** Trunk-based com feature branches. `main` protegida, merge só via PR com approval do Jota.
+**Branch strategy:** Trunk-based com feature branches. `main` protegida, merge só via PR com approval do tech lead.
 
-**Delegação para o grupo:** Issues com descrição precisa → integrante cria `feat/xxx` → PR → Jota faz review → merge.
+**Delegação para o grupo:** Issues com descrição precisa no GitHub → integrante cria branch `feat/xxx` → abre Pull Request → tech lead faz code review → merge na main.
 
-> Estrutura interna detalhada de cada repo disponível em [QA_CONTEXTO_ANALISADO.md](QA_CONTEXTO_ANALISADO.md) ou consultando o chat de Solution Design.
+> A estrutura interna de pastas de cada repo será definida durante a implementação (DOC 04 — Arquitetura).
 
 ---
 
@@ -633,14 +594,14 @@ Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente
 
 | # | Decisão | Alternativa descartada | Motivo |
 |---|---|---|---|
-| 1 | Supabase-first (sem backend separado para CRUD) | Backend Go/TS monolítico | Jota domina Supabase, menos código, auth pronto |
-| 2 | Go para API service | TypeScript/Node | Jota usa Go profissionalmente, familiaridade > conveniência |
-| 3 | SvelteKit para web | React/Next.js | Jota é frontend Svelte profissional |
+| 1 | Supabase-first (sem backend separado para CRUD) | Backend Go/TS monolítico | Menos código, auth pronto, equipe já tem experiência com Supabase |
+| 2 | Go para API service | TypeScript/Node | Equipe usa Go profissionalmente, familiaridade > conveniência |
+| 3 | SvelteKit para web | React/Next.js | Equipe trabalha com Svelte profissionalmente |
 | 4 | Python ML como serviço separado batch | ML no backend principal | Desacoplamento, sem lock de linguagem, deploy independente |
-| 5 | Monorepo | Repos separados por serviço | 1 dev no início, facilita gestão |
-| 6 | Supabase Auth (JWT nativo) | JWT manual | Atende Cybersecurity + Jota já conhece |
-| 7 | i18n desde o dia 1 | Adicionar depois | Jota pediu explicitamente, profissionalismo |
-| 8 | Sem Figma | Design system formal | Jota é designer, vai direto pro código |
+| 5 | Multi-repo (um repo por serviço) | Monorepo único | CI/CD independente por serviço, facilita delegação de tarefas ao grupo |
+| 6 | Supabase Auth (JWT nativo) | JWT manual | Atende requisitos de Cybersecurity sem código adicional |
+| 7 | i18n desde o dia 1 | Adicionar depois | Profissionalismo e preparação para possível expansão |
+| 8 | Sem Figma | Design system formal | Tech lead é designer, vai direto do conceito ao código |
 
 ---
 

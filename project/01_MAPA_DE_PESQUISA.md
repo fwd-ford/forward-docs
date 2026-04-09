@@ -1,8 +1,17 @@
 # Mapa de Pesquisa — ForwardService
 
-> **DOC 01** — Lista tudo que precisamos pesquisar, validar e responder antes de avançar para o Solution Design.  
+> **DOC 01** — Registro de todas as 30 pesquisas planejadas para validar a Base Fundacional (DOC 00).  
 > Organizado por pilar e por lógica de negócio. Cada item tem: a pergunta, por que importa, onde buscar e o critério de sucesso.  
-> Versão: 1.0 | Data: 09/04/2026
+> **Status: todas as 30 pesquisas foram concluídas.** Os resultados estão consolidados no DOC 02 — Resultados da Pesquisa.  
+> Versão: 1.1 | Data: 09/04/2026
+
+---
+
+## Para quem está chegando agora
+
+Este documento é um **registro de planejamento** — ele mostra QUAIS perguntas precisávamos responder e POR QUE cada uma importava. Se você quer ir direto para as respostas (dados, fontes e conclusões), leia o **DOC 02 — Resultados da Pesquisa**.
+
+Este DOC 01 é útil se você quer entender a lógica por trás de cada investigação: por que essa pergunta foi feita, onde buscamos, e qual era o critério para considerar a hipótese validada.
 
 ---
 
@@ -10,17 +19,19 @@
 
 ```mermaid
 flowchart LR
-    A["DOC 01<br><b>Mapa de Pesquisa</b><br>(este documento)"] -->|"guia"| B["Pesquisa<br>executada"]
-    B -->|"consolida"| C["DOC 02<br><b>Resultados da<br>Pesquisa</b>"]
-    C -->|"valida ou<br>invalida"| D{"Hipóteses<br>confirmadas?"}
-    D -->|"Sim"| E["Avança para<br>Solution Design"]
-    D -->|"Não"| F["Ajusta Base<br>Fundacional"]
+    A["DOC 01\nMapa de Pesquisa\n(este documento)"] -->|"guia"| B["Pesquisa\nexecutada"]
+    B -->|"consolida"| C["DOC 02\nResultados da\nPesquisa"]
+    C -->|"valida ou\ninvalida"| D{"Hipóteses\nconfirmadas?"}
+    D -->|"Sim"| E["Avança para\nSolution Design"]
+    D -->|"Não"| F["Ajusta Base\nFundacional"]
 
-    style A fill:#d0dff0,color:#333,stroke:#a8c0db
-    style C fill:#c8e6c9,color:#333,stroke:#a5d6a7
-    style E fill:#c8e6c9,color:#333,stroke:#a5d6a7
-    style F fill:#f4cccc,color:#333,stroke:#e6a8a8
+    style A fill:#1a3a5c,color:#fff
+    style C fill:#2d6a4f,color:#fff
+    style E fill:#2d6a4f,color:#fff
+    style F fill:#9d0208,color:#fff
 ```
+
+> **Nota:** Este fluxo já foi percorrido por completo. Das 30 hipóteses, 27 foram validadas, 2 parcialmente validadas e 0 invalidadas. As 3 adaptações resultantes já foram incorporadas no DOC 00 v3.0.
 
 ### Legenda de prioridade
 
@@ -34,42 +45,41 @@ flowchart LR
 
 | Status | Significado |
 |---|---|
-| ⬜ | Não iniciado |
-| 🔄 | Em andamento |
-| ✅ | Concluído |
+| ✅ | Concluído (resultado no DOC 02) |
 
 ---
 
 ## Visão geral — O que pesquisar por área
 
-```markmap
-# Mapa de Pesquisa
-## Pilar 1 — Intelligence Hub
-- Métricas de VIN Share
-- Técnicas de segmentação
-- Fontes de dados automotivos
-- Cálculo de LSV
-## Pilar 2 — Action Engine
-- CRM automotivo
-- Canais de comunicação
-- Estratégias de retenção
-- Workflows de recall
-## Pilar 3 — Experience Layer
-- Jornada do cliente
-- Programas de fidelidade
-- Service as a Product
-- UX de apps automotivos
-## Pilar 4 — Performance Console
-- KPIs de pós-venda
-- Benchmarking entre dealers
-- Simulação de cenários
-- Métricas de ROI
-## Lógicas de Negócio
-- Economia do VIN
-- Curva da Morte
-- Rede Invertida
-- Frota descontinuada
-- Cross-sell serviço-venda
+```mermaid
+mindmap
+  root((Mapa de<br>Pesquisa))
+    Pilar 1: Intelligence Hub
+      Métricas de VIN Share
+      Técnicas de segmentação
+      Fontes de dados automotivos
+      Cálculo de LSV
+    Pilar 2: Action Engine
+      CRM automotivo
+      Canais de comunicação
+      Estratégias de retenção
+      Workflows de recall
+    Pilar 3: Experience Layer
+      Jornada do cliente
+      Programas de fidelidade
+      Service as a Product
+      UX de apps automotivos
+    Pilar 4: Performance Console
+      KPIs de pós-venda
+      Benchmarking entre dealers
+      Simulação de cenários
+      Métricas de ROI
+    Lógicas de Negócio
+      Economia do VIN
+      Curva da Morte
+      Rede Invertida
+      Frota descontinuada
+      Cross-sell serviço-venda
 ```
 
 ---
@@ -85,7 +95,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | VIN Share = VINs atendidos pela rede / VINs em circulação na área. A fórmula parece simples, mas a prática tem nuances |
 | **O que precisamos descobrir** | Como montadoras realmente calculam VIN Share? Usam VINs únicos por ano? Por trimestre? Contam só visitas pagas ou incluem recall/garantia? Como estimam o denominador (VIO)? |
 | **Por que importa** | Se definirmos VIN Share errado, toda a plataforma mede a coisa errada. É a métrica central |
@@ -99,7 +109,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | DMS armazena: dados do cliente, veículo (VIN), histórico de OS (Ordem de Serviço), peças usadas, valores, datas. Mas não sabemos o nível de detalhe real |
 | **O que precisamos descobrir** | Estrutura de dados típica de um DMS (CDK, Reynolds, Syonet). Quais campos existem? Quais são preenchidos consistentemente? Quais são lixo? Existe padronização entre marcas? |
 | **Por que importa** | A plataforma precisa consumir dados do DMS. Se assumirmos campos que não existem ou que são mal preenchidos, a solução não funciona na prática |
@@ -113,7 +123,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | K-Means com RFM (Recência, Frequência, Valor Monetário) é o ponto de partida, complementado com variáveis comportamentais específicas do setor |
 | **O que precisamos descobrir** | Papers acadêmicos ou cases de segmentação de clientes de pós-venda automotivo. Quais variáveis são mais discriminantes? K-Means vs. DBSCAN vs. GMM — qual performa melhor neste domínio? Qual o número típico de clusters? Como validar clusters (silhouette, Davies-Bouldin)? |
 | **Por que importa** | A entrega de IA/ML depende disso. Se escolhermos a técnica errada, os perfis não fazem sentido de negócio |
@@ -127,7 +137,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Recência da última visita, idade do veículo e status de garantia são os 3 preditores mais fortes |
 | **O que precisamos descobrir** | Feature importance em modelos reais de churn automotivo. Quais variáveis disponíveis no momento da compra (Base 2) realmente preveem comportamento futuro? Existe diferença entre mercados (Brasil vs. EUA vs. Europa)? |
 | **Por que importa** | Define quais dados coletar e quais features usar no modelo. Se usarmos variáveis fracas, o modelo não presta |
@@ -141,7 +151,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Média brasileira é ~12.000-15.000 km/ano. Pode-se estimar por: último km registrado na OS, modelo de uso por perfil/região |
 | **O que precisamos descobrir** | Distribuição real de km/ano no Brasil por tipo de veículo e região. Quais proxies funcionam quando não temos odômetro conectado? A última km registrada na OS é confiável? |
 | **Por que importa** | Quilometragem é a base para prever necessidade de manutenção. Sem telemetria (80% da frota é antiga), precisamos de estimativas |
@@ -155,7 +165,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | DENATRAN/SENATRAN publica dados de frota por marca/modelo. S&P Global Mobility (ex-IHS Markit) vende dados detalhados de VIO |
 | **O que precisamos descobrir** | Quais fontes públicas de VIO existem no Brasil? Nível de granularidade (por modelo? por ano? por município?)? É possível saber quantos Fords existem numa região específica? |
 | **Por que importa** | O denominador do VIN Share é o VIO. Sem saber quantos Fords existem numa região, não calculamos o VIN Share local |
@@ -175,7 +185,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | WhatsApp é o canal dominante no Brasil para comunicação comercial. SMS e email têm taxas de abertura decrescentes. Ligação funciona para high-touch |
 | **O que precisamos descobrir** | Taxas de abertura e conversão por canal (WhatsApp, SMS, email, push, ligação) no contexto de serviços automotivos ou B2C no Brasil. Custo por contato de cada canal. Regulamentação (LGPD, opt-in para WhatsApp Business) |
 | **Por que importa** | O CommEngine precisa recomendar o melhor canal por perfil. Se não soubermos as taxas reais, a recomendação é chute |
@@ -189,7 +199,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | WhatsApp Business API permite envio de mensagens template com aprovação prévia do Meta, com custos por mensagem |
 | **O que precisamos descobrir** | Modelo de preços (custo por conversa/mensagem), tipos de mensagem permitidos (template vs. sessão), processo de aprovação de templates, limites de envio, requisitos de opt-in, integradores disponíveis no Brasil (Twilio, Zenvia, Take Blip) |
 | **Por que importa** | Se o CommEngine vai usar WhatsApp como canal principal, precisamos saber os limites técnicos e financeiros |
@@ -203,7 +213,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Lembrete proativo de manutenção, desconto pós-garantia e recall como reconexão são as estratégias com melhor ROI documentado |
 | **O que precisamos descobrir** | Cases com números reais: qual estratégia gerou quanto de ROI? Qual o custo de aquisição de uma visita de serviço via marketing proativo vs. walk-in? Existe diferença de eficácia por perfil de cliente? |
 | **Por que importa** | O Strategy Simulator precisa de parâmetros realistas. Se estimarmos ROI errado, o simulador perde credibilidade |
@@ -217,7 +227,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | A montadora publica recall, o dealer recebe lista de VINs afetados, e tenta contatar os clientes. Muitos não respondem e o recall fica pendente por meses/anos |
 | **O que precisamos descobrir** | Taxa média de atendimento de recalls no Brasil. Quanto tempo leva para atingir cobertura significativa? Qual a taxa de no-show? O dealer tenta contatar quantas vezes? Dados públicos de recalls Ford recentes |
 | **Por que importa** | Se a taxa de recall pendente for alta, valida a LN4 (Recall como Porta de Entrada). Se for baixa, a lógica perde relevância |
@@ -231,7 +241,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Ford publica plano de manutenção por modelo: a cada 10.000km ou 12 meses, com lista de itens por faixa de km |
 | **O que precisamos descobrir** | Plano de manutenção oficial dos principais modelos Ford (Ranger, Ka, EcoSport, Territory). Quais serviços em cada faixa (10K, 20K, 30K, 40K...). Preço médio de cada revisão. Itens de desgaste com periodicidade conhecida |
 | **Por que importa** | O Pulse Leads precisa saber QUANDO cada veículo precisa de serviço para gerar leads precisos |
@@ -251,7 +261,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | A experiência é fragmentada: agendamento por telefone, pouca transparência de preço, sem acompanhamento digital, follow-up inconsistente |
 | **O que precisamos descobrir** | Jornada real de um cliente Ford ao fazer manutenção (desde agendar até pós-serviço). Pontos de dor reais. O que o FordPass oferece no Brasil vs. mercados maduros. Avaliações de concessionárias Ford no Google Maps (padrões de reclamação) |
 | **Por que importa** | Não podemos melhorar uma jornada que não conhecemos. Precisamos saber onde está a fricção real |
@@ -265,10 +275,10 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
-| **Hipótese** | Hyundai/Kia e Renault têm programas no Brasil. Planos de manutenção pré-pagos aumentam retenção em 2-3x |
+| **Status** | ✅ Concluído (ver DOC 02) |
+| **Hipótese** | Hyundai/Kia e Renault têm programas no Brasil. Planos de manutenção pré-pagos aumentam retenção em 2-3x. A Ford seria a única grande montadora sem programa |
 | **O que precisamos descobrir** | Quais montadoras oferecem programas de fidelidade/manutenção pré-paga no Brasil? Como funcionam (pontos vs. assinatura vs. preço fechado)? Resultados mensuráveis? Por que alguns falham? Custo de operação para a montadora/dealer |
-| **Por que importar** | Embasa a proposta do FordRewards com referências reais. Evita propor algo que já fracassou |
+| **Por que importa** | Embasa a proposta do Ford Care (programa de manutenção pré-paga) com referências reais. Evita propor algo que já fracassou |
 | **Onde buscar** | Sites de Renault (Plano de Revisões), Hyundai (HMB Care), Toyota (Plano Toyota), Chevrolet (Meu Chevrolet), BMW (Service Inclusive). Artigos Comarch, Antavo sobre loyalty automotivo |
 | **Critério de sucesso** | Benchmark de pelo menos 4 programas com: mecânica, custo, resultado reportado |
 
@@ -279,7 +289,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Algumas montadoras tratam o serviço como produto com preço fixo, pacotes e planos — não como "o que custar, custou" |
 | **O que precisamos descobrir** | Cases de montadoras ou redes que reposicionaram serviço como produto gerenciável. Modelos de precificação (preço fixo vs. variável). Impacto na percepção do cliente. Relação com retenção |
 | **Por que importa** | É um dos diferenciais do Experience Layer. Se não tivermos embasamento, fica genérico |
@@ -293,7 +303,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | FordPass, myBMW, MyToyota e apps similares oferecem funcionalidades de referência para UX |
 | **O que precisamos descobrir** | Funcionalidades de cada app. Fluxo de agendamento. Como mostram status do serviço. Programa de pontos/fidelidade no app. Ratings e reclamações comuns. O que funciona e o que não funciona |
 | **Por que importa** | Nosso app mobile precisa ser melhor ou pelo menos comparável. Benchmark de UX evita reinventar a roda |
@@ -313,7 +323,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | VIN Share, taxa de retenção, NPS, ticket médio, taxa de agendamento, tempo médio de reparo são os KPIs mais comuns |
 | **O que precisamos descobrir** | Lista completa de KPIs de pós-venda usados pela indústria. Como são calculados. Benchmarks (valores de referência). Quais a Ford provavelmente já acompanha |
 | **Por que importa** | O Performance Console precisa mostrar KPIs que a Ford reconheça e valorize. Inventar métricas novas sem contexto não convence |
@@ -327,7 +337,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Montadoras fazem ranking interno de dealers, mas poucas compartilham best practices de forma estruturada |
 | **O que precisamos descobrir** | Como montadoras (Ford, Toyota, BMW) fazem benchmarking entre dealers hoje? É público ou fechado? Quais métricas usam? Existe gamificação? Premiação? Quais ferramentas usam? |
 | **Por que importa** | Embasa o Dealer Benchmark. Se já existe algo que funciona, podemos referenciá-lo. Se não existe, é um diferencial |
@@ -341,7 +351,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Precisamos de: custo por contato por canal, taxa de conversão por tipo de ação, ticket médio por tipo de serviço, elasticidade-preço por perfil |
 | **O que precisamos descobrir** | Quais variáveis são necessárias para um modelo de simulação crível? Existem modelos de referência de ROI de CRM/retenção? Qual a margem de erro aceitável numa simulação? |
 | **Por que importa** | O Strategy Simulator precisa de parâmetros realistas para gerar projeções que a Ford leve a sério |
@@ -363,7 +373,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Um veículo gera receita de serviço durante 10-15 anos. As revisões programadas concentram-se nos primeiros 5 anos, depois são reparos eventuais |
 | **O que precisamos descobrir** | Gasto médio anual em manutenção por idade do veículo no Brasil. Curva: nos primeiros anos é revisão barata, depois reparos maiores, depois não vale mais a pena. Quando o custo de manutenção supera o valor do veículo? |
 | **Onde buscar** | Sindipeças (anuário da reposição automotiva), CESVI Brasil, pesquisas de custo de propriedade (KBB Brasil, Webmotors), dados de seguradoras |
@@ -376,7 +386,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Margem bruta de serviço é ~40-50% (mão de obra) e ~30-40% (peças). Serviço é mais lucrativo que venda de carros |
 | **O que precisamos descobrir** | Margem bruta de serviço e peças em concessionárias brasileiras. Comparação com margem de venda de veículos. Composição: mão de obra vs. peças vs. fluidos |
 | **Onde buscar** | FENABRAVE (anuário), NADA (referência americana, adaptável), artigos sobre lucratividade de concessionárias, entrevistas com donos de dealer |
@@ -391,7 +401,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | A retenção cai drasticamente nos primeiros 3-6 meses após o fim da garantia (tipicamente 24-36 meses de vida do veículo) |
 | **O que precisamos descobrir** | Estudos que documentem a curva de retenção por mês/ano de vida do veículo. O "ponto de inflexão" é consistente entre montadoras? É diferente no Brasil? Existem dados da Ford especificamente? |
 | **Onde buscar** | Cox Automotive Service Industry Study, J.D. Power CSI, DealershipGuy (newsletter com dados), publicações TVI MarketPro3 |
@@ -406,11 +416,11 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
-| **Hipótese** | As 109 concessionárias concentram-se em capitais e grandes cidades. Há regiões inteiras sem cobertura |
-| **O que precisamos descobrir** | Lista de concessionárias Ford com endereço/cidade. Mapa de distribuição geográfica. Cruzamento com dados de VIO por região para identificar desertos de serviço. Raio médio de cobertura de uma concessionária |
+| **Status** | ✅ Concluído (ver DOC 02) |
+| **Hipótese** | As ~145 concessionárias concentram-se em capitais e grandes cidades. Há regiões inteiras sem cobertura |
+| **O que precisamos descobrir** | Lista de concessionárias Ford com endereço/cidade. Mapa de distribuição geográfica. Cruzamento com dados de VIO por região para identificar desertos de serviço (regiões com muitos Fords e nenhum dealer). Raio médio de cobertura de uma concessionária |
 | **Onde buscar** | Site Ford Brasil (localizador de concessionárias), Google Maps, dados de VIO por estado (SENATRAN) |
-| **Critério de sucesso** | Mapa com localização das 109 concessionárias + identificação de pelo menos 3 "desertos de serviço" |
+| **Critério de sucesso** | Mapa com localização das ~145 concessionárias + identificação de pelo menos 3 desertos de serviço |
 
 ---
 
@@ -419,7 +429,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Algumas montadoras usam oficinas independentes certificadas para expandir cobertura (ex: Bosch Car Service, Mopar Express Lane) |
 | **O que precisamos descobrir** | Quais modelos de oficina parceira existem? Como funcionam (certificação, treinamento, supply de peças)? Quais montadoras usam? Resultados reportados |
 | **Onde buscar** | Bosch Car Service, Mopar Express Lane (Stellantis), programas de expansão de rede de montadoras, artigos sobre modelos de franquia de serviço automotivo |
@@ -434,7 +444,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | A taxa de atendimento é baixa (estimamos 40-60%), especialmente para veículos mais antigos |
 | **O que precisamos descobrir** | Taxa média de atendimento de recalls no Brasil. Diferença por marca, idade do veículo e gravidade. Quantos recalls a Ford teve nos últimos 3 anos no Brasil. Existe base pública de recalls com dados de atendimento? |
 | **Onde buscar** | PROCON, SENACON (Sistema Nacional de Informações de Defesa do Consumidor), Ministério da Justiça, site de recalls do governo, dados da Ford |
@@ -449,7 +459,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Montadoras usam scorecards de dealer, mas são multidimensionais (vendas + serviço + satisfação). Não existe um score único de "saúde de retenção" |
 | **O que precisamos descobrir** | Como montadoras avaliam a performance dos dealers hoje? Quais métricas compõem os scorecards existentes? Existe algo similar ao IHC que estamos propondo? |
 | **Onde buscar** | NADA 20 Groups, programas de excelência de OEMs (Ford President's Award, Toyota President's Award), artigos sobre dealer performance metrics |
@@ -464,7 +474,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Donos de Ka/Fiesta são majoritariamente de classe B/C, sensíveis a preço, que compraram carro popular. Donos de EcoSport são classe B, compraram SUV de entrada. Perfis muito diferentes de donos de Ranger |
 | **O que precisamos descobrir** | Perfil socioeconômico dos donos por modelo. Percepção sobre o fechamento das fábricas. Ainda consideram ir na concessionária? Quais as barreiras? Preço? Distância? Disponibilidade de peças? |
 | **Onde buscar** | Fóruns de proprietários (ForumFord), grupos de Facebook de donos de Ka/Fiesta/EcoSport, Reclame Aqui (padrões de reclamação), pesquisas de satisfação J.D. Power Brasil, artigos sobre impacto do fechamento das fábricas Ford |
@@ -477,7 +487,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | A Ford manteve compromisso de fornecer peças por pelo menos 10 anos, mas a percepção do consumidor é de escassez |
 | **O que precisamos descobrir** | A Ford cumpre o fornecimento de peças? Quais modelos/peças têm mais dificuldade? O preço subiu após o fechamento? A percepção do consumidor está alinhada com a realidade? |
 | **Onde buscar** | Reclame Aqui (Ford - reclamações sobre peças), fóruns, artigos sobre pós-venda Ford após fechamento, depoimentos de donos |
@@ -492,7 +502,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | O custo de "trazer um cliente de volta" via marketing proativo é R$ 20-50 por visita convertida. O ticket médio da visita é R$ 500-1.500. Logo, o ROI é altamente positivo |
 | **O que precisamos descobrir** | Custo de aquisição de visita de serviço (CAV) no Brasil ou benchmarks globais. Comparação: cliente que vem via lembrete vs. walk-in vs. campanha massiva. Ticket médio por tipo de visita |
 | **Onde buscar** | Estudos de marketing automotivo, dados de plataformas de CRM (resultados de campanhas), benchmarks de custo de aquisição B2C no Brasil |
@@ -507,7 +517,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Amazon (recomendações), Netflix (conteúdo), Spotify (Discover Weekly) são os cases clássicos. No automotivo, Tesla é a referência com dados de frota |
 | **O que precisamos descobrir** | Cases de data flywheel no setor automotivo especificamente. Como Tesla usa dados de frota? Alguma montadora tradicional implementou algo similar? O conceito é viável numa escala menor (109 dealers)? |
 | **Onde buscar** | Artigos sobre data flywheel / data network effects, casos Tesla, publicações sobre connected car data monetization |
@@ -522,7 +532,7 @@ flowchart LR
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ✅ |
+| **Status** | ✅ Concluído (ver DOC 02) |
 | **Hipótese** | Clientes que fazem manutenção na rede têm 74% mais chance de comprar da mesma marca. Fonte original: Cox Automotive |
 | **O que precisamos descobrir** | Confirmar o dado de 74% e encontrar a fonte original. Existem outros estudos que corroborem? A correlação é causal ou há confounding factors? Qual a probabilidade de recompra de um cliente Ford que sai da rede vs. um que fica? |
 | **Onde buscar** | Cox Automotive studies, J.D. Power Loyalty Studies, NADA dealer profitability studies, artigos acadêmicos sobre brand loyalty no automotivo |
@@ -573,38 +583,37 @@ flowchart TB
         LN81["LN8.1 Flywheel<br>de dados cases"]
     end
 
-    style CRITICAS fill:#f4cccc,color:#333,stroke:#e6a8a8
-    style IMPORTANTES fill:#fff2cc,color:#333,stroke:#e6d9a0
-    style ENRIQUECIMENTO fill:#c8e6c9,color:#333,stroke:#a5d6a7
+    style CRITICAS fill:#9d0208,color:#fff
+    style IMPORTANTES fill:#d4a017,color:#000
+    style ENRIQUECIMENTO fill:#2d6a4f,color:#fff
 ```
 
 ---
 
-# Plano de Execução da Pesquisa
+# Plano de Execução da Pesquisa (concluído)
 
-## Ordem sugerida
+## Organização por blocos
 
-A pesquisa não precisa ser sequencial. Dividir entre os integrantes do grupo.
+As 30 pesquisas foram executadas em 6 blocos temáticos:
 
-| Bloco | Pesquisas | Responsável | Prazo sugerido |
-|---|---|---|---|
-| **Bloco 1: Fundamentos** | P1.1, P1.2, P4.1, LN2.1 | - | Semana 1 |
-| **Bloco 2: Dados e ML** | P1.3, P1.4, P1.5, P1.6 | - | Semana 1 |
-| **Bloco 3: Ação e Comunicação** | P2.1, P2.2, P2.3, P2.4, P2.5 | - | Semana 1-2 |
-| **Bloco 4: Experiência e Fidelidade** | P3.1, P3.2, P3.3, P3.4 | - | Semana 2 |
-| **Bloco 5: Performance e Simulação** | P4.2, P4.3, LN7.1 | - | Semana 2 |
-| **Bloco 6: Lógicas de Negócio** | LN1.1, LN1.2, LN3.1, LN3.2, LN4.1, LN5.1, LN6.1, LN6.2, LN8.1, LN9.1 | - | Semana 2-3 |
+| Bloco | Pesquisas | Status |
+|---|---|---|
+| **Bloco 1: Fundamentos** | P1.1, P1.2, P4.1, LN2.1 | ✅ 4/4 concluídas |
+| **Bloco 2: Dados e ML** | P1.3, P1.4, P1.5, P1.6 | ✅ 4/4 concluídas |
+| **Bloco 3: Ação e Comunicação** | P2.1, P2.2, P2.3, P2.4, P2.5 | ✅ 5/5 concluídas |
+| **Bloco 4: Experiência e Fidelidade** | P3.1, P3.2, P3.3, P3.4 | ✅ 4/4 concluídas |
+| **Bloco 5: Performance e Simulação** | P4.2, P4.3, LN7.1 | ✅ 3/3 concluídas |
+| **Bloco 6: Lógicas de Negócio** | LN1.1, LN1.2, LN3.1, LN3.2, LN4.1, LN5.1, LN6.1, LN6.2, LN8.1, LN9.1 | ✅ 10/10 concluídas |
 
-## Output esperado
+## Formato das respostas no DOC 02
 
-Cada pesquisa concluída gera uma entrada no **DOC 02 — Resultados da Pesquisa** com:
+Cada pesquisa concluída gerou uma entrada no **DOC 02 — Resultados da Pesquisa** com:
 
-1. **Pergunta original** (referência ao DOC 01)
-2. **Resposta encontrada** (dados, fontes, evidências)
+1. **Pergunta original** (referência a este DOC 01)
+2. **Resposta encontrada** (dados concretos, fontes, evidências)
 3. **Hipótese validada ou invalidada** (com justificativa)
-4. **Impacto na Base Fundacional** (precisa ajustar algo no DOC 00?)
-5. **Implicação para o Solution Design** (como isso afeta o que vamos construir?)
+4. **Impacto na Base Fundacional** (o que mudou no DOC 00)
 
 ---
 
-> *Este documento guia toda a fase de pesquisa. Quando a pesquisa estiver concluída, o DOC 02 consolida os resultados e alimenta o DOC 03 (Solution Design).*
+> *Este documento serviu de guia para a fase de pesquisa. O DOC 02 consolida os resultados e o DOC 03 (Solution Design) traduz as conclusões em features concretas.*

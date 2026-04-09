@@ -6,65 +6,84 @@
 ![parciais](https://img.shields.io/badge/parciais-2-yellow?style=flat-square)
 ![invalidadas](https://img.shields.io/badge/invalidadas-0-brightgreen?style=flat-square)
 
-> **DOC 02** — Consolidação de todas as 30 pesquisas executadas, organizadas por pilar e lógica de negócio.  
-> Cada entrada contém: pergunta original, resposta, fontes com data, hipótese validada ou invalidada, e impacto na Base Fundacional.  
+> **DOC 02** — Consolidação de todas as 30 pesquisas executadas para validar a tese da ForwardService.  
+> As pesquisas foram planejadas no DOC 01 (Mapa de Pesquisa) e seus resultados alimentaram as decisões do DOC 03 (Solution Design).  
+> Cada entrada contém: pergunta original, resposta com dados concretos, fontes com data, hipótese validada ou invalidada, e impacto na Base Fundacional (DOC 00).  
 > Data: 09/04/2026
 
 ---
 
-## Formato de cada entrada
+## Síntese — Leia isto primeiro
 
-```
-ID — Título
-├── Pergunta: o que precisávamos descobrir
-├── Resposta: o que encontramos (dados concretos)
+Das 30 hipóteses pesquisadas: **27 validadas**, **2 parcialmente validadas**, **0 invalidadas**. A pesquisa resultou em 3 mudanças na Base Fundacional:
+
+| O que mudou | Por quê |
+|---|---|
+| FordRewards (pontos) → **Ford Care** (pré-pago) | Nenhuma montadora no Brasil usa pontos. Todas usam preço fixo/pré-pago (P3.2) |
+| + **Fluxo Simplificado** para descontinuados | 80% da frota não tem telemetria. O App Ford exclui esses clientes (P3.1, LN6.1) |
+| LN3 (Rede Invertida) elevada a **central** | Stellantis comprou 70% da DPaschoal (R$ 2,6bi) para resolver o mesmo problema (LN3.2) |
+
+**Os 5 dados mais impactantes para a apresentação:**
+
+1. **Retenção: 78% → 20-40%** ao fim da garantia (Cox 2025) — a Curva da Morte é real
+2. **Ford é a única sem programa de fidelidade** no Brasil — todas as outras montadoras têm
+3. **+5% retenção = +25-95% de lucro** (Bain & Company) — justifica todo o investimento
+4. **Serviço = 49% do lucro com 12% da receita** (NADA 2025) — é o departamento mais rentável da concessionária
+5. **Stellantis comprou DPaschoal** por R$ 2,6bi para expandir cobertura pós-garantia — precedente real de mercado
+
+> As pesquisas estão organizadas por pilar (Intelligence Hub, Action Engine, Experience Layer, Performance Console) e depois por Lógica de Negócio. As 12 pesquisas marcadas como 🔴 **Críticas** no DOC 01 são as mais importantes — sem elas, a proposta não se sustentaria.
+
+---
+
+## Como ler cada entrada
+
+Todas as 30 pesquisas seguem o mesmo formato:
+
+```text
+ID — Título da pesquisa
+├── Pergunta: o que precisávamos descobrir (vinda do DOC 01)
+├── Resposta: o que encontramos (dados concretos, tabelas, números)
 ├── Fontes: referências com data de publicação
 ├── Hipótese: validada ✅ | invalidada ❌ | parcialmente validada ⚠️
-└── Impacto: o que muda (ou não) na Base Fundacional
+└── Impacto: o que mudou (ou não) na Base Fundacional (DOC 00)
 ```
 
 ---
 
 ## Visão geral dos resultados
 
-```markmap
-# Pesquisas (30/30)
-## Pilar 1 — Intelligence Hub ✅
-### P1.1 VIN Share — validada
-### P1.2 DMS — validada
-### P1.3 Segmentação — validada
-### P1.4 Churn — validada
-### P1.5 Km sem telemetria — validada
-### P1.6 VIO — parcial ⚠️
-## Pilar 2 — Action Engine ✅
-### P2.1 Canais BR — validada
-### P2.2 WhatsApp API — validada
-### P2.3 Estratégias ROI — validada
-### P2.4 Recalls — validada
-### P2.5 Manutenção Ford — validada
-## Pilar 3 — Experience Layer ✅
-### P3.1 Experiência Ford — validada
-### P3.2 Fidelidade BR — validada
-### P3.3 Service as Product — validada
-### P3.4 UX apps — validada
-## Pilar 4 — Performance Console ✅
-### P4.1 KPIs — validada
-### P4.2 Benchmarking — validada
-### P4.3 Simulação ROI — validada
-## Lógicas de Negócio ✅
-### LN1.1 Ciclo de vida — validada
-### LN1.2 Margens — validada
-### LN2.1 Curva da Morte — validada
-### LN3.1 Cobertura Ford — validada
-### LN3.2 Oficinas parceiras — validada
-### LN4.1 Recalls BR — validada
-### LN5.1 Scorecards — parcial ⚠️
-### LN6.1 Donos descontinuados — validada
-### LN6.2 Peças — validada
-### LN7.1 CAV — validada
-### LN8.1 Flywheel — validada
-### LN9.1 Retenção × Recompra — validada
-```
+| Pilar / Área | Pesquisa | Resultado |
+|---|---|---|
+| **Pilar 1 — Intelligence Hub** | P1.1 VIN Share | ✅ Validada |
+| | P1.2 DMS | ✅ Validada |
+| | P1.3 Segmentação | ✅ Validada |
+| | P1.4 Churn | ✅ Validada |
+| | P1.5 Km sem telemetria | ✅ Validada |
+| | P1.6 VIO | ⚠️ Parcial |
+| **Pilar 2 — Action Engine** | P2.1 Canais BR | ✅ Validada |
+| | P2.2 WhatsApp API | ✅ Validada |
+| | P2.3 Estratégias ROI | ✅ Validada |
+| | P2.4 Recalls | ✅ Validada |
+| | P2.5 Manutenção Ford | ✅ Validada |
+| **Pilar 3 — Experience Layer** | P3.1 Experiência Ford | ✅ Validada |
+| | P3.2 Fidelidade BR | ✅ Validada |
+| | P3.3 Service as Product | ✅ Validada |
+| | P3.4 UX apps | ✅ Validada |
+| **Pilar 4 — Performance Console** | P4.1 KPIs | ✅ Validada |
+| | P4.2 Benchmarking | ✅ Validada |
+| | P4.3 Simulação ROI | ✅ Validada |
+| **Lógicas de Negócio** | LN1.1 Ciclo de vida | ✅ Validada |
+| | LN1.2 Margens | ✅ Validada |
+| | LN2.1 Curva da Morte | ✅ Validada |
+| | LN3.1 Cobertura Ford | ✅ Validada |
+| | LN3.2 Oficinas parceiras | ✅ Validada |
+| | LN4.1 Recalls BR | ✅ Validada |
+| | LN5.1 Scorecards | ⚠️ Parcial |
+| | LN6.1 Donos descontinuados | ✅ Validada |
+| | LN6.2 Peças | ✅ Validada |
+| | LN7.1 CAV | ✅ Validada |
+| | LN8.1 Flywheel | ✅ Validada |
+| | LN9.1 Retenção × Recompra | ✅ Validada |
 
 ---
 
@@ -129,15 +148,15 @@ Não existe padrão ISO universal. Cada OEM adapta a fórmula, mas a base é con
 
 | Variante | Fórmula | Uso |
 |---|---|---|
-| **Service Market Share** | VINs únicos atendidos / VIO total no PMA | Penetração de mercado |
-| **Service Customer Retention** | Clientes com CPRO no último ano / (Vendas 24 meses + CPROs 24 meses) | Lealdade |
+| **Service Market Share** | VINs únicos atendidos / VIO total no PMA (Primary Market Area — área de atuação do dealer) | Penetração de mercado |
+| **Service Customer Retention (SCR)** | Clientes com CPRO (Customer Pay Repair Order — serviço pago pelo cliente) no último ano / (Vendas 24 meses + CPROs 24 meses) | Lealdade |
 | **Service Absorption Rate** | Lucro bruto (peças + serviço + funilaria) / overhead da concessionária | Saúde financeira |
-| **Revenue per UIO** | Receita total de serviço / VIO no PMA | Extração de valor |
+| **Revenue per UIO** | Receita total de serviço / VIO (Vehicles in Operation) no PMA | Extração de valor |
 
 Detalhes:
 - **Periodicidade:** mensal com consolidações trimestrais e anuais.
-- **Contagem:** VINs únicos (não visitas totais). RO Count conta visitas.
-- **Recall e garantia:** não há padrão. SCR foca em Customer Pay Repair Orders (CPROs). Recall/garantia podem ou não entrar conforme a OEM.
+- **Contagem:** VINs únicos (não visitas totais). O RO Count (contagem de Repair Orders/Ordens de Serviço) conta visitas, não clientes.
+- **Recall e garantia:** não há padrão. A métrica SCR foca em CPROs (serviços pagos pelo cliente). Recall e garantia (pagos pela montadora) podem ou não entrar conforme a OEM.
 - **Denominador (VIO):** padrão da indústria usa dados de S&P Global Mobility (ex-IHS Markit), baseados em registros estaduais de veículos.
 - **Benchmark:** dealers detêm apenas **29%** do mercado total de serviços (Cox 2025). Meta NADA de retenção: 72%; média real: ~35%.
 
@@ -153,7 +172,7 @@ Detalhes:
 
 **Hipótese:** ✅ Validada. A fórmula base é VINs únicos / VIO, com nuances por OEM.
 
-**Impacto na Base:** Nenhuma alteração. A definição usada no DOC 00 está alinhada com a indústria. Recomendação: usar CPRO (serviço pago) como numerador principal, com recall como métrica separada para LN4.
+**Impacto na Base:** Nenhuma alteração necessária — a definição de VIN Share usada no DOC 00 já está alinhada com o padrão da indústria. Decisão técnica: usar CPRO (serviço pago pelo cliente) como numerador principal do VIN Share, e tratar recall como métrica separada na LN4 (Recall Gateway).
 
 ---
 
@@ -238,7 +257,7 @@ Uma análise documentou **174 tipos de falhas** na integração entre concession
 
 **Hipótese:** ✅ Validada. RFM + K-Means é a abordagem correta. 4-6 clusters.
 
-**Impacto na Base:** Nenhuma alteração. A hipótese de 4 perfis (fiel, econômico, esquecido, abandono) está alinhada com a literatura. Recomendação para IA/ML: iniciar com RFM + K-Means, validar com Silhouette, nomear clusters com rótulos de negócio.
+**Impacto na Base:** Nenhuma alteração necessária — os 4 perfis definidos no DOC 00 (fiel, econômico, esquecido, abandono) estão alinhados com os 4-6 clusters típicos encontrados na literatura. Decisão técnica para a entrega de IA/ML: iniciar com RFM + K-Means, validar com Silhouette Score (mínimo 0.4), e nomear os clusters com rótulos de negócio compreensíveis.
 
 ---
 
@@ -618,7 +637,7 @@ Uma análise documentou **174 tipos de falhas** na integração entre concession
 **Resposta:**
 
 **Cases de referência:**
-- **BMW Service Inclusive:** pagamento único, cobertura por período/km. Economia de até 40%. CBS avisa 4 semanas antes.
+- **BMW Service Inclusive:** pagamento único, cobertura por período/km. Economia de até 40%. O sistema CBS (Condition Based Service) do veículo avisa 4 semanas antes da manutenção necessária.
 - **Volvo Personal Service:** técnico pessoal dedicado + preço fixo até 150K km. Relacionamento humano + previsibilidade.
 - **Renault Preço Fechado:** modelo de massa no Brasil. Preço publicado, sem surpresas.
 
@@ -659,7 +678,7 @@ Uma análise documentou **174 tipos de falhas** na integração entre concession
 | App | Rating | Agendamento | Status | Loyalty | Destaque | Fraqueza |
 |---|---|---|---|---|---|---|
 | **App Ford** | 4.7 | Sim | Parcial | Não no BR | Redesign 2025, widgets | Só modelos recentes |
-| **myBMW** | ~4.5 | Sim (via CBS) | Sim | Via BSI | Alertas proativos | Bugs na versão nova |
+| **myBMW** | ~4.5 | Sim (via CBS — Condition Based Service, alerta automático de manutenção) | Sim | Via BSI (BMW Service Inclusive) | Alertas proativos | Bugs na versão nova |
 | **Bluelink (Hyundai)** | Misto | Sim | Sim | Via myHyundaiCare | 5 anos grátis, SOS | Alertas falsos |
 | **Toyota App** | N/D | Sim | Notificações | Não | Serviços conectados 2025+ | Só modelos muito recentes |
 | **Mercedes me** | 5.0 (amostra pequena) | Via dealer | Sim | Não | Controle remoto completo | Amostra pequena |
@@ -698,10 +717,10 @@ Uma análise documentou **174 tipos de falhas** na integração entre concession
 |---|---|---|
 | **Service Market Share** | VINs atendidos / VIO | ~29% (Cox 2025) |
 | **Service Retention Rate** | Clientes retornantes / Base elegível | 72% meta; 54% real (2025) |
-| **Service Absorption Rate** | Lucro bruto Fixed Ops / Overhead | 75-80% bom; 100%+ excelente |
-| **Customer Pay Revenue/RO** | Receita CPRO / Nº ROs | $200-399 média |
-| **Hours per RO** | Labor Sales / (RO Count × ELR) | 1.3-1.8 horas |
-| **Effective Labor Rate** | Labor Sales / Hours Billed | ~90% do posted rate |
+| **Service Absorption Rate** | Lucro bruto de Fixed Ops (serviço + peças + funilaria) / Overhead total da concessionária | 75-80% bom; 100%+ excelente |
+| **Customer Pay Revenue/RO** | Receita por serviço pago / Nº de Ordens de Serviço | $200-399 média |
+| **Hours per RO** | Venda de mão de obra / (Nº de OS × ELR — Effective Labor Rate) | 1.3-1.8 horas |
+| **Effective Labor Rate (ELR)** | Receita de mão de obra / Horas faturadas | ~90% da tabela publicada |
 | **Parts-to-Labor Ratio** | Parts Sales / Labor Sales | 0.80-1.0:1 |
 | **Appointment Rate** | Agendamentos / Oportunidades | >80% meta |
 | **CSI (J.D. Power)** | Escala 0-1000 | Varia por marca |
@@ -1193,32 +1212,6 @@ Diferença: **30 pontos percentuais** (74% vs. 44%).
 
 ---
 
-# Síntese Final
-
-## Status das 30 hipóteses
-
-| Status | Quantidade | Pesquisas |
-|---|---|---|
-| ✅ Validada | **27** | P1.1-P1.5, P2.1-P2.5, P3.1-P3.4, P4.1-P4.3, LN1.1-LN1.2, LN2.1, LN3.1-LN3.2, LN4.1, LN6.1-LN6.2, LN7.1, LN8.1, LN9.1 |
-| ⚠️ Parcialmente validada | **2** | P1.6 (VIO municipal limitado), LN5.1 (scores existem mas são multi-métrica) |
-| ❌ Invalidada | **0** | Nenhuma |
-
-## Adaptações aplicadas na Base Fundacional v3.0
-
-| Adaptação | Evidência |
-|---|---|
-| FordRewards → **Ford Care** (pré-pago) | P3.2: todas as montadoras usam pré-pago, nenhuma usa pontos |
-| + **Fluxo Simplificado** para descontinuados | P3.1, P3.4, LN6.1: 80% da frota sem telemetria, excluída digitalmente |
-| LN3 elevada a **central** | LN3.2: Stellantis+DPaschoal é precedente real (R$ 2,6bi) |
-
-## Os 5 dados mais impactantes para a apresentação
-
-1. **Retenção: 78% → 20-40%** ao fim da garantia (Cox 2025) — a Curva da Morte é real
-2. **Ford é a única sem programa de fidelidade** no Brasil — todas as outras têm (benchmark)
-3. **+5% retenção = +25-95% de lucro** (Bain) — justifica todo o investimento
-4. **Serviço = 49% do lucro com 12% da receita** (NADA 2025) — departamento mais rentável
-5. **Stellantis comprou DPaschoal** por R$ 2,6bi para resolver o mesmo problema (precedente)
-
 ---
 
-> *Este documento é a base de evidências do projeto. Cada afirmação na Base Fundacional e na apresentação deve ser rastreável a uma entrada aqui.*
+> *Este documento é a base de evidências do projeto. Cada afirmação na Base Fundacional e na apresentação deve ser rastreável a uma entrada aqui. A síntese com os 5 dados mais impactantes e as 3 adaptações resultantes está no topo do documento.*
