@@ -10,11 +10,11 @@
 
 ```mermaid
 flowchart LR
-    A["📋 DOC 01<br><b>Mapa de Pesquisa</b><br>(este documento)"] -->|"guia"| B["🔍 Pesquisa<br>executada"]
-    B -->|"consolida"| C["📊 DOC 02<br><b>Resultados da<br>Pesquisa</b>"]
+    A["DOC 01<br><b>Mapa de Pesquisa</b><br>(este documento)"] -->|"guia"| B["Pesquisa<br>executada"]
+    B -->|"consolida"| C["DOC 02<br><b>Resultados da<br>Pesquisa</b>"]
     C -->|"valida ou<br>invalida"| D{"Hipóteses<br>confirmadas?"}
-    D -->|"Sim"| E["✅ Avança para<br>Solution Design"]
-    D -->|"Não"| F["🔄 Ajusta Base<br>Fundacional"]
+    D -->|"Sim"| E["Avança para<br>Solution Design"]
+    D -->|"Não"| F["Ajusta Base<br>Fundacional"]
 
     style A fill:#d0dff0,color:#333,stroke:#a8c0db
     style C fill:#c8e6c9,color:#333,stroke:#a5d6a7
@@ -42,35 +42,34 @@ flowchart LR
 
 ## Visão geral — O que pesquisar por área
 
-```mermaid
-mindmap
-  root((Mapa de<br>Pesquisa))
-    Pilar 1: Intelligence Hub
-      Métricas de VIN Share
-      Técnicas de segmentação
-      Fontes de dados automotivos
-      Cálculo de LSV
-    Pilar 2: Action Engine
-      CRM automotivo
-      Canais de comunicação
-      Estratégias de retenção
-      Workflows de recall
-    Pilar 3: Experience Layer
-      Jornada do cliente
-      Programas de fidelidade
-      Service as a Product
-      UX de apps automotivos
-    Pilar 4: Performance Console
-      KPIs de pós-venda
-      Benchmarking entre dealers
-      Simulação de cenários
-      Métricas de ROI
-    Lógicas de Negócio
-      Economia do VIN
-      Curva da Morte
-      Rede Invertida
-      Frota descontinuada
-      Cross-sell serviço-venda
+```markmap
+# Mapa de Pesquisa
+## Pilar 1 — Intelligence Hub
+- Métricas de VIN Share
+- Técnicas de segmentação
+- Fontes de dados automotivos
+- Cálculo de LSV
+## Pilar 2 — Action Engine
+- CRM automotivo
+- Canais de comunicação
+- Estratégias de retenção
+- Workflows de recall
+## Pilar 3 — Experience Layer
+- Jornada do cliente
+- Programas de fidelidade
+- Service as a Product
+- UX de apps automotivos
+## Pilar 4 — Performance Console
+- KPIs de pós-venda
+- Benchmarking entre dealers
+- Simulação de cenários
+- Métricas de ROI
+## Lógicas de Negócio
+- Economia do VIN
+- Curva da Morte
+- Rede Invertida
+- Frota descontinuada
+- Cross-sell serviço-venda
 ```
 
 ---
