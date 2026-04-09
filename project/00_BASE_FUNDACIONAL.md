@@ -524,8 +524,8 @@ flowchart LR
 |---|---|---|---|
 | **1. Fundação** | DOC 00 (este) | Tese, pilares, lógicas, escopo | ![done](https://img.shields.io/badge/v3.0-concluído-brightgreen?style=flat-square) |
 | **2. Pesquisa** | DOC 01 + 02 | 30 pesquisas, hipóteses validadas | ![done](https://img.shields.io/badge/30%2F30-concluído-brightgreen?style=flat-square) |
-| **3. Solution Design** | DOC 03 | Features concretas, wireframes, MVP | ![next](https://img.shields.io/badge/próximo-yellow?style=flat-square) |
-| **4. Arquitetura** | DOC 04 | Stack, APIs, modelo de dados, TOGAF | ![pending](https://img.shields.io/badge/pendente-lightgrey?style=flat-square) |
+| **3. Solution Design** | DOC 03 | Features concretas, wireframes, MVP | ![done](https://img.shields.io/badge/v1.0-concluído-brightgreen?style=flat-square) |
+| **4. Arquitetura** | DOC 04 | Stack, APIs, modelo de dados, TOGAF | ![next](https://img.shields.io/badge/próximo-yellow?style=flat-square) |
 | **5. Implementação** | DOC 05 | Backlog, tarefas, checklist disciplinas | ![pending](https://img.shields.io/badge/pendente-lightgrey?style=flat-square) |
 | **6. Entrega** | Artefatos finais | Código, app, notebook, apresentação | ![pending](https://img.shields.io/badge/pendente-lightgrey?style=flat-square) |
 
@@ -541,9 +541,11 @@ flowchart LR
 
 1. ~~Revisar Base Fundacional com o grupo~~ → v3.0 com adaptações pós-pesquisa
 2. ~~Executar pesquisa~~ → 30 pesquisas concluídas, 6 blocos
-3. **Consolidar DOC 02** — Resultados da Pesquisa (em andamento)
-4. **Iniciar DOC 03** — Solution Design: features concretas, wireframes, definição de MVP
-5. Alinhar com professores sobre orientações adicionais
+3. ~~Consolidar DOC 02~~ → Resultados da Pesquisa completo (30/30)
+4. ~~Iniciar DOC 03~~ → Solution Design v1.0 (stack, MVP, cronograma, repos)
+5. **Criar DOC 04** — Arquitetura: contratos de API, Swagger, modelo de dados detalhado, TOGAF
+6. Alinhar com professores sobre orientações adicionais
+7. Obter bases de dados de IA/ML do professor Carlos Fontoura
 
 ---
 

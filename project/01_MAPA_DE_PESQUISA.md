@@ -86,7 +86,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | VIN Share = VINs atendidos pela rede / VINs em circulação na área. A fórmula parece simples, mas a prática tem nuances |
 | **O que precisamos descobrir** | Como montadoras realmente calculam VIN Share? Usam VINs únicos por ano? Por trimestre? Contam só visitas pagas ou incluem recall/garantia? Como estimam o denominador (VIO)? |
 | **Por que importa** | Se definirmos VIN Share errado, toda a plataforma mede a coisa errada. É a métrica central |
@@ -100,7 +100,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | DMS armazena: dados do cliente, veículo (VIN), histórico de OS (Ordem de Serviço), peças usadas, valores, datas. Mas não sabemos o nível de detalhe real |
 | **O que precisamos descobrir** | Estrutura de dados típica de um DMS (CDK, Reynolds, Syonet). Quais campos existem? Quais são preenchidos consistentemente? Quais são lixo? Existe padronização entre marcas? |
 | **Por que importa** | A plataforma precisa consumir dados do DMS. Se assumirmos campos que não existem ou que são mal preenchidos, a solução não funciona na prática |
@@ -114,7 +114,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | K-Means com RFM (Recência, Frequência, Valor Monetário) é o ponto de partida, complementado com variáveis comportamentais específicas do setor |
 | **O que precisamos descobrir** | Papers acadêmicos ou cases de segmentação de clientes de pós-venda automotivo. Quais variáveis são mais discriminantes? K-Means vs. DBSCAN vs. GMM — qual performa melhor neste domínio? Qual o número típico de clusters? Como validar clusters (silhouette, Davies-Bouldin)? |
 | **Por que importa** | A entrega de IA/ML depende disso. Se escolhermos a técnica errada, os perfis não fazem sentido de negócio |
@@ -128,7 +128,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Recência da última visita, idade do veículo e status de garantia são os 3 preditores mais fortes |
 | **O que precisamos descobrir** | Feature importance em modelos reais de churn automotivo. Quais variáveis disponíveis no momento da compra (Base 2) realmente preveem comportamento futuro? Existe diferença entre mercados (Brasil vs. EUA vs. Europa)? |
 | **Por que importa** | Define quais dados coletar e quais features usar no modelo. Se usarmos variáveis fracas, o modelo não presta |
@@ -142,7 +142,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Média brasileira é ~12.000-15.000 km/ano. Pode-se estimar por: último km registrado na OS, modelo de uso por perfil/região |
 | **O que precisamos descobrir** | Distribuição real de km/ano no Brasil por tipo de veículo e região. Quais proxies funcionam quando não temos odômetro conectado? A última km registrada na OS é confiável? |
 | **Por que importa** | Quilometragem é a base para prever necessidade de manutenção. Sem telemetria (80% da frota é antiga), precisamos de estimativas |
@@ -156,7 +156,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | DENATRAN/SENATRAN publica dados de frota por marca/modelo. S&P Global Mobility (ex-IHS Markit) vende dados detalhados de VIO |
 | **O que precisamos descobrir** | Quais fontes públicas de VIO existem no Brasil? Nível de granularidade (por modelo? por ano? por município?)? É possível saber quantos Fords existem numa região específica? |
 | **Por que importa** | O denominador do VIN Share é o VIO. Sem saber quantos Fords existem numa região, não calculamos o VIN Share local |
@@ -176,7 +176,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | WhatsApp é o canal dominante no Brasil para comunicação comercial. SMS e email têm taxas de abertura decrescentes. Ligação funciona para high-touch |
 | **O que precisamos descobrir** | Taxas de abertura e conversão por canal (WhatsApp, SMS, email, push, ligação) no contexto de serviços automotivos ou B2C no Brasil. Custo por contato de cada canal. Regulamentação (LGPD, opt-in para WhatsApp Business) |
 | **Por que importa** | O CommEngine precisa recomendar o melhor canal por perfil. Se não soubermos as taxas reais, a recomendação é chute |
@@ -190,7 +190,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | WhatsApp Business API permite envio de mensagens template com aprovação prévia do Meta, com custos por mensagem |
 | **O que precisamos descobrir** | Modelo de preços (custo por conversa/mensagem), tipos de mensagem permitidos (template vs. sessão), processo de aprovação de templates, limites de envio, requisitos de opt-in, integradores disponíveis no Brasil (Twilio, Zenvia, Take Blip) |
 | **Por que importa** | Se o CommEngine vai usar WhatsApp como canal principal, precisamos saber os limites técnicos e financeiros |
@@ -204,7 +204,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Lembrete proativo de manutenção, desconto pós-garantia e recall como reconexão são as estratégias com melhor ROI documentado |
 | **O que precisamos descobrir** | Cases com números reais: qual estratégia gerou quanto de ROI? Qual o custo de aquisição de uma visita de serviço via marketing proativo vs. walk-in? Existe diferença de eficácia por perfil de cliente? |
 | **Por que importa** | O Strategy Simulator precisa de parâmetros realistas. Se estimarmos ROI errado, o simulador perde credibilidade |
@@ -218,7 +218,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | A montadora publica recall, o dealer recebe lista de VINs afetados, e tenta contatar os clientes. Muitos não respondem e o recall fica pendente por meses/anos |
 | **O que precisamos descobrir** | Taxa média de atendimento de recalls no Brasil. Quanto tempo leva para atingir cobertura significativa? Qual a taxa de no-show? O dealer tenta contatar quantas vezes? Dados públicos de recalls Ford recentes |
 | **Por que importa** | Se a taxa de recall pendente for alta, valida a LN4 (Recall como Porta de Entrada). Se for baixa, a lógica perde relevância |
@@ -232,7 +232,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Ford publica plano de manutenção por modelo: a cada 10.000km ou 12 meses, com lista de itens por faixa de km |
 | **O que precisamos descobrir** | Plano de manutenção oficial dos principais modelos Ford (Ranger, Ka, EcoSport, Territory). Quais serviços em cada faixa (10K, 20K, 30K, 40K...). Preço médio de cada revisão. Itens de desgaste com periodicidade conhecida |
 | **Por que importa** | O Pulse Leads precisa saber QUANDO cada veículo precisa de serviço para gerar leads precisos |
@@ -252,7 +252,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | A experiência é fragmentada: agendamento por telefone, pouca transparência de preço, sem acompanhamento digital, follow-up inconsistente |
 | **O que precisamos descobrir** | Jornada real de um cliente Ford ao fazer manutenção (desde agendar até pós-serviço). Pontos de dor reais. O que o FordPass oferece no Brasil vs. mercados maduros. Avaliações de concessionárias Ford no Google Maps (padrões de reclamação) |
 | **Por que importa** | Não podemos melhorar uma jornada que não conhecemos. Precisamos saber onde está a fricção real |
@@ -266,7 +266,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Hyundai/Kia e Renault têm programas no Brasil. Planos de manutenção pré-pagos aumentam retenção em 2-3x |
 | **O que precisamos descobrir** | Quais montadoras oferecem programas de fidelidade/manutenção pré-paga no Brasil? Como funcionam (pontos vs. assinatura vs. preço fechado)? Resultados mensuráveis? Por que alguns falham? Custo de operação para a montadora/dealer |
 | **Por que importar** | Embasa a proposta do FordRewards com referências reais. Evita propor algo que já fracassou |
@@ -280,7 +280,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Algumas montadoras tratam o serviço como produto com preço fixo, pacotes e planos — não como "o que custar, custou" |
 | **O que precisamos descobrir** | Cases de montadoras ou redes que reposicionaram serviço como produto gerenciável. Modelos de precificação (preço fixo vs. variável). Impacto na percepção do cliente. Relação com retenção |
 | **Por que importa** | É um dos diferenciais do Experience Layer. Se não tivermos embasamento, fica genérico |
@@ -294,7 +294,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | FordPass, myBMW, MyToyota e apps similares oferecem funcionalidades de referência para UX |
 | **O que precisamos descobrir** | Funcionalidades de cada app. Fluxo de agendamento. Como mostram status do serviço. Programa de pontos/fidelidade no app. Ratings e reclamações comuns. O que funciona e o que não funciona |
 | **Por que importa** | Nosso app mobile precisa ser melhor ou pelo menos comparável. Benchmark de UX evita reinventar a roda |
@@ -314,7 +314,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | VIN Share, taxa de retenção, NPS, ticket médio, taxa de agendamento, tempo médio de reparo são os KPIs mais comuns |
 | **O que precisamos descobrir** | Lista completa de KPIs de pós-venda usados pela indústria. Como são calculados. Benchmarks (valores de referência). Quais a Ford provavelmente já acompanha |
 | **Por que importa** | O Performance Console precisa mostrar KPIs que a Ford reconheça e valorize. Inventar métricas novas sem contexto não convence |
@@ -328,7 +328,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Montadoras fazem ranking interno de dealers, mas poucas compartilham best practices de forma estruturada |
 | **O que precisamos descobrir** | Como montadoras (Ford, Toyota, BMW) fazem benchmarking entre dealers hoje? É público ou fechado? Quais métricas usam? Existe gamificação? Premiação? Quais ferramentas usam? |
 | **Por que importa** | Embasa o Dealer Benchmark. Se já existe algo que funciona, podemos referenciá-lo. Se não existe, é um diferencial |
@@ -342,7 +342,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Precisamos de: custo por contato por canal, taxa de conversão por tipo de ação, ticket médio por tipo de serviço, elasticidade-preço por perfil |
 | **O que precisamos descobrir** | Quais variáveis são necessárias para um modelo de simulação crível? Existem modelos de referência de ROI de CRM/retenção? Qual a margem de erro aceitável numa simulação? |
 | **Por que importa** | O Strategy Simulator precisa de parâmetros realistas para gerar projeções que a Ford leve a sério |
@@ -364,7 +364,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Um veículo gera receita de serviço durante 10-15 anos. As revisões programadas concentram-se nos primeiros 5 anos, depois são reparos eventuais |
 | **O que precisamos descobrir** | Gasto médio anual em manutenção por idade do veículo no Brasil. Curva: nos primeiros anos é revisão barata, depois reparos maiores, depois não vale mais a pena. Quando o custo de manutenção supera o valor do veículo? |
 | **Onde buscar** | Sindipeças (anuário da reposição automotiva), CESVI Brasil, pesquisas de custo de propriedade (KBB Brasil, Webmotors), dados de seguradoras |
@@ -377,7 +377,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Margem bruta de serviço é ~40-50% (mão de obra) e ~30-40% (peças). Serviço é mais lucrativo que venda de carros |
 | **O que precisamos descobrir** | Margem bruta de serviço e peças em concessionárias brasileiras. Comparação com margem de venda de veículos. Composição: mão de obra vs. peças vs. fluidos |
 | **Onde buscar** | FENABRAVE (anuário), NADA (referência americana, adaptável), artigos sobre lucratividade de concessionárias, entrevistas com donos de dealer |
@@ -392,7 +392,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | A retenção cai drasticamente nos primeiros 3-6 meses após o fim da garantia (tipicamente 24-36 meses de vida do veículo) |
 | **O que precisamos descobrir** | Estudos que documentem a curva de retenção por mês/ano de vida do veículo. O "ponto de inflexão" é consistente entre montadoras? É diferente no Brasil? Existem dados da Ford especificamente? |
 | **Onde buscar** | Cox Automotive Service Industry Study, J.D. Power CSI, DealershipGuy (newsletter com dados), publicações TVI MarketPro3 |
@@ -407,7 +407,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | As 109 concessionárias concentram-se em capitais e grandes cidades. Há regiões inteiras sem cobertura |
 | **O que precisamos descobrir** | Lista de concessionárias Ford com endereço/cidade. Mapa de distribuição geográfica. Cruzamento com dados de VIO por região para identificar desertos de serviço. Raio médio de cobertura de uma concessionária |
 | **Onde buscar** | Site Ford Brasil (localizador de concessionárias), Google Maps, dados de VIO por estado (SENATRAN) |
@@ -420,7 +420,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Algumas montadoras usam oficinas independentes certificadas para expandir cobertura (ex: Bosch Car Service, Mopar Express Lane) |
 | **O que precisamos descobrir** | Quais modelos de oficina parceira existem? Como funcionam (certificação, treinamento, supply de peças)? Quais montadoras usam? Resultados reportados |
 | **Onde buscar** | Bosch Car Service, Mopar Express Lane (Stellantis), programas de expansão de rede de montadoras, artigos sobre modelos de franquia de serviço automotivo |
@@ -435,7 +435,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | A taxa de atendimento é baixa (estimamos 40-60%), especialmente para veículos mais antigos |
 | **O que precisamos descobrir** | Taxa média de atendimento de recalls no Brasil. Diferença por marca, idade do veículo e gravidade. Quantos recalls a Ford teve nos últimos 3 anos no Brasil. Existe base pública de recalls com dados de atendimento? |
 | **Onde buscar** | PROCON, SENACON (Sistema Nacional de Informações de Defesa do Consumidor), Ministério da Justiça, site de recalls do governo, dados da Ford |
@@ -450,7 +450,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Montadoras usam scorecards de dealer, mas são multidimensionais (vendas + serviço + satisfação). Não existe um score único de "saúde de retenção" |
 | **O que precisamos descobrir** | Como montadoras avaliam a performance dos dealers hoje? Quais métricas compõem os scorecards existentes? Existe algo similar ao IHC que estamos propondo? |
 | **Onde buscar** | NADA 20 Groups, programas de excelência de OEMs (Ford President's Award, Toyota President's Award), artigos sobre dealer performance metrics |
@@ -465,7 +465,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Donos de Ka/Fiesta são majoritariamente de classe B/C, sensíveis a preço, que compraram carro popular. Donos de EcoSport são classe B, compraram SUV de entrada. Perfis muito diferentes de donos de Ranger |
 | **O que precisamos descobrir** | Perfil socioeconômico dos donos por modelo. Percepção sobre o fechamento das fábricas. Ainda consideram ir na concessionária? Quais as barreiras? Preço? Distância? Disponibilidade de peças? |
 | **Onde buscar** | Fóruns de proprietários (ForumFord), grupos de Facebook de donos de Ka/Fiesta/EcoSport, Reclame Aqui (padrões de reclamação), pesquisas de satisfação J.D. Power Brasil, artigos sobre impacto do fechamento das fábricas Ford |
@@ -478,7 +478,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | A Ford manteve compromisso de fornecer peças por pelo menos 10 anos, mas a percepção do consumidor é de escassez |
 | **O que precisamos descobrir** | A Ford cumpre o fornecimento de peças? Quais modelos/peças têm mais dificuldade? O preço subiu após o fechamento? A percepção do consumidor está alinhada com a realidade? |
 | **Onde buscar** | Reclame Aqui (Ford - reclamações sobre peças), fóruns, artigos sobre pós-venda Ford após fechamento, depoimentos de donos |
@@ -493,7 +493,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟡 Importante |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | O custo de "trazer um cliente de volta" via marketing proativo é R$ 20-50 por visita convertida. O ticket médio da visita é R$ 500-1.500. Logo, o ROI é altamente positivo |
 | **O que precisamos descobrir** | Custo de aquisição de visita de serviço (CAV) no Brasil ou benchmarks globais. Comparação: cliente que vem via lembrete vs. walk-in vs. campanha massiva. Ticket médio por tipo de visita |
 | **Onde buscar** | Estudos de marketing automotivo, dados de plataformas de CRM (resultados de campanhas), benchmarks de custo de aquisição B2C no Brasil |
@@ -508,7 +508,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🟢 Enriquecimento |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Amazon (recomendações), Netflix (conteúdo), Spotify (Discover Weekly) são os cases clássicos. No automotivo, Tesla é a referência com dados de frota |
 | **O que precisamos descobrir** | Cases de data flywheel no setor automotivo especificamente. Como Tesla usa dados de frota? Alguma montadora tradicional implementou algo similar? O conceito é viável numa escala menor (109 dealers)? |
 | **Onde buscar** | Artigos sobre data flywheel / data network effects, casos Tesla, publicações sobre connected car data monetization |
@@ -523,7 +523,7 @@ mindmap
 | Campo | Detalhe |
 |---|---|
 | **Prioridade** | 🔴 Crítica |
-| **Status** | ⬜ |
+| **Status** | ✅ |
 | **Hipótese** | Clientes que fazem manutenção na rede têm 74% mais chance de comprar da mesma marca. Fonte original: Cox Automotive |
 | **O que precisamos descobrir** | Confirmar o dado de 74% e encontrar a fonte original. Existem outros estudos que corroborem? A correlação é causal ou há confounding factors? Qual a probabilidade de recompra de um cliente Ford que sai da rede vs. um que fica? |
 | **Onde buscar** | Cox Automotive studies, J.D. Power Loyalty Studies, NADA dealer profitability studies, artigos acadêmicos sobre brand loyalty no automotivo |
