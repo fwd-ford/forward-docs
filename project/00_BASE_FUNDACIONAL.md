@@ -150,7 +150,7 @@ Transforma inteligência em ação concreta e personalizada.
 | Componente | O que faz | Entrega |
 |---|---|---|
 | **Pulse Leads** | Gera leads priorizados por risco + LSV | Lista diária: "quem contatar, por quê, com qual abordagem" |
-| **CommEngine** | Orquestra comunicação personalizada multicanal | Mensagem certa, canal certo, momento certo, tom certo |
+| **CommEngine** | Orquestra comunicação personalizada multicanal via N8N (workflows visuais) + LLM | Mensagem certa, canal certo, momento certo, tom certo |
 | **Curva da Morte** | Identifica a janela de vulnerabilidade de cada perfil | Disparo no momento crítico, não em intervalos fixos |
 | **Recall Gateway** | Trata recalls como porta de reconexão | Workflow: recall → check-up → oferta de retorno → follow-up |
 | **Estratégia Descontinuados** | Ações específicas por sub-segmento de frota | Tom adaptado por fase do ciclo de vida |
@@ -382,12 +382,12 @@ Cada ação rastreada do disparo ao resultado financeiro.
 
 ```mermaid
 flowchart LR
-    A["Ação\ndisparada"] --> B["Comunicação\nenviada"]
+    A["Ação disparada\n(N8N workflow)"] --> B["Comunicação enviada\n(WhatsApp via N8N)"]
     B --> C{"Respondeu?"}
     C -- Sim --> D{"Agendou?"}
-    C -- Não --> Z1["Tentar outro canal"]
+    C -- Não --> Z1["N8N: tentar\noutro canal"]
     D -- Sim --> E{"Veio?"}
-    D -- Não --> Z2["Follow-up"]
+    D -- Não --> Z2["N8N: follow-up\nautomático"]
     E -- Sim --> F["R$ gasto\nregistrado"]
     F --> G["ROI calculado\nFeedback pro modelo"]
 ```
@@ -504,7 +504,7 @@ Avaliação do nível de profundidade do projeto em cada aspecto. A coluna "Exce
 | **Negócio** | "Pode ajudar" | Métricas definidas | Closed-loop ROI, LSV, IHC, simulação, dados de benchmark | ✅ |
 | **Contexto** | Genérico | Menciona Ford | Desenhado para realidade única (frota descontinuada, 145 dealers) | ✅ |
 | **Pesquisa** | Superficial | Dados de mercado | 30 pesquisas com fontes verificáveis, hipóteses validadas | ✅ |
-| **Arquitetura** | Monolito | Microserviços | SOA justificada + TOGAF + integrabilidade demonstrada | ⏳ |
+| **Arquitetura** | Monolito | Microserviços | Supabase-first + N8N para automação + TOGAF + integrabilidade demonstrada | ⏳ |
 | **Implementação** | Protótipo | MVP funcional | Plataforma demonstrável, todas as disciplinas convergindo | ⏳ |
 | **Apresentação** | Slides genéricos | Pitch estruturado | Narrativa que faz a Ford pensar "preciso disso" | ⏳ |
 

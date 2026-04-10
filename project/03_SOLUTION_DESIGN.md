@@ -2,7 +2,7 @@
 
 ![version](https://img.shields.io/badge/versão-1.0-blue?style=flat-square)
 ![fase](https://img.shields.io/badge/fase-Solution_Design-yellow?style=flat-square)
-![stack](https://img.shields.io/badge/stack-SvelteKit_·_Go_·_Python_·_Expo_·_Supabase-333?style=flat-square)
+![stack](https://img.shields.io/badge/stack-SvelteKit_·_N8N_·_Python_·_Expo_·_Supabase-333?style=flat-square)
 
 > **DOC 03** — Traduz a Base Fundacional em features concretas, define o MVP, escolhe a stack e traça o cronograma.  
 > Este documento responde: **o que exatamente vamos construir, em que ordem, e com que tecnologia.**  
@@ -16,10 +16,10 @@ A ForwardService é composta por **4 produtos que funcionam juntos**:
 
 1. **Dashboard Web** (SvelteKit) — Painel para gerentes e diretoria verem métricas, leads, mapas de cobertura e ROI. É onde a concessionária e a Ford acompanham tudo.
 2. **App Mobile** (React Native/Expo) — Duas versões: uma para o **atendente** da concessionária (ver perfil do cliente, enviar mensagem, gerenciar leads) e uma para o **cliente** (agendar serviço, ver status, consultar planos Ford Care).
-3. **API de integrações** (Go) — Serviço pequeno que conecta a plataforma ao WhatsApp (envio de mensagens) e a webhooks externos. Só existe para o que o banco de dados não resolve sozinho.
+3. **Motor de automação** (N8N) — Orquestra toda a comunicação com o cliente: envio de WhatsApp, personalização de mensagens com LLM, follow-ups automáticos e webhooks. Substitui a necessidade de um backend API separado para integrações externas, com workflows visuais e editáveis sem código.
 4. **Serviço de ML** (Python) — Roda os modelos de segmentação e predição de churn. Calcula os scores e grava no banco. Entrega o Jupyter Notebook para a disciplina de IA/ML.
 
-Tudo se conecta via **Supabase** — um banco PostgreSQL na nuvem que já vem com autenticação, permissões por cargo (RLS) e atualizações em tempo real.
+Tudo se conecta via **Supabase** — um banco PostgreSQL na nuvem que já vem com autenticação, permissões por cargo (RLS) e atualizações em tempo real. O N8N se conecta ao Supabase via triggers de banco ou chamadas agendadas (cron), sem necessidade de intermediário.
 
 ---
 
@@ -42,14 +42,14 @@ Tudo se conecta via **Supabase** — um banco PostgreSQL na nuvem que já vem co
 
 Com Supabase como BaaS (Backend as a Service — banco de dados, autenticação e APIs prontos na nuvem), **não precisamos de um backend API separado para o MVP**. Veja o que cada camada da aplicação precisa e quem resolve:
 
-| Necessidade | Quem resolve | Backend Go/TS necessário? |
+| Necessidade | Quem resolve | Código custom necessário? |
 |---|---|---|
 | CRUD (clientes, veículos, OS, leads) | Supabase direto (client SDK) | Não |
 | Auth + RBAC | Supabase Auth + RLS | Não |
 | Realtime (status, notificações) | Supabase Realtime | Não |
 | Lógica de negócio simples (gerar leads, calcular IHC) | SvelteKit server routes / Edge Functions | Não |
-| Lógica complexa (WhatsApp, integrações externas) | **Go API** | Sim — mas só para isso |
-| ML (scores, segmentação, simulação) | **Python service** | Não (serviço separado) |
+| WhatsApp, LLM, integrações externas | **N8N** (workflows visuais, self-hosted) | Não — configuração visual |
+| ML (scores, segmentação, simulação) | **Python service** | Sim (serviço separado) |
 
 ## Arquitetura: Supabase-First
 
@@ -64,46 +64,51 @@ flowchart TB
         SB["Supabase\nPostgreSQL + Auth + Realtime + Storage"]
     end
 
-    subgraph Services
-        GO["Go API\nIntegrações externas\nWhatsApp · Webhooks"]
+    subgraph Automation
+        N8N["N8N (self-hosted)\nWhatsApp · LLM · Webhooks\nWorkflows visuais"]
+    end
+
+    subgraph ML
         PY["Python ML\nScores · Segmentação\nSimulador"]
     end
 
     WEB -->|"Supabase SDK"| SB
     MOB -->|"Supabase SDK"| SB
-    WEB -->|"server routes"| GO
-    GO -->|"grava resultados"| SB
+    SB -->|"trigger / cron"| N8N
+    N8N -->|"envia mensagem"| WA["WhatsApp API"]
+    N8N -->|"personaliza com"| LLM["LLM (Claude/OpenAI)"]
+    N8N -->|"grava resultados"| SB
     PY -->|"batch: grava scores"| SB
-    GO -->|"chama sob demanda"| PY
 ```
 
 ### Por que essa arquitetura e não um backend monolítico?
 
 | Abordagem | Prós | Contras | Pra quem |
 |---|---|---|---|
-| **Supabase-first** (nossa escolha) | Menos código, mais velocidade, auth pronto, realtime grátis, equipe já tem experiência | Lógica complexa fica espalhada | Grupo pequeno (1 dev principal) construindo MVP |
+| **Supabase + N8N** (nossa escolha) | Menos código, mais velocidade, auth pronto, realtime grátis, automação visual, equipe já tem experiência | Dependência de ferramentas externas | Grupo pequeno (1 dev principal) construindo MVP |
 | Backend monolítico (Go ou TS) | Tudo centralizado, controle total | Mais código, mais infra, mais tempo, reinventa auth | Time de 3+ devs |
 | Microserviços puros | Escalável, desacoplado | Overkill para MVP, complexidade operacional | Empresa com infra team |
 
-**A regra:** Supabase faz 80% do trabalho. Go API só existe para o que Supabase não faz (integrações externas). Python só existe para ML. Menos código = menos bugs = mais velocidade.
+**A regra:** Supabase faz o CRUD, auth e realtime. N8N faz toda a orquestração de comunicação (WhatsApp, LLM, webhooks) com workflows visuais. Python faz o ML. O código custom fica em dois lugares: SvelteKit (frontend) e Python (ML). Menos código = menos bugs = mais velocidade.
 
 ---
 
 # Parte 2 — Stack Definitiva
 
-## Decisão: Go para o API service
+## Decisão: N8N para automação (em vez de backend Go)
 
-| Critério | Go | TypeScript (Node) |
-|---|---|---|
-| Experiência profissional da equipe | ✅ Uso diário | Parcial |
-| Performance | Melhor | Boa |
-| Ecosystem para APIs | Muito bom (Gin, Fiber, Echo) | Muito bom (Express, Fastify, Hono) |
-| Supabase SDK | SDK Go existe | SDK TS é first-class |
-| Compartilha linguagem com SvelteKit | Não | Sim (JS/TS) |
-| Tipagem forte | ✅ Nativa | ✅ Com TS |
-| Deploy | Binário único | Node runtime |
+| Critério | N8N (self-hosted) | Go API custom | Backend TS/Node |
+|---|---|---|---|
+| Tempo de implementação | Horas (visual) | Dias/semanas | Dias/semanas |
+| Integração WhatsApp | Node nativo | Código manual (Zenvia/Twilio SDK) | Código manual |
+| Integração LLM | Node nativo (Claude, OpenAI) | Código manual | Código manual |
+| Manutenção | Editar workflow visual | Alterar código, rebuild, deploy | Alterar código, rebuild, deploy |
+| Acessível ao grupo | ✅ Qualquer um edita | Só devs Go | Só devs TS |
+| Demonstrabilidade na banca | ✅ Workflow visual impressiona | Código é abstrato | Código é abstrato |
+| Custo | Grátis (self-hosted) | Grátis (código) | Grátis (código) |
+| Deploy | Container Docker | Binário ou container | Node runtime |
 
-**Decisão: Go.** A equipe tem experiência profissional diária com Go. A familiaridade supera a conveniência de compartilhar linguagem com o frontend. Como o Go API service é pequeno (apenas integrações externas), o overhead de ter uma linguagem diferente do frontend é mínimo.
+**Decisão: N8N.** O Go API service existia apenas para orquestrar WhatsApp e webhooks — exatamente o que o N8N faz nativamente com nodes visuais. A troca elimina centenas de linhas de código sem perder funcionalidade, e ganha demonstrabilidade (workflow visual na banca). O N8N roda self-hosted no Railway ou Azure, custo zero.
 
 ## Stack final
 
@@ -111,10 +116,10 @@ flowchart TB
 |---|---|---|
 | **Frontend Web** | SvelteKit | Dashboard dealers, Dashboard Ford, Performance Console, SSR + API routes |
 | **Mobile** | React Native + Expo | App do atendente, App do cliente, Expo Router |
-| **Backend API** | Go | Integração WhatsApp (Zenvia/Twilio), Webhooks externos, Orquestração de comunicação |
+| **Automação** | N8N (self-hosted) | WhatsApp (envio/recebimento), LLM (personalização de mensagens), webhooks, cron jobs, follow-ups automáticos |
 | **ML Service** | Python + FastAPI | XGBoost + SHAP, Segmentação (K-Means), Simulador de ROI (3-4 endpoints) |
 | **Banco + Auth** | Supabase | PostgreSQL, Auth (JWT nativo), Row Level Security (RBAC), Realtime subscriptions, Storage |
-| **Infra / Deploy** | Vercel + Railway + Supabase Cloud | Vercel (SvelteKit), Railway (Go API + Python ML), Supabase Cloud (banco) |
+| **Infra / Deploy** | Vercel + Railway + Supabase Cloud | Vercel (SvelteKit), Railway (N8N + Python ML), Supabase Cloud (banco) |
 
 ### Custo mensal estimado
 
@@ -122,10 +127,10 @@ flowchart TB
 |---|---|---|
 | Supabase | Free → Pro se precisar | R$ 0-140 |
 | Vercel | Free (hobby) | R$ 0 |
-| Railway | Starter (Go + Python) | R$ 0-30 |
-| Zenvia/Twilio | Pay-as-you-go | R$ 20-50 |
-| LLM API | Claude ou OpenAI | R$ 20-40 |
-| **Total** | | **R$ 40-120/mês** |
+| Railway | Starter (N8N + Python ML) | R$ 0-30 |
+| WhatsApp API (via N8N) | Pay-as-you-go (Meta pricing) | R$ 10-30 |
+| LLM API (via N8N) | Claude ou OpenAI | R$ 20-40 |
+| **Total** | | **R$ 30-100/mês** |
 
 Dentro do orçamento disponível do grupo para infraestrutura do projeto acadêmico (R$ 60/mês de bolso + R$ 100 de créditos Azure educacionais).
 
@@ -275,17 +280,19 @@ flowchart TB
 
 ---
 
-## 4.5 — CommEngine (MVP)
+## 4.5 — CommEngine (MVP) — via N8N
 
-**No MVP:** Envio unidirecional de mensagens via WhatsApp. Não é chatbot.
+**No MVP:** Envio de mensagens via WhatsApp orquestrado pelo N8N. Não é chatbot — é comunicação proativa e personalizada.
 
-**Fluxo:**
-1. Atendente vê o lead no Pulse Leads
-2. Clica em "Enviar mensagem"
-3. Sistema mostra template pré-preenchido com dados do cliente
-4. Atendente confirma ou edita
-5. Sistema envia via API WhatsApp (Zenvia/Twilio)
-6. Registra envio no banco (para Closed-Loop ROI)
+**Fluxo (workflow N8N):**
+1. **Trigger:** Supabase database trigger (novo lead criado) ou cron agendado (batch diário)
+2. **Enriquecimento:** N8N busca dados do cliente e veículo no Supabase
+3. **Personalização:** Node LLM (Claude/OpenAI) gera mensagem personalizada com base no perfil, tom e template
+4. **Aprovação (opcional):** Atendente vê o lead no Pulse Leads, clica em "Enviar mensagem", confirma ou edita
+5. **Envio:** Node WhatsApp envia via API oficial do Meta (sem intermediário BSP para MVP)
+6. **Registro:** N8N grava o envio no Supabase (tabela `communications`) para Closed-Loop ROI
+
+**Vantagem do N8N:** O workflow inteiro é visual e editável. Qualquer integrante do grupo pode ajustar tom, adicionar canais ou mudar regras sem escrever código.
 
 **Templates por perfil:**
 
@@ -460,7 +467,7 @@ Como o produto cobre as entregas acadêmicas (5 disciplinas com entrega confirma
 
 | Disciplina | O que entregamos do produto | Entregável específico |
 |---|---|---|
-| **Arq. Serviços e Web Services** | Go API + Supabase + APIs documentadas | Swagger/OpenAPI, desenho de arquitetura SOA, banco com migrations |
+| **Arq. Serviços e Web Services** | Supabase (APIs REST/GraphQL automáticas) + N8N (webhooks) + Python ML (FastAPI) | Swagger/OpenAPI dos endpoints FastAPI, desenho de arquitetura SOA, banco com migrations, documentação dos workflows N8N |
 | **Mobile Development e IoT** | App React Native/Expo (atendente + cliente) | App multiplataforma com Expo Router, consumo de API, notificações |
 | **Testing, Compliance e QA** | Pitch + Canvas + TOGAF + vídeo | Apresentação 10-15 slides, vídeo 3min, arquivo .archimate |
 | **Cybersecurity** | Supabase Auth (JWT) + RLS (RBAC) + validação + HTTPS | Implementação real de segurança nos 5 eixos do PDF |
@@ -498,10 +505,10 @@ gantt
     section Produto MVP
     Supabase schema + seed         :m1, 2026-05-25, 7d
     Dashboard SvelteKit            :m2, after m1, 21d
-    Go API (WhatsApp + webhooks)   :m3, after m1, 14d
+    N8N setup + workflows          :m3, after m1, 10d
     Python ML service deploy       :m4, after m1, 14d
     Pulse Leads engine             :m5, after m2, 14d
-    CommEngine WhatsApp            :m6, after m3, 14d
+    CommEngine workflows N8N       :m6, after m3, 10d
     App mobile completo            :m7, 2026-06-15, 30d
     Performance Console            :m8, after m5, 14d
     Integração end-to-end          :m9, 2026-08-01, 21d
@@ -517,7 +524,7 @@ O objetivo da Sprint 1 é **ter material suficiente para impressionar**, não o 
 |---|---|---|---|
 | **S1** | 10-16/04 | Setup | Criar org GitHub, repo, Supabase project, SvelteKit scaffold, Expo scaffold |
 | **S2** | 17-23/04 | ML + Schema | Começar notebook de segmentação (Base 1), criar schema no Supabase, seed com dados sintéticos |
-| **S3** | 24-30/04 | ML + API | Terminar segmentação, iniciar classificação (Base 2), documentar API no Swagger |
+| **S3** | 24-30/04 | ML + N8N | Terminar segmentação, iniciar classificação (Base 2), setup N8N + primeiro workflow (lembrete WhatsApp) |
 | **S4** | 01-07/05 | Mobile + Dashboard | Telas básicas no Expo (Vista 360, Leads), tela de dashboard no SvelteKit |
 | **S5** | 08-14/05 | QA + Cyber | Pitch (slides), Canvas, baixar Archi e criar TOGAF, implementar auth Supabase |
 | **S6** | 15-21/05 | Integração + Vídeo | Conectar tudo, gravar vídeo de pitch (3 min), ajustes finais |
@@ -577,7 +584,7 @@ Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente
 |---|---|---|---|
 | `forward-web` | SvelteKit | Vercel | Dashboard web (dealers, Ford, performance) |
 | `forward-mobile` | React Native / Expo | EAS / Expo Go | App mobile (atendente + cliente) |
-| `forward-api` | Go | Railway / Azure | Integrações externas (WhatsApp, webhooks) |
+| `forward-n8n` | N8N (Docker) | Railway / Azure | Workflows de automação: WhatsApp, LLM, webhooks, cron jobs |
 | `forward-ml` | Python | Railway | ML service + Notebooks (entrega IA/ML) |
 | `forward-infra` | SQL / Docker | Supabase Cloud | Migrations, seed, config, IaC |
 | `forward-docs` | Markdown | GitHub Pages (opcional) | Documentação, pesquisas, specs, entregas acadêmicas |
@@ -595,13 +602,14 @@ Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente
 | # | Decisão | Alternativa descartada | Motivo |
 |---|---|---|---|
 | 1 | Supabase-first (sem backend separado para CRUD) | Backend Go/TS monolítico | Menos código, auth pronto, equipe já tem experiência com Supabase |
-| 2 | Go para API service | TypeScript/Node | Equipe usa Go profissionalmente, familiaridade > conveniência |
+| 2 | ~~Go para API service~~ → **N8N para automação** | Go API custom / TypeScript/Node | N8N faz nativamente o que o Go API faria (WhatsApp, LLM, webhooks), sem código, com UI visual demonstrável na banca |
 | 3 | SvelteKit para web | React/Next.js | Equipe trabalha com Svelte profissionalmente |
 | 4 | Python ML como serviço separado batch | ML no backend principal | Desacoplamento, sem lock de linguagem, deploy independente |
 | 5 | Multi-repo (um repo por serviço) | Monorepo único | CI/CD independente por serviço, facilita delegação de tarefas ao grupo |
 | 6 | Supabase Auth (JWT nativo) | JWT manual | Atende requisitos de Cybersecurity sem código adicional |
 | 7 | i18n desde o dia 1 | Adicionar depois | Profissionalismo e preparação para possível expansão |
 | 8 | Sem Figma | Design system formal | Tech lead é designer, vai direto do conceito ao código |
+| 9 | N8N para orquestração de comunicação | Código custom (Go/TS) | Workflow visual, sem código, integrantes do grupo conseguem editar, demonstrável na banca, deploy via Docker |
 
 ---
 
