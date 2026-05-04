@@ -25,6 +25,6 @@ decisions/        # Architecture Decision Records (ADRs)
 |---|---|---|
 | [forward-web](https://github.com/fwd-ford/forward-web) | SvelteKit | Dashboard web |
 | [forward-mobile](https://github.com/fwd-ford/forward-mobile) | React Native / Expo | Mobile app |
-| [forward-api](https://github.com/fwd-ford/forward-api) | Go | External integrations API |
+| [forward-api-java](https://github.com/fwd-ford/forward-api-java) | Java 17 / Spring Boot 3 | **Official backend** — REST + SOAP, JWT auth, integrations |
 | [forward-ml](https://github.com/fwd-ford/forward-ml) | Python | ML service |
 | [forward-infra](https://github.com/fwd-ford/forward-infra) | SQL / Docker | Infrastructure |

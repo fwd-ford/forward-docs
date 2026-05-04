@@ -85,8 +85,8 @@ flowchart TB
 
 | Abordagem | Prós | Contras | Pra quem |
 |---|---|---|---|
-| **Supabase + N8N** (nossa escolha) | Menos código, mais velocidade, auth pronto, realtime grátis, automação visual, equipe já tem experiência | Dependência de ferramentas externas | Grupo pequeno (1 dev principal) construindo MVP |
-| Backend monolítico (Go ou TS) | Tudo centralizado, controle total | Mais código, mais infra, mais tempo, reinventa auth | Time de 3+ devs |
+| **Supabase + N8N + forward-api-java** (nossa escolha) | Supabase entrega CRUD/auth/realtime; N8N faz automação; API Java atende a disciplina SOA com REST + SOAP sem reinventar o CRUD | Dependência de ferramentas externas e coordenação de dois backends | Grupo pequeno (1 dev principal) construindo MVP com requisitos acadêmicos |
+| Backend monolítico (Java/Go/TS) | Tudo centralizado, controle total | Mais código, mais infra, mais tempo, reinventa auth | Time de 3+ devs |
 | Microserviços puros | Escalável, desacoplado | Overkill para MVP, complexidade operacional | Empresa com infra team |
 
 **A regra:** Supabase faz o CRUD, auth e realtime. N8N faz toda a orquestração de comunicação (WhatsApp, LLM, webhooks) com workflows visuais. Python faz o ML. O código custom fica em dois lugares: SvelteKit (frontend) e Python (ML). Menos código = menos bugs = mais velocidade.
@@ -95,20 +95,25 @@ flowchart TB
 
 # Parte 2 — Stack Definitiva
 
-## Decisão: N8N para automação (em vez de backend Go)
+## Decisão: N8N para automação + API Java para SOA
 
-| Critério | N8N (self-hosted) | Go API custom | Backend TS/Node |
+A automação (WhatsApp, LLM, webhooks, cron jobs) fica no N8N. A disciplina de Arquitetura Orientada a Serviços exige código próprio com REST e/ou SOAP, então adicionamos o `forward-api-java` como o "backend oficial" — mas com escopo enxuto: expõe leitura de clientes/veículos/leads/scores + uma operação SOAP `GetVehicle` (com WSDL). Não reimplementa o CRUD que o Supabase já dá.
+
+| Critério | N8N (self-hosted) | forward-api-java (Spring Boot) | Backend TS/Node custom |
 |---|---|---|---|
-| Tempo de implementação | Horas (visual) | Dias/semanas | Dias/semanas |
-| Integração WhatsApp | Node nativo | Código manual (Zenvia/Twilio SDK) | Código manual |
-| Integração LLM | Node nativo (Claude, OpenAI) | Código manual | Código manual |
-| Manutenção | Editar workflow visual | Alterar código, rebuild, deploy | Alterar código, rebuild, deploy |
-| Acessível ao grupo | ✅ Qualquer um edita | Só devs Go | Só devs TS |
-| Demonstrabilidade na banca | ✅ Workflow visual impressiona | Código é abstrato | Código é abstrato |
-| Custo | Grátis (self-hosted) | Grátis (código) | Grátis (código) |
-| Deploy | Container Docker | Binário ou container | Node runtime |
+| Papel no projeto | Orquestração de comunicação e automação | Atender rubrica SOA (REST + SOAP + WSDL) | — (não usado) |
+| Tempo de implementação | Horas (visual) | Dias (Spring Boot 3 + wrapper Maven) | Dias/semanas |
+| Integração WhatsApp / LLM | Nodes nativos | Não é seu papel | Código manual |
+| Manutenção | Editar workflow visual | Spring Boot + JDBC, padrão acadêmico | Alterar código, rebuild, deploy |
+| Acessível ao grupo | ✅ Qualquer um edita | Java é comum na turma, aceita pelo prof Salatiel | Só devs TS |
+| Demonstrabilidade na banca | ✅ Workflow visual | ✅ WSDL + Swagger + código em camadas | Código é abstrato |
+| Custo | Grátis (self-hosted) | Grátis (código) | Grátis |
+| Deploy | Container Docker | Container Docker (JAR + Temurin JRE) | Node runtime |
 
-**Decisão: N8N.** O Go API service existia apenas para orquestrar WhatsApp e webhooks — exatamente o que o N8N faz nativamente com nodes visuais. A troca elimina centenas de linhas de código sem perder funcionalidade, e ganha demonstrabilidade (workflow visual na banca). O N8N roda self-hosted no Railway ou Azure, custo zero.
+**Decisão:**
+
+- **N8N** orquestra WhatsApp/LLM/webhooks (economia de centenas de linhas de código, visual demonstrável).
+- **forward-api-java** (Java 17 + Spring Boot 3) é o backend oficial, focado na disciplina SOA.
 
 ## Stack final
 
@@ -116,10 +121,11 @@ flowchart TB
 |---|---|---|
 | **Frontend Web** | SvelteKit | Dashboard dealers, Dashboard Ford, Performance Console, SSR + API routes |
 | **Mobile** | React Native + Expo | App do atendente, App do cliente, Expo Router |
+| **Backend oficial (SOA)** | Java 17 + Spring Boot 3 | REST (`/api/v1/...`) + SOAP (`/soap/vehicles` + WSDL) para a disciplina de Arquitetura Orientada a Serviços; JWT (JWKS/HS256), rate limit, CORS, RBAC |
 | **Automação** | N8N (self-hosted) | WhatsApp (envio/recebimento), LLM (personalização de mensagens), webhooks, cron jobs, follow-ups automáticos |
 | **ML Service** | Python + FastAPI | XGBoost + SHAP, Segmentação (K-Means), Simulador de ROI (3-4 endpoints) |
 | **Banco + Auth** | Supabase | PostgreSQL, Auth (JWT nativo), Row Level Security (RBAC), Realtime subscriptions, Storage |
-| **Infra / Deploy** | Vercel + Railway + Supabase Cloud | Vercel (SvelteKit), Railway (N8N + Python ML), Supabase Cloud (banco) |
+| **Infra / Deploy** | Vercel + Railway + Supabase Cloud | Vercel (SvelteKit), Railway (forward-api-java + N8N + Python ML), Supabase Cloud (banco) |
 
 ### Custo mensal estimado
 
@@ -584,6 +590,7 @@ Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente
 |---|---|---|---|
 | `forward-web` | SvelteKit | Vercel | Dashboard web (dealers, Ford, performance) |
 | `forward-mobile` | React Native / Expo | EAS / Expo Go | App mobile (atendente + cliente) |
+| `forward-api-java` | Java 17 / Spring Boot 3 | Railway / Azure | **Backend oficial** — REST + SOAP (rubrica SOA) |
 | `forward-n8n` | N8N (Docker) | Railway / Azure | Workflows de automação: WhatsApp, LLM, webhooks, cron jobs |
 | `forward-ml` | Python | Railway | ML service + Notebooks (entrega IA/ML) |
 | `forward-infra` | SQL / Docker | Supabase Cloud | Migrations, seed, config, IaC |
@@ -601,8 +608,9 @@ Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente
 
 | # | Decisão | Alternativa descartada | Motivo |
 |---|---|---|---|
-| 1 | Supabase-first (sem backend separado para CRUD) | Backend Go/TS monolítico | Menos código, auth pronto, equipe já tem experiência com Supabase |
-| 2 | ~~Go para API service~~ → **N8N para automação** | Go API custom / TypeScript/Node | N8N faz nativamente o que o Go API faria (WhatsApp, LLM, webhooks), sem código, com UI visual demonstrável na banca |
+| 1 | Supabase-first (sem backend separado para CRUD) | Backend Java/Go/TS monolítico | Menos código, auth pronto, equipe já tem experiência com Supabase |
+| 2 | **N8N para automação** de comunicação | Go/TS/Java custom para WhatsApp e webhooks | N8N faz nativamente (WhatsApp, LLM, webhooks), sem código, com UI visual demonstrável na banca |
+| 2b | **Java 17 + Spring Boot 3** como backend oficial (rubrica SOA) | Go + Fiber (primeira implementação, agora arquivada) / TypeScript / manter só N8N | Prof Salatiel de SOA exigiu Java. Spring Boot é padrão didático esperado e cobre REST + SOAP + WSDL sem extensões; Go fica como referência. |
 | 3 | SvelteKit para web | React/Next.js | Equipe trabalha com Svelte profissionalmente |
 | 4 | Python ML como serviço separado batch | ML no backend principal | Desacoplamento, sem lock de linguagem, deploy independente |
 | 5 | Multi-repo (um repo por serviço) | Monorepo único | CI/CD independente por serviço, facilita delegação de tarefas ao grupo |
