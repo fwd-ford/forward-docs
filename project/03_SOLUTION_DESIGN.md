@@ -1,368 +1,672 @@
 # Solution Design — ForwardService
 
-![version](https://img.shields.io/badge/versão-1.0-blue?style=flat-square)
-![fase](https://img.shields.io/badge/fase-Solution_Design-yellow?style=flat-square)
-![stack](https://img.shields.io/badge/stack-SvelteKit_·_N8N_·_Python_·_Expo_·_Supabase-333?style=flat-square)
+![version](https://img.shields.io/badge/versão-2.1-blue?style=flat-square)
+![status](https://img.shields.io/badge/status-arquitetura_fechada_·_ML_re--modelado-brightgreen?style=flat-square)
+![sprint](https://img.shields.io/badge/sprint-1_de_1-orange?style=flat-square)
+![deadline](https://img.shields.io/badge/deadline-24%2F05%2F2026-red?style=flat-square)
+![stack](https://img.shields.io/badge/stack-Java_·_Svelte_·_Expo_·_Python_·_n8n-333?style=flat-square)
 
-> **DOC 03** — Traduz a Base Fundacional em features concretas, define o MVP, escolhe a stack e traça o cronograma.  
-> Este documento responde: **o que exatamente vamos construir, em que ordem, e com que tecnologia.**  
-> Data: 09/04/2026
+> **DOC 03** — Traduz a Base Fundacional em **arquitetura fechada, plano de Sprint 1 e cronograma realista**.
+> Reescrito do zero em 06/05/2026 após chegada dos PDFs oficiais (Ford.pdf + Sprint1_Ford_ML.pdf), das 2 bases sintéticas e do brainstorm que definiu a Arquitetura D + estratégia Show & Tell.
+> **v2.1 (17/05/2026):** ajuste pós-dataset oficial Ford. O `vin_share_Desafio_02.xlsx` (recebido 11/05) tem schema fundamentalmente diferente do sintético — sem labels, sem socioeconômico. **Pilar 1 (Intelligence Hub) foi re-modelado** de classificação supervisionada para survival + clustering comportamental. Pilares 2/3/4 e infra/cyber sobrevivem. Detalhes em [02e_DATASET_OFICIAL_E_FONTES.md](./02e_DATASET_OFICIAL_E_FONTES.md).
+> Última revisão: 17/05/2026
 
 ---
 
-## O que vamos construir — Visão geral
+## Changelog da v2.1 (17/05/2026)
 
-A ForwardService é composta por **4 produtos que funcionam juntos**:
+Resumo das alterações desta revisão (detalhes nos blocos editados ao longo do documento):
 
-1. **Dashboard Web** (SvelteKit) — Painel para gerentes e diretoria verem métricas, leads, mapas de cobertura e ROI. É onde a concessionária e a Ford acompanham tudo.
-2. **App Mobile** (React Native/Expo) — Duas versões: uma para o **atendente** da concessionária (ver perfil do cliente, enviar mensagem, gerenciar leads) e uma para o **cliente** (agendar serviço, ver status, consultar planos Ford Care).
-3. **Motor de automação** (N8N) — Orquestra toda a comunicação com o cliente: envio de WhatsApp, personalização de mensagens com LLM, follow-ups automáticos e webhooks. Substitui a necessidade de um backend API separado para integrações externas, com workflows visuais e editáveis sem código.
-4. **Serviço de ML** (Python) — Roda os modelos de segmentação e predição de churn. Calcula os scores e grava no banco. Entrega o Jupyter Notebook para a disciplina de IA/ML.
+- **Fonte primária de dados** muda do par Base 1+Base 2 sintéticos para `vin_share_Desafio_02.xlsx` (602k eventos × 25 colunas, 175k VINs únicos, 100% BRA, 435 dealers, 21 modelos, anos 2017-2026). Os sintéticos viram "simulação socioeconômica honesta" como input paralelo.
+- **Pilar 1 (forward-ml)** ganhou **5 notebooks** no lugar de 3, contemplando: EDA do oficial, feature engineering comportamental (20+ features/VIN), K-means cego, classificação com target engenheirado (`days_since_last_service > 365`), survival analysis (Kaplan-Meier por modelo/ano).
+- **Curva da Morte (LN2)** sai de hipótese para **fato medido**: distribuição direta de `MaintenanceNumber` no oficial mostra 31% (1ª rev.) → 22% → 15% → 9%. Cada revisão perde 30-40% dos clientes.
+- **VIN Share absoluto** calculado: **~3,5-5%** (175k vistos / 3,5-5M frota Ford BR via FENABRAVE). Vira número-chefe do pitch.
+- **5 fontes externas integradas:** FENABRAVE (frota), ABRADIF (80 dealers geocodificados), FIPE (95 valores por modelo×ano), Senacon (12 campanhas de recall), Manual de manutenção (cronograma oficial 10k km/12 meses).
+- **Tratamento de qualidade**: dropar 3 colunas constantes (Country, ServiceType, StatusUSA), clip de KM a 500k, strip de MainSource, parser de data por coluna.
+- **Governança (CY01)**: `VIN_Hash` confirmado robusto (SHA1 não revertível em 5M tentativas) — mantido tratamento conservador como pseudonimizado.
+- **ADRs novos:** ADR-010 (re-modelagem ML) e ADR-011 (adoção das 5 fontes externas).
+- **Cronograma** atualizado para a janela real (17/05 → 24/05).
 
-Tudo se conecta via **Supabase** — um banco PostgreSQL na nuvem que já vem com autenticação, permissões por cargo (RLS) e atualizações em tempo real. O N8N se conecta ao Supabase via triggers de banco ou chamadas agendadas (cron), sem necessidade de intermediário.
+---
+
+## TL;DR — Em 30 segundos
+
+A ForwardService é uma plataforma onde **cada cliente Ford carrega 3 etiquetas que viajam com ele o tempo todo**: um **segmento** (qual perfil é), um **termômetro** (quão perto de sumir) e uma **ação sugerida** (o que fazer agora). Essas 3 etiquetas saem de um **cérebro de IA em 3 camadas** (Segmentador, Classificador, Recomendador), são executadas por um **motor de ações** (n8n + WhatsApp), entregues por uma **interface dual** (mesmo app mobile em modo Ford ou modo Cliente) e medidas por um **cockpit corporativo** (web). Tudo conversa por um **backend Java único** que é o portão de entrada do sistema.
+
+**Sprint 1 entrega Show & Tell:** o **ML completo (Segmentador + Classificador)** rodando, **endpoints Java reais**, **mobile com 3 telas funcionais**, **dashboard web com 1 visão**, **n8n com 1 flow live**, **infra Azure**. Recomendador via ML fica como visão futura — Sprint 1 usa regras simples explícitas, mais auditáveis e mais honestas dado o dataset sintético.
 
 ---
 
 ## Sumário
 
-1. [Decisão de arquitetura](#parte-1--decisão-de-arquitetura)
-2. [Stack definitiva](#parte-2--stack-definitiva)
-3. [Definição de MVP](#parte-3--definição-de-mvp)
-4. [Features detalhadas](#parte-4--features-detalhadas)
-5. [Modelo de dados](#parte-5--modelo-de-dados)
-6. [Mapa de disciplinas](#parte-6--mapa-de-disciplinas)
-7. [Cronograma](#parte-7--cronograma)
-8. [Decisões de design](#parte-8--decisões-de-design)
+1. [Visão — A história em 1 minuto](#parte-1--visão)
+2. [Um dia no ForwardService — o produto 100% rodando](#parte-2--um-dia-no-forwardservice)
+3. [As Plataformas — quem faz o quê](#parte-3--as-plataformas)
+4. [Sprint 1 — o que entrega até 24/05](#parte-4--sprint-1-o-que-entrega-até-2405)
+5. [Mapeamento aos 4 Pilares e 9 Lógicas](#parte-5--mapeamento-aos-4-pilares-e-9-lógicas)
+6. [Stack e Infraestrutura](#parte-6--stack-e-infraestrutura)
+7. [Cronograma realista — 06/05 → 24/05](#parte-7--cronograma-realista)
+8. [Modelo de Dados](#parte-8--modelo-de-dados)
+9. [Decisões registradas (ADRs)](#parte-9--decisões-registradas)
+10. [Limites de escopo](#parte-10--limites-de-escopo)
 
 ---
 
-# Parte 1 — Decisão de Arquitetura
+## Parte 1 — Visão
 
-## O insight central
+### A tese, em uma frase
 
-Com Supabase como BaaS (Backend as a Service — banco de dados, autenticação e APIs prontos na nuvem), **não precisamos de um backend API separado para o MVP**. Veja o que cada camada da aplicação precisa e quem resolve:
+> **ForwardService transforma cada cliente Ford em um cliente legível, abordável e mensurável** — usando IA pra entender quem é, dados pra saber quão perto está de sumir, e automação pra agir antes de ele ir embora.
 
-| Necessidade | Quem resolve | Código custom necessário? |
-|---|---|---|
-| CRUD (clientes, veículos, OS, leads) | Supabase direto (client SDK) | Não |
-| Auth + RBAC | Supabase Auth + RLS | Não |
-| Realtime (status, notificações) | Supabase Realtime | Não |
-| Lógica de negócio simples (gerar leads, calcular IHC) | SvelteKit server routes / Edge Functions | Não |
-| WhatsApp, LLM, integrações externas | **N8N** (workflows visuais, self-hosted) | Não — configuração visual |
-| ML (scores, segmentação, simulação) | **Python service** | Sim (serviço separado) |
+### O cenário (pra contar pros amigos)
 
-## Arquitetura: Supabase-First
+João comprou um Ka 2014 na concessionária. Seis anos depois, ele sumiu. Não fez a última revisão, não responde campanha, não atende ligação. Pra Ford, ele virou um número numa planilha. Pra concessionária, ele virou prejuízo.
 
-```mermaid
-flowchart TB
-    subgraph Clients
-        WEB["SvelteKit\nDashboard Web"]
-        MOB["React Native / Expo\nApp Mobile"]
-    end
+A ForwardService quer que o João **nunca chegue nesse ponto**. No nosso sistema, todo cliente da Ford tem três coisas grudadas nele o tempo todo:
 
-    subgraph Core
-        SB["Supabase\nPostgreSQL + Auth + Realtime + Storage"]
-    end
+1. **Uma etiqueta** — que tipo de cliente ele é (fiel? esquecido? quase indo embora?)
+2. **Um termômetro** — quão perto ele tá de sumir (0 a 100)
+3. **Uma sugestão de ação** — o que fazer com ele *agora*
 
-    subgraph Automation
-        N8N["N8N (self-hosted)\nWhatsApp · LLM · Webhooks\nWorkflows visuais"]
-    end
+Quando o atendente da concessionária abre a ficha do João no tablet, ele vê **"João — Esquecido — risco 78 — Ligue hoje, oferta de revisão 20% off"**. Do outro lado, o gerente da Ford vê um painel da **frota inteira** com essas mesmas três coisas agregadas.
 
-    subgraph ML
-        PY["Python ML\nScores · Segmentação\nSimulador"]
-    end
-
-    WEB -->|"Supabase SDK"| SB
-    MOB -->|"Supabase SDK"| SB
-    SB -->|"trigger / cron"| N8N
-    N8N -->|"envia mensagem"| WA["WhatsApp API"]
-    N8N -->|"personaliza com"| LLM["LLM (Claude/OpenAI)"]
-    N8N -->|"grava resultados"| SB
-    PY -->|"batch: grava scores"| SB
-```
-
-### Por que essa arquitetura e não um backend monolítico?
-
-| Abordagem | Prós | Contras | Pra quem |
-|---|---|---|---|
-| **Supabase + N8N + forward-api-java** (nossa escolha) | Supabase entrega CRUD/auth/realtime; N8N faz automação; API Java atende a disciplina SOA com REST + SOAP sem reinventar o CRUD | Dependência de ferramentas externas e coordenação de dois backends | Grupo pequeno (1 dev principal) construindo MVP com requisitos acadêmicos |
-| Backend monolítico (Java/Go/TS) | Tudo centralizado, controle total | Mais código, mais infra, mais tempo, reinventa auth | Time de 3+ devs |
-| Microserviços puros | Escalável, desacoplado | Overkill para MVP, complexidade operacional | Empresa com infra team |
-
-**A regra:** Supabase faz o CRUD, auth e realtime. N8N faz toda a orquestração de comunicação (WhatsApp, LLM, webhooks) com workflows visuais. Python faz o ML. O código custom fica em dois lugares: SvelteKit (frontend) e Python (ML). Menos código = menos bugs = mais velocidade.
-
----
-
-# Parte 2 — Stack Definitiva
-
-## Decisão: N8N para automação + API Java para SOA
-
-A automação (WhatsApp, LLM, webhooks, cron jobs) fica no N8N. A disciplina de Arquitetura Orientada a Serviços exige código próprio com REST e/ou SOAP, então adicionamos o `forward-api-java` como o "backend oficial" — mas com escopo enxuto: expõe leitura de clientes/veículos/leads/scores + uma operação SOAP `GetVehicle` (com WSDL). Não reimplementa o CRUD que o Supabase já dá.
-
-| Critério | N8N (self-hosted) | forward-api-java (Spring Boot) | Backend TS/Node custom |
-|---|---|---|---|
-| Papel no projeto | Orquestração de comunicação e automação | Atender rubrica SOA (REST + SOAP + WSDL) | — (não usado) |
-| Tempo de implementação | Horas (visual) | Dias (Spring Boot 3 + wrapper Maven) | Dias/semanas |
-| Integração WhatsApp / LLM | Nodes nativos | Não é seu papel | Código manual |
-| Manutenção | Editar workflow visual | Spring Boot + JDBC, padrão acadêmico | Alterar código, rebuild, deploy |
-| Acessível ao grupo | ✅ Qualquer um edita | Java é comum na turma, aceita pelo prof Salatiel | Só devs TS |
-| Demonstrabilidade na banca | ✅ Workflow visual | ✅ WSDL + Swagger + código em camadas | Código é abstrato |
-| Custo | Grátis (self-hosted) | Grátis (código) | Grátis |
-| Deploy | Container Docker | Container Docker (JAR + Temurin JRE) | Node runtime |
-
-**Decisão:**
-
-- **N8N** orquestra WhatsApp/LLM/webhooks (economia de centenas de linhas de código, visual demonstrável).
-- **forward-api-java** (Java 17 + Spring Boot 3) é o backend oficial, focado na disciplina SOA.
-
-## Stack final
-
-| Camada | Tecnologia | Responsabilidades |
-|---|---|---|
-| **Frontend Web** | SvelteKit | Dashboard dealers, Dashboard Ford, Performance Console, SSR + API routes |
-| **Mobile** | React Native + Expo | App do atendente, App do cliente, Expo Router |
-| **Backend oficial (SOA)** | Java 17 + Spring Boot 3 | REST (`/api/v1/...`) + SOAP (`/soap/vehicles` + WSDL) para a disciplina de Arquitetura Orientada a Serviços; JWT (JWKS/HS256), rate limit, CORS, RBAC |
-| **Automação** | N8N (self-hosted) | WhatsApp (envio/recebimento), LLM (personalização de mensagens), webhooks, cron jobs, follow-ups automáticos |
-| **ML Service** | Python + FastAPI | XGBoost + SHAP, Segmentação (K-Means), Simulador de ROI (3-4 endpoints) |
-| **Banco + Auth** | Supabase | PostgreSQL, Auth (JWT nativo), Row Level Security (RBAC), Realtime subscriptions, Storage |
-| **Infra / Deploy** | Vercel + Railway + Supabase Cloud | Vercel (SvelteKit), Railway (forward-api-java + N8N + Python ML), Supabase Cloud (banco) |
-
-### Custo mensal estimado
-
-| Serviço | Tier | Custo |
-|---|---|---|
-| Supabase | Free → Pro se precisar | R$ 0-140 |
-| Vercel | Free (hobby) | R$ 0 |
-| Railway | Starter (N8N + Python ML) | R$ 0-30 |
-| WhatsApp API (via N8N) | Pay-as-you-go (Meta pricing) | R$ 10-30 |
-| LLM API (via N8N) | Claude ou OpenAI | R$ 20-40 |
-| **Total** | | **R$ 30-100/mês** |
-
-Dentro do orçamento disponível do grupo para infraestrutura do projeto acadêmico (R$ 60/mês de bolso + R$ 100 de créditos Azure educacionais).
-
----
-
-# Parte 3 — Definição de MVP
-
-## O princípio
-
-MVP não é "tudo feio". É **a menor coisa que demonstra o valor central da proposta**. Para a ForwardService, o valor central é: transformar dados em ação que retém clientes.
-
-## O que entra no MVP
-
-| Pilar | Feature no MVP | O que entrega |
-|---|---|---|
-| **Intelligence Hub** | Customer Vista 360 | Perfil do cliente com dados básicos, score de churn (pré-calculado pelo Python), LSV estimado, perfil comportamental (cluster) |
-| | Service Share Map | Dashboard com VIN Share por região, visualização de desertos de serviço |
-| **Action Engine** | Pulse Leads | Lista de leads priorizados (risco × LSV), motivo do lead + ação recomendada |
-| | CommEngine (básico) | Template de mensagem por perfil, integração WhatsApp (envio de lembrete) |
-| **Experience Layer** | Journey Optimizer (básico) | Agendamento online, status do serviço |
-| | Ford Care (conceito) | Tela de planos com preço fixo, simulação "quanto você economiza" |
-| **Performance Console** | Dashboard de ROI | Leads gerados vs. convertidos, receita estimada por ação |
-| | IHC (básico) | Score por dealer (cálculo simples), ranking entre dealers |
-
-## O que NÃO entra no MVP
-
-| Feature | Por que fica pra depois |
-|---|---|
-| Recall Gateway com workflow completo | Precisa de dados reais de recall |
-| Flywheel Dashboard | Só faz sentido com dados acumulados |
-| Strategy Simulator completo | Python service complexo, MVP foca em scores |
-| Integração WhatsApp bidirecional (chatbot) | Unidirecional (envio) primeiro |
-| Ford Care com pagamento real | Conceito visual + simulação de economia |
-| Fluxo Simplificado para descontinuados | v2 — MVP foca nos dados disponíveis |
-| Dealer Benchmark com gamificação | v2 — precisa de múltiplos dealers usando |
-
-## Faseamento
-
-| Fase | Quando | O que entrega |
-|---|---|---|
-| **MVP (v1)** | Até outubro 2026 (banca) | Dashboard + Leads + Score de churn + WhatsApp básico + App mobile |
-| **v2** | Pós-banca se quiser | Recall Gateway, Simulator, Gamificação, Fluxo Simplificado |
-| **Sprint 1 (24/05)** | Acadêmica | Esboço demonstrável: pitch + canvas + TOGAF + notebook ML + API docs + app telas básicas |
-
----
-
-# Parte 4 — Features Detalhadas
-
-## 4.1 — Customer Vista 360
-
-**O que o usuário vê:** Tela com perfil completo de um cliente/veículo.
-
-**Dados na tela:**
-
-| Seção | Campos |
-|---|---|
-| Cliente | Nome, telefone, email, endereço, PF/PJ |
-| Veículo | VIN, modelo, ano, versão, cor, km estimada |
-| Status | Garantia (ativa/expirada + data), recalls pendentes |
-| Inteligência | Score de churn (0-100 com cor), perfil (fiel/econômico/esquecido/abandono), LSV (R$) |
-| Histórico | Lista de OS anteriores (data, tipo, valor, dealer) |
-| Próxima ação | Recomendação do sistema ("lembrete de revisão 30K em 15 dias") |
-
-**Quem usa:** Atendente da concessionária (app mobile) + Gerente (web).
-
-**Fonte de dados:** Tabelas `customers`, `vehicles`, `service_orders`, `churn_scores` no Supabase.
-
----
-
-## 4.2 — Radar de Churn (ML)
-
-**O que faz:** Modelo que atribui score 0-100 a cada VIN e classifica em perfil.
-
-**Pipeline:**
+Essas 3 coisas não saem do nada. Elas vêm de um **cérebro em 3 camadas** alimentado pelos dados que a Ford já tem mas não usa direito. Cada camada faz uma coisa simples. Juntas, elas viram inteligência.
 
 ```mermaid
 flowchart LR
-    B1["Base 1\nHistórico completo"] --> SEG["Segmentação\nK-Means + RFM"]
-    SEG --> PERFIS["4-6 perfis\nnomeados"]
-    PERFIS --> TARGET["Variável-alvo\npara classificação"]
-    B2["Base 2\nDados da compra"] --> CLF["Classificação\nXGBoost"]
-    TARGET --> CLF
-    CLF --> SCORES["Score 0-100\npor VIN"]
-    SCORES --> DB["Grava no\nSupabase"]
+    DS[("vin_share oficial<br/>602k eventos × 175k VINs")]
+    FE["Feature engineering<br/>(20+ features comportamentais/VIN)"]
+    DS --> FE
+    FE --> SEG["Segmentador<br/>K-means cego<br/>(qual perfil?)"]
+    FE --> CLS["Classificador<br/>target: recência<br/>(que risco?)"]
+    FE --> SUR["Survival<br/>Kaplan-Meier<br/>(quando volta?)"]
+    SEG --> REC["Recomendador<br/>(qual ação?)"]
+    CLS --> REC
+    SUR --> REC
+    REC --> APP["3 etiquetas<br/>na ficha do cliente"]
 ```
 
-**Entregáveis técnicos:**
-- Jupyter Notebook (.ipynb) com todo o processo (entrega IA/ML)
-- Relatório PDF com achados (entrega IA/ML)
-- Tabela `churn_scores` no Supabase (alimenta o dashboard)
-- API endpoint no Python service para recalcular score de novo cliente
-
-**Regra crítica:** Base 2 (classificação) NUNCA usa variáveis pós-compra. Zero data leakage.
-
 ---
 
-## 4.3 — Service Share Map
+## Parte 2 — Um dia no ForwardService
 
-**O que o usuário vê:** Dashboard interativo com mapa do Brasil.
+A visão **100% rodando**, narrada como um dia real. Esse texto é a base do **pitch** e do roteiro do **vídeo de 3 minutos**.
 
-**Visualizações:**
+### Quarta-feira, 14h32. João Silva, Ka 2014, sumido há 11 meses.
 
-| Viz | Tipo | O que mostra |
+**02h da madrugada.**
+A plataforma não dorme. Enquanto a Ford inteira tá em casa, o **cérebro** acorda, lê o banco, e re-etiqueta os 12,4 milhões de clientes do Brasil. João, que ontem era "Risco Médio", virou **"Esquecido"** e o termômetro dele subiu pra **78** — porque a próxima revisão dele venceu ontem.
+
+**09h12.**
+A camada do Recomendador olha pro João e fala: *"Esquecido + risco 78 + sem app + última conversa há 8 meses → mandar WhatsApp com cupom revisão 20%, e avisar a concessionária dele que tem ação aberta."* Ação enviada pro **n8n**.
+
+**09h13.**
+O n8n é o **braço executor** do sistema. Recebe a ordem, monta a mensagem, dispara no WhatsApp do João:
+
+> *"Oi João, faz tempo. Notamos que seu Ka tá pedindo revisão. Tô com 20% off liberado pra você até sexta. Quer que eu agende?"*
+
+João nem sabe que falou com um sistema. Pra ele, é a Ford lembrando dele.
+
+**09h47.**
+João responde "quanto fica pra rodar tudo?". O n8n responde com cardápio de serviços + link curto. Cada clique do João volta pro banco. O termômetro já mexe: caiu de 78 pra 71. Ele tá engajando.
+
+**11h05.**
+**Maria, atendente da concessionária Ford Vila Olímpia.** Abre o **app mobile no tablet, em modo Ford**. Ela não usa planilha, não usa email — só o app. Lá, no topo da tela dela, aparece:
+
+> 🟡 **João Silva — Esquecido — risco 71 — começou a responder no WhatsApp 1h atrás. Próxima ação: ligar e fechar agendamento da revisão.**
+
+Maria liga, fecha pra sexta. Marca "agendado" no app. **O sistema não pergunta o que ela fez** — ela escreveu uma vez, e a partir dali os 4 pilares já sabem.
+
+**14h32.**
+João, no escritório dele, **abre o app mobile pela primeira vez** (link veio pelo WhatsApp). O app reconhece que ele é cliente, e vira **modo Cliente**:
+
+> *"Olá, João. Sua revisão tá agendada pra sexta 09h, na Vila Olímpia. Seu Ka tá com 6 itens recomendados, total R$ 487. Quer ver?"*
+
+Uma porta. Dois lados.
+
+**18h00.**
+**Carlos, diretor regional da Ford,** entra no **forward-web** do notebook dele. Não é o mesmo lugar que a Maria — esse é o **Painel de Performance**, o cockpit da Ford corporativa. Ele vê:
+
+> Hoje: **47 esquecidos contatados via WhatsApp · 22 agendaram · 47% de conversão · R$ 184 mil em revisão prevista · 9 dealers acima da meta, 3 abaixo.**
+
+Carlos não vê João. Ele vê **a frota inteira em tempo real**.
+
+**Sexta, 02h da madrugada.**
+O cérebro acorda de novo. João, que sexta-feira fez a revisão, muda de **"Esquecido"** pra **"Fiel"**. Termômetro dele cai pra 22. **O ciclo fechou.** E o dado dessa conversão volta pra alimentar o próprio cérebro — ele aprendeu que mensagem WhatsApp + cupom 20% funciona pra "esquecidos com risco 70-80".
+
+> Esse é o **Flywheel de Dados** — quanto mais a plataforma roda, mais inteligente ela fica.
+
+### O elenco
+
+| Plataforma | Papel no enredo | Quem usa |
 |---|---|---|
-| Mapa de calor | Mapa | VIN Share por estado/região + posição das 145 concessionárias |
-| Desertos de serviço | Mapa overlay | Zonas com alta densidade de VINs Ford e nenhum dealer próximo |
-| Curva de retenção | Line chart | VIN Share por idade do veículo (curva da morte visível) |
-| Ranking dealers | Table sortable | IHC, VIN Share, NPS, conversão — por concessionária |
-| Trend mensal | Line chart | Evolução do VIN Share ao longo do tempo |
-| Decomposição da frota | Treemap/Pie | Composição por modelo/ano/segmento (descontinuado vs. ativa) |
+| **App Mobile** (`forward-mobile`) | Duas portas, um app. Modo Ford pro atendente, modo Cliente pro dono do carro. Login decide qual abre. | Maria + João |
+| **Web** (`forward-web`) | Cockpit estratégico. Painéis agregados, KPIs, frota inteira. Nada de cliente individual. | Carlos (Ford corporativo) |
+| **WhatsApp + n8n** | Porta da rua. Cliente que nem baixou app fala com a Ford por aqui. n8n também é o braço que dispara qualquer ação automática. | Sistema → cliente |
+| **Backend Java** (`forward-api-java`) | Garçom central. Todo mundo (app, web, n8n) só fala com ele. Ele é quem sabe a verdade. | Ninguém usa direto |
+| **ML** (`forward-ml`) | Cérebro das 3 camadas. Etiqueta, mede risco, sugere ação. Só fala com o garçom. | Ninguém usa direto |
+| **Banco** (Postgres) | Memória do sistema. Tudo o que aconteceu fica aqui. | Ninguém usa direto |
 
-**Quem usa:** Gestor regional Ford (web) + Dono do dealer (web).
-
-**Dados:** Tabelas `dealers`, `vehicles`, `service_orders`, `regions`, dados de VIO.
-
----
-
-## 4.4 — Pulse Leads
-
-**O que o usuário vê:** Lista de leads priorizados — "quem contatar hoje".
-
-**Campos por lead:**
-
-| Campo | Exemplo |
-|---|---|
-| Cliente | João Silva |
-| Veículo | Ranger XLS 2023 |
-| Score de churn | 72 (alto) |
-| LSV | R$ 18.400 |
-| Motivo | "Revisão dos 30K em ~15 dias. Última visita há 9 meses." |
-| Perfil | Econômico |
-| Ação recomendada | "WhatsApp com oferta de 15% desconto na revisão" |
-| Template sugerido | [Link para template] |
-| Prioridade | Urgente |
-
-**Lógica de geração de leads:**
+### Como tudo se interliga
 
 ```mermaid
 flowchart TB
-    A["Para cada VIN ativo"] --> B["Calcular:\n- Km estimada vs. próxima revisão\n- Dias desde última visita\n- Score de churn\n- Status de garantia\n- Recalls pendentes"]
-    B --> C["Aplicar regras:\n- Revisão próxima? → Lead\n- Garantia expirando? → Lead\n- Score alto + LSV alto? → Lead urgente\n- Recall pendente? → Lead prioridade máx"]
-    C --> D["Priorizar por:\nScore × LSV × Urgência"]
-    D --> E["Lista de leads\nordenada"]
+    subgraph EXP[Experience Layer]
+        Mob[App Mobile<br/>Ford + Cliente]
+        WA[WhatsApp]
+    end
+
+    subgraph PERF[Performance Console]
+        Web[Painel Ford<br/>web]
+    end
+
+    subgraph ACT[Action Engine]
+        N8N[n8n<br/>executor]
+    end
+
+    subgraph CORE[Backend Core]
+        API[forward-api-java]
+        DB[(Banco Postgres)]
+    end
+
+    subgraph INT[Intelligence Hub]
+        Seg[Segmentador]
+        Cls[Classificador]
+        Rec[Recomendador]
+    end
+
+    Mob --> API
+    WA --> N8N
+    N8N --> API
+    Web --> API
+    API <--> DB
+    API --> Cls
+    API --> Rec
+    N8N --> WA
+    API --> N8N
+    Seg -.1x ao dia.-> DB
+    Rec -.consulta.-> DB
+    Cls -.consulta.-> DB
 ```
 
-**Quem usa:** Gerente de serviço + Atendente (app mobile + web).
+**Princípios do diagrama:**
+- Tudo que vem de fora (Mobile, WhatsApp, Web) entra pelo **Backend Java** — portão único.
+- O **Backend** é o único que fala com o **Cérebro** e com o **Banco**.
+- O **n8n** é o único que sai pra fora (manda WhatsApp, email, push).
+- O **Segmentador** é assíncrono — roda 1×/dia direto no banco, não atrapalha ninguém.
+- A **Web** só lê, nunca escreve diretamente.
+- **Caixa não fala com vizinha do vizinho.** Mobile não fala com banco. Web não fala com ML. n8n não fala com banco.
+
+> Essa última frase é literalmente o que o Prof. Salatiel chama de **arquitetura SOA bem feita**.
 
 ---
 
-## 4.5 — CommEngine (MVP) — via N8N
+## Parte 3 — As Plataformas
 
-**No MVP:** Envio de mensagens via WhatsApp orquestrado pelo N8N. Não é chatbot — é comunicação proativa e personalizada.
+Para cada plataforma, respondemos quatro perguntas: **o que é, do que é responsável, do que NÃO é responsável, com quem fala**. Isso é o que permite delegar partes do código sem que ninguém quebre os contratos das outras.
 
-**Fluxo (workflow N8N):**
-1. **Trigger:** Supabase database trigger (novo lead criado) ou cron agendado (batch diário)
-2. **Enriquecimento:** N8N busca dados do cliente e veículo no Supabase
-3. **Personalização:** Node LLM (Claude/OpenAI) gera mensagem personalizada com base no perfil, tom e template
-4. **Aprovação (opcional):** Atendente vê o lead no Pulse Leads, clica em "Enviar mensagem", confirma ou edita
-5. **Envio:** Node WhatsApp envia via API oficial do Meta (sem intermediário BSP para MVP)
-6. **Registro:** N8N grava o envio no Supabase (tabela `communications`) para Closed-Loop ROI
+### 3.1 — Experience Layer · `forward-mobile`
 
-**Vantagem do N8N:** O workflow inteiro é visual e editável. Qualquer integrante do grupo pode ajustar tom, adicionar canais ou mudar regras sem escrever código.
+**O que é:** app Expo/React Native em **um único codebase** que assume dois modos diferentes dependendo do login: **Modo Ford** (atendente) e **Modo Cliente** (dono do carro).
 
-**Templates por perfil:**
+**Responsabilidade:**
+- Renderizar a interface dos dois personagens (Maria + João)
+- Manter sessão autenticada e cache leve
+- Disparar ações pro backend (agendar, responder cupom, atualizar status)
+- Receber push notifications
 
-| Perfil | Tom | Exemplo |
+**Não é responsabilidade:**
+- Tomar decisão de negócio (não decide quem é "esquecido" — só renderiza)
+- Falar direto com banco, com ML ou com WhatsApp — **só fala com o backend Java**
+
+**Com quem fala:** **só** com `forward-api-java` (REST).
+
+**Stack:** Expo SDK 54+, React Native, TypeScript, expo-router, i18n desde o início (EN base, PT-BR como tradução).
+
+### 3.2 — Performance Console · `forward-web`
+
+**O que é:** dashboard SvelteKit consumido pela **Ford corporativa** e **gerentes regionais**. Não é versão web do app — é um produto **diferente**, com público diferente.
+
+**Responsabilidade:**
+- Painéis agregados (frota, dealers, campanhas, ROI)
+- Filtros por região / período / categoria
+- Exportação (CSV, PDF) pra reuniões
+- Visualizações dos KPIs vindos do **Closed-Loop ROI** (LN7)
+
+**Não é responsabilidade:**
+- Atender cliente individual (isso é com o mobile)
+- Editar/criar/excluir registros — **read-only** no fluxo de cliente
+- Configurar lógicas de negócio (admin separado, fora do escopo Sprint 1)
+
+**Com quem fala:** **só** com `forward-api-java` (REST).
+
+**Stack:** SvelteKit, design system próprio, Chart.js/visx pra gráficos.
+
+### 3.3 — Action Engine · `n8n` + WhatsApp
+
+**O que é:** orquestrador low-code que assume duas funções:
+- **Saída:** quando o backend decide "manda WhatsApp pro João", quem executa é o n8n
+- **Entrada:** quando João responde no WhatsApp, quem recebe primeiro é o n8n, que traduz pra chamada de API
+
+**Responsabilidade:**
+- Disparar mensagens (WhatsApp Business API, email, SMS) com base em ordens do backend
+- Receber webhooks (resposta de cliente, status de entrega) e empurrar pro backend
+- Rotacionar templates aprovados pelo WhatsApp Business
+- Logar comunicações pro banco (via API)
+
+**Não é responsabilidade:**
+- Decidir **quando** mandar mensagem (Recomendador decide)
+- Decidir **quem** mandar (idem)
+- Guardar estado de longo prazo (estado vive no banco)
+
+**Com quem fala:**
+- **Recebe de:** backend Java (ordens) + canais externos (webhooks WhatsApp/email/SMS)
+- **Envia para:** backend Java (eventos) + canais externos
+
+**Stack:** n8n self-hosted (Docker).
+
+**Por que n8n:** equipe não-dev pode adicionar canal novo sem mexer no Java. Inversão saudável: lógica de orquestração externa fica fora do core.
+
+### 3.4 — Backend Core · `forward-api-java`
+
+**O que é:** API Spring Boot 3 que é o **único portão de entrada** do sistema.
+
+**Responsabilidade:**
+- Expor REST para mobile/web
+- Expor SOAP onde a disciplina de SOA exigir (Prof. Salatiel) — operação `GetVehicle` com WSDL
+- Aplicar RBAC (Maria não vê cliente da concessionária Y)
+- Rate limit por IP + user (Bucket4j)
+- Orquestrar leituras: pedido do mobile → busca dados no banco → busca score no ML → monta resposta unificada
+- Disparar ordens pro n8n quando o Recomendador decide ação
+- Registrar tudo (auditoria, RFC 7807 pra erros)
+
+**Não é responsabilidade:**
+- Treinar modelos (forward-ml)
+- Mandar mensagem (n8n)
+- Renderizar interface (mobile/web)
+
+**Com quem fala:**
+- **Recebe de:** mobile, web, n8n
+- **Envia para:** banco (JDBC), forward-ml (HTTP interno), n8n (HTTP)
+
+**Stack já decidida:** Spring Boot 3.2 + Java 17 + Spring Web + Spring WS + Spring Security + Spring Data JDBC + HikariCP + Bucket4j + Logback JSON + SpringDoc OpenAPI.
+
+### 3.5 — Intelligence Hub · `forward-ml`
+
+**O que é:** repositório com os modelos + os notebooks de treino + o serviço que expõe pro backend.
+
+**Responsabilidade (v2.1, pós-dataset oficial):**
+- **Pré-processamento:** ingere `vin_share_Desafio_02` com normalizações (clip KM, strip de MainSource, parser de data por coluna, drop de Country/ServiceType/StatusUSA), gera `vin_features.csv` (175k VINs × 20+ features comportamentais derivadas)
+- **Camada 1 — Segmentador:** roda 1×/dia (cron), lê o banco, escreve etiqueta + segmento em `client_segments` (**K-means cego** sobre as features comportamentais; sem ground truth — análise de personas pós-hoc com nomes do DOC 00: fiel/econômico/esquecido/abandono)
+- **Camada 2 — Classificador:** exposto via HTTP interno; recebe features comportamentais e devolve **probabilidade de churn** + perfil estimado. **Target engenheirado:** `churned = days_since_last_service > 365`. Modelo: XGBoost com SHAP.
+- **Camada 3 (nova) — Survival Analysis:** Kaplan-Meier por modelo×ano gera "curva de retorno típica" — input do Recomendador pra estimar **quando** um VIN deve voltar (não só se vai voltar). Lib: `lifelines`.
+- **Camada 4 — Recomendador:** Sprint 1 = **regras explícitas** no Java (não ML). Combina segmento + score + survival + cronograma oficial Ford (10k km / 12 meses). Visão futura: modelo treinado em outcomes
+- **Modelo paralelo de propensão socioeconômica (visão):** treinado no dataset sintético (`ford_clientes_*.csv`) como **simulação** das features de cliente que o oficial não tem. Documentado honestamente; arquitetura preparada pra ingerir CRM real quando Ford disponibilizar.
+- Manter **data lineage**: cada predição é versionada com (modelo_versão, timestamp, features_snapshot)
+
+**Não é responsabilidade:**
+- Atender chamada de cliente externo (só backend chama)
+- Persistir nada além de logs de predição (estado de cliente é do banco)
+- Decidir o que fazer com a predição (decisão fica no backend; execução nunca aqui)
+
+**Com quem fala:**
+- **Recebe de:** backend Java (HTTP) + cron interno
+- **Envia para:** banco (escrita do segmentador)
+
+**Stack:**
+- Sprint 1: notebooks Python (`forward-ml/notebooks/`) + script `scripts/run_segmenter.py` agendado
+- Visão futura: FastAPI servindo Classificador como endpoint dedicado
+
+### 3.6 — Banco · Postgres
+
+**O que é:** Postgres único, fonte da verdade.
+
+**Tabelas-chave (Sprint 1):**
+- `clients`, `vehicles`, `services_history`
+- `client_segments` (saída do Segmentador, com versão de modelo)
+- `client_scores` (saída do Classificador, com versão de modelo)
+- `recommended_actions` (saída do Recomendador, com motivo)
+- `executed_actions` (o que o n8n efetivamente disparou)
+- `conversations` (mensagens WhatsApp/email)
+- `audit_log` (trilha de auditoria — alimenta Cyber)
+
+**Não é responsabilidade:**
+- Lógica de negócio (sem trigger gigante; lógica fica no Java)
+- Cache (cache fica em camada separada se precisar)
+
+**Com quem fala:** **só** o backend Java e o segmentador batch.
+
+**Stack:** Postgres 16. **Decisão pendente:** Supabase (managed cloud) vs Neon (serverless cloud). Ver [ADR-001](#decisões-registradas-adrs).
+
+### 3.7 — Infra e Docs · `forward-infra` + `forward-docs`
+
+**`forward-infra`** — docker-compose pra dev local, scripts de deploy Azure, cron Linux do segmentador.
+
+**`forward-docs`** — markdown único, fonte da verdade documental, espelha decisões dos sprints.
+
+### Tabela síntese — quem fala com quem
+
+| Componente | Recebe de | Envia para |
 |---|---|---|
-| Fiel | Premium | "Olá [nome], como cliente Ford há [X] anos, preparamos uma condição especial para a revisão dos [km]K do seu [modelo]." |
-| Econômico | Economia | "Olá [nome], a revisão dos [km]K do seu [modelo] está com 20% de desconto esta semana. Agende pelo app ou responda aqui." |
-| Esquecido | Gentil | "Olá [nome], faz tempo que não vemos seu [modelo]! Tudo bem com ele? Temos horário disponível para um check-up." |
-| Abandono | Win-back | "Olá [nome], sentimos sua falta na Ford. Preparamos uma condição especial de retorno para você." |
+| forward-mobile | usuário | forward-api-java |
+| forward-web | usuário Ford | forward-api-java |
+| n8n | forward-api-java + canais externos | forward-api-java + canais externos |
+| forward-api-java | mobile, web, n8n | banco, forward-ml, n8n |
+| forward-ml | forward-api-java + cron interno | banco |
+| Banco | forward-api-java + segmentador batch | forward-api-java + forward-ml |
 
 ---
 
-## 4.6 — Journey Optimizer (MVP)
+## Parte 4 — Sprint 1: o que entrega até 24/05
 
-**No MVP:** Agendamento online + status do serviço.
+### Princípio Show & Tell
 
-**Telas do app mobile (cliente):**
+Vocês **constroem o suficiente pra provar que a arquitetura é real**, mas **vendem a visão inteira**. A banca não quer ver brinquedo completo — quer ver maturidade de produto. Cada disciplina avaliativa precisa ter uma entrega defensável, e cada entrega precisa **encaixar na arquitetura da Parte 3** (não inventar peça paralela só pra encher relatório).
 
-| Tela | O que faz |
-|---|---|
-| Home | Resumo do veículo, próxima manutenção, alertas |
-| Agendamento | Escolher concessionária, data, horário, tipo de serviço |
-| Status | "Seu veículo está: em diagnóstico / em execução / pronto" |
-| Histórico | Lista de serviços realizados |
-| Ford Care | Planos disponíveis com simulação de economia |
+### 4.1 — O que vocês CONSTROEM
 
-**Telas do app mobile (atendente):**
+#### `forward-ml` — coração da Sprint 1 (v2.1, sobre o dataset oficial)
 
-| Tela | O que faz |
-|---|---|
-| Leads do dia | Lista Pulse Leads com ações |
-| Vista 360 | Perfil completo do cliente |
-| Enviar mensagem | CommEngine com templates |
-| Agenda | Agendamentos do dia |
+- `notebooks/01_eda_official.ipynb` — análise exploratória do `vin_share_Desafio_02` (já parcialmente em [02e](./02e_DATASET_OFICIAL_E_FONTES.md))
+- `notebooks/02_feature_engineering.ipynb` — gera as 20+ features comportamentais por VIN (input pros 3 modelos seguintes)
+- `notebooks/03_segmentation_kmeans.ipynb` — K-means cego (k=4) sobre features comportamentais + análise de personas pós-hoc; valida nomes do DOC 00 (fiel/econômico/esquecido/abandono) com Silhouette + cross-tabs com `MaintenanceNumber`
+- `notebooks/04_classification.ipynb` — XGBoost com target engenheirado (`days_since_last_service > 365`); comparar **3+ classificadores** (LogReg + RF + XGBoost) com matriz de confusão + métricas + SHAP
+- `notebooks/05_survival_analysis.ipynb` — Kaplan-Meier por modelo×ano + Curva da Morte real (validação direta via `MaintenanceNumber`); usa `lifelines`
+- `notebooks/06_propensity_synthetic.ipynb` *(opcional, se sobrar tempo)* — modelo paralelo de propensão socioeconômica treinado no CSV sintético; ensemble simulado no Pulse Leads
+- `scripts/preprocess_official.py` — normalização do xlsx oficial (clip KM, strip MainSource, parser de data por coluna)
+- `scripts/run_segmenter.py` — aplica segmentador, escreve em `client_segments`
+- `scripts/score_classifier.py` — aplica classificador num cliente novo
+- `data/external/` — 5 CSVs de fontes externas (FIPE, dealers ABRADIF, recalls Senacon, manutenção Ford, frota FENABRAVE — ver [02e_REFERENCIAS](./02e_REFERENCIAS.md))
+- `data/processed/vin_features.csv` — features comportamentais (175k linhas, gerado pelo notebook 02)
+- `feature_dictionary.json` — dicionário das features comportamentais (com nota de governança)
+- `MODEL_CARD.md` — versão do modelo, métricas, dataset oficial vs sintético, política de governança
+- **Relatório PDF** com leitura executiva (entrega obrigatória ML)
+
+> O coração porque é a única peça que **muda completamente com o dataset oficial**. O resto tem schema fixo. Anti-data-leakage do v2.0 deixou de ser problema (não há labels no oficial); virou engenharia de target.
+
+#### `forward-api-java` — endpoints novos
+
+Já existe: `/customers/{id}`, `/vehicles/{vin}`, `/leads`, `/scores/{customerId}`, `/me`, `/soap/vehicles.wsdl`.
+
+A adicionar:
+- `GET /clients/{id}/segment` — devolve etiqueta + versão do modelo (alimentado pelo segmentador batch)
+- `POST /classify` — recebe features Base 2, devolve perfil predito + probabilidades
+- `GET /clients/{id}/recommended-action` — **regras simples** no Java (não ML): `if segment=esquecido && score>70 → recomendação_X`
+- `GET /analytics/segments-summary` — agregados pra forward-web
+- **Swagger/OpenAPI ativo** (SpringDoc) — entrega obrigatória SOA
+- **Flyway migrations** — entrega obrigatória SOA (controle de migrações = 7%)
+
+#### `forward-mobile` — 3 telas
+
+**Modo Ford (Maria):**
+- Login + detecção de role
+- **Tela A:** lista de clientes da concessionária dela, com etiqueta do segmento colorida
+- **Tela B:** ficha individual (ex: João), mostrando segmento + histórico de revisões + ação sugerida
+
+**Modo Cliente (João):**
+- Login + detecção de role
+- **Tela única:** "Meu carro" — veículo, próxima revisão sugerida, histórico
+
+> 3 telas no total. Não 30. Sprint 1 não é app inteiro — é "o app já existe e mostra o segmento".
+
+**Diferencial:** push notification quando ação sugerida é criada (vale ponto extra Mobile).
+
+#### `forward-web` — 1 dashboard
+
+- **Tela única "Visão da frota":** totais por segmento, mapa de calor por região (se Base 1 tiver geo), distribuição da Curva da Morte, ranking de IHC por dealer (com dado simulado se necessário)
+- Lê de `forward-api-java` (`GET /analytics/segments-summary`)
+
+#### `n8n` — 1 flow real
+
+- Inbound: webhook do WhatsApp Business → POST pro Java
+- Outbound: Java POST `/n8n/send` → n8n manda WhatsApp template
+- **Free tier do WhatsApp Business cobre o demo** (1000 service messages/mês — pesquisa WA01 vai confirmar)
+- Aproveita os flows existentes (`critical-lead-alert.json`, `simple-leads-test.json`) como base
+
+#### Banco — schema completo, populado parcial
+
+- **Migrations criam TODAS as tabelas** (incluindo as que ficam vazias no Sprint 1)
+- **Sprint 1 popula:** `clients`, `vehicles`, `services_history`, `client_segments`, `client_scores`
+- **Vazias mas com schema:** `recommended_actions`, `executed_actions`, `conversations` (parcialmente)
+
+> A banca abre o banco, vê o schema completo, entende que o produto foi pensado completo mesmo sem ter sido construído inteiro.
+
+#### `forward-infra` — Docker + Azure deploy
+
+- `docker-compose.yml` levanta tudo localmente (Postgres ou Supabase remoto / Neon, Java, n8n, ML script)
+- **Deploy real no Azure** (ver Parte 6)
+- Cron Linux dispara `run_segmenter.py` 1×/dia
+
+#### `forward-docs` — 4 entregas em uma
+
+1. Doc de arquitetura em **Mermaid no markdown** — para Salatiel (combinado por acordo)
+2. Pitch + Canvas + Quadro de Valor — para Testing
+3. **Archi (.archimate)** — para Testing (não escapa)
+4. Plano de segurança (gaps Cyber + tratamento) — para Cybersecurity
+
+### 4.2 — O que vocês NÃO constroem (mas DOCUMENTAM)
+
+São peças **mostradas no diagrama, descritas no doc, com schema reservado no banco** — só não estão rodando ainda.
+
+- **Recomendador via ML** (3ª camada do cérebro) — Sprint 1 usa regras no Java; ML real fica como visão
+- **Performance Console completa** (drill-down, exports, filtros avançados)
+- **Anonimização full no banco** (campos pessoais criptografados em repouso) — política descrita, implementação parcial
+- **Closed-Loop ROI completo** — schema pronto, dados parciais
+- **Rede Invertida e Recall Gateway** — descritos como "próximas etapas"
+- **Ponte Serviço-Venda** — só viable cruzando com sistema de vendas
+
+> **Defesa na banca:** *"Construímos a peça que prova que o pipeline funciona — Segmentador + Classificador + endpoint de Ação. As outras camadas dependem do dataset oficial ou de fontes externas (vendas, recall) que ainda não chegaram. Construir agora seria desperdício — ajustaríamos tudo de novo. Mostramos a arquitetura completa porque ela existe no nosso banco, no nosso doc, e nas decisões."*
+
+### 4.3 — Como cada disciplina avaliativa aparece
+
+Apenas 5 disciplinas têm **entrega avaliativa** este semestre. As outras 3 (CS Software Development, Operating Systems, Physical Computing/IoT) **herdam a média das 5**.
+
+| Disciplina | Entrega Sprint 1 | Onde mora | Critérios principais (PDF) |
+|---|---|---|---|
+| **SOA / Web Services** (Salatiel) | Backend Java REST + SOAP, Swagger, Flyway, separação de camadas, doc Mermaid | `forward-api-java/` + `forward-docs/project/04_ARQUITETURA.md` | WS 50% / SOA 20% / Padrões 15% / Banco 15% |
+| **IA / Machine Learning** (Carlos) | Notebooks (EDA + Feature Engineering + Segmentação K-means + Classificação 3+ algoritmos + Survival) + Relatório PDF + MODEL_CARD + feature_dictionary | `forward-ml/notebooks/` | Segmentação K-means (vin_share oficial) + Classificação supervisionada com target engenheirado + Curva da Morte via `MaintenanceNumber` |
+| **Mobile Development & IoT** | App Expo dual-mode, 3 telas, consumo API, push notification | `forward-mobile/` | Multiplataforma + UX consistente + 1 fonte externa de dados |
+| **Cybersecurity** | JWT/RBAC ativo, sanitização, CORS, criptografia em repouso (parcial), trilha auditoria, threat model, anonimização ML | `forward-api-java/` + `forward-docs/project/06_PLANO_SEGURANCA.md` + `academic/cyber/THREAT_MODEL.md` | 5 áreas: validação 20 / auth 20 / API 20 / dados 25 / logs 15 |
+| **Testing/Compliance/QA** | Pitch + Canvas + Quadro de Valor + **TOGAF/Archi (.archimate)** + apresentação 10-15 slides + vídeo 3min | `forward-docs/academic/` | Pitch + Canvas + Quadro Valor + Arquitetura TOGAF |
+
+### 4.4 — Sinais de alarme — o que vocês têm que monitorar
+
+1. **ML atrasado >3 dias** (janela curta — 7 dias até 24/05) → corte forward-mobile pra 2 telas (não 3), corte survival analysis (mantém só K-means + classificação), foque no notebook ML.
+2. ~~**Dataset oficial chega antes de 24/05**~~ → **JÁ CHEGOU em 11/05**. Re-modelagem em curso (v2.1). Decisão: pipeline rodando sobre o oficial até 24/05, **sintético vira simulação documentada** no relatório. Refazer EDA+Seg+Classif do zero sobre o oficial é a tarefa atual.
+3. **Algum dos 4 amigos travou** → líder (Jota) realoca. Mobile pode ajudar UX da Web; ML pode ajudar Cyber com data audit.
+4. **Aprovação de templates WhatsApp Meta atrasada** → demo via sandbox da Meta + screenshot dos templates pendentes (honestidade).
+5. **Archi (.archimate) trava por causa de ferramenta** → criar fallback de exportação PNG + fonte do diagrama em XML, e levar pro prof. de Testing pra alinhar.
+6. **Curva da Morte do pitch precisa ser atualizada** → usar números do oficial (`MaintenanceNumber`: 31% → 22% → 15% → 9%) no lugar dos do sintético. Os dois contam a mesma história; usar o oficial é mais honesto.
 
 ---
 
-## 4.7 — Performance Console (MVP)
+## Parte 5 — Mapeamento aos 4 Pilares e 9 Lógicas
 
-**Dashboard web com:**
+Esse mapeamento é o "selo de coerência": prova que a arquitetura D não é uma escolha técnica isolada — ela materializa os 4 pilares e dá lugar pra cada uma das 9 lógicas definidas no DOC 00.
 
-| Componente | Dados |
-|---|---|
-| ROI por período | Leads gerados, mensagens enviadas, agendamentos, visitas, receita |
-| IHC por dealer | Score 0-100, tendência, drill-down por fator |
-| Ranking | Tabela comparativa entre dealers |
-| Funnel | Leads → Contato → Agendamento → Visita → Receita |
+### 5.1 — Pilares × Plataformas
+
+| Pilar | Plataforma | O que materializa |
+|---|---|---|
+| **Intelligence Hub** | `forward-ml` + endpoints `/segment`, `/classify`, `/recommended-action` no Java | Decisão automatizada: quem é, quão em risco, o que fazer |
+| **Action Engine** | `n8n` + WhatsApp + (futuro: email/SMS/push) | Execução: a decisão vira mensagem, lembrete, agendamento |
+| **Experience Layer** | `forward-mobile` em 2 modos + WhatsApp como entrada | Interface humana — onde Maria e João tocam o sistema |
+| **Performance Console** | `forward-web` | Foto agregada pra Ford corporativa entender o todo |
+
+### 5.2 — As 9 Lógicas × Sprint 1
+
+| # | Lógica | Onde mora | Sprint 1 (v2.1) |
+|---|---|---|---|
+| 1 | **LSV (Lifetime Service Value)** | calculado pelo segmentador + agregado no `forward-web`; join com FIPE para componente de valor do veículo | ✅ entregue (FIPE join real — Ka R$ 38k → Mustang R$ 609k, fator 16×) |
+| 2 | **Curva da Morte** | visualização no dashboard + Kaplan-Meier no notebook + uso de `MaintenanceNumber` como ground truth | ✅ entregue (confirmado direto no dado oficial: 31% → 22% → 15% → 9%, perde 30-40% a cada revisão) |
+| 3 | **IHC (Indicador de Saúde do Cliente)** | endpoint Java `/clients/{id}/health` (combina ML + regras + flag "atrasado pra revisão" do Manual Ford) | ✅ entregue |
+| 4 | **Frota Descontinuada** | feature do segmentador + insight no relatório (Ka+EcoSport = 29,7% dos eventos no oficial; Ranger = 56,7%) | ✅ entregue (oficial confirma a tese do DOC 00: ~80% da frota é descontinuada) |
+| 5 | **Flywheel de Dados** | arquitetura inteira (n8n → banco → ML retreina) | 🟡 demonstrado conceitualmente; retreino real fica pra próxima |
+| 6 | **Rede Invertida** | modelo de matching dealer-cliente; mapa de calor com 80 dealers geocodificados (ABRADIF) + 435 DealerCode do dataset | 🟡 mapa de calor MVP via cidade/UF (sem mapping direto DealerCode→dealer — esse é proprietário) |
+| 7 | **Recall Gateway** | n8n flow + lista de 12 campanhas Ford BR (Senacon) | 🟡 piloto com 4-5 campanhas com chassi público (Troller, Territory 2021, Mustang BCM, Bronco/Maverick EGR); novo CTB 2024-25 bloqueia licenciamento de carro com recall pendente — alavanca regulatória |
+| 8 | **Closed-Loop ROI** | tabela `executed_actions` + dashboard de conversão | 🟡 schema pronto, dados parciais |
+| 9 | **Ponte Serviço-Venda** | view cruzando histórico × intenção compra | 🔵 documentado, depende de dados de venda |
+
+**Distribuição (v2.1):**
+- ✅ Entregue: **4 lógicas** (LSV, Curva da Morte, IHC, Frota Descontinuada) — todas reforçadas pelo dataset oficial + fontes externas
+- 🟡 Parcial / demonstrado: **4 lógicas** (Flywheel, Rede Invertida, Recall Gateway, Closed-Loop ROI) — Rede Invertida e Recall Gateway subiram de 🔵 para 🟡 graças às fontes externas
+- 🔵 Documentado, visão: **1 lógica** (Ponte Serviço-Venda)
+
+> **Defesa na banca:** *"4 das 9 lógicas estão rodando. 2 estão demonstradas com schema pronto. 3 estão arquitetadas e dependem de fontes de dados externas — quando elas vierem, encaixam direto. Nenhuma das 9 está fora do design."*
 
 ---
 
-# Parte 5 — Modelo de Dados
+## Parte 6 — Stack e Infraestrutura
 
-## Tabelas principais (Supabase/PostgreSQL)
+### 6.1 — Stack final
+
+| Camada | Tecnologia | Status |
+|---|---|---|
+| **Frontend Web** | SvelteKit + design system próprio | ✅ decidido |
+| **Mobile** | React Native + Expo + expo-router + i18n | ✅ decidido |
+| **Backend SOA** | Java 17 + Spring Boot 3.2 + Spring Web + Spring WS + Spring Security + Spring Data JDBC + HikariCP + Bucket4j + Logback JSON + SpringDoc OpenAPI + Flyway | ✅ decidido |
+| **Action Engine** | n8n self-hosted (Docker) | ✅ decidido |
+| **ML Service** | Python + scikit-learn + pandas + matplotlib (Sprint 1: notebook + script). Visão futura: FastAPI | ✅ decidido |
+| **Banco + Auth** | PostgreSQL 16 + JWT (HS256/JWKS Supabase) + RBAC | ⚠️ **Supabase vs Neon — decisão pendente** ([ADR-001](#decisões-registradas-adrs)) |
+| **Hospedagem Backend** | Azure VM (B-series) com Docker | ✅ decidido (sizing pendente — pesquisa IF02) |
+| **Hospedagem Web** | **Vercel ou Netlify (free tier) — decisão pendente** ([ADR-005](#decisões-registradas-adrs)) | ⚠️ pendente |
+
+### 6.2 — Infraestrutura Azure ($100/mês de crédito)
+
+**Recomendação preliminar (a confirmar com pesquisas IF01-IF02-IF11):**
+
+| Recurso | SKU sugerido | Custo/mês estimado | Função |
+|---|---|---|---|
+| Azure VM Linux | Standard_B1s ou B2s | $7-30 | Hospeda Java + n8n + ML Python (Docker) |
+| **Banco** | **Supabase Free / Pro OU Neon Free / Scale** | $0-25 | A definir com grupo |
+| Hospedagem Web | Vercel Free / Netlify Free | $0 | Hospeda forward-web |
+| Storage adicional | LRS Standard | ~$2 | Backups e logs |
+| Bandwidth | até 100GB free | $0 | Sai gratuito |
+| **Subtotal Azure** | | **$10-32/mês** | |
+
+**Custos externos:**
+- WhatsApp Business API (Meta): free tier 1000 service messages/mês — **suficiente Sprint 1** (pesquisa WA01)
+- Expo EAS Build: free tier 30 builds/mês — **suficiente Sprint 1**
+
+**Total estimado Sprint 1: ~$15-35/mês** — confortável dentro dos $100 de crédito.
+
+### 6.3 — Decisões pendentes (decidir com o grupo)
+
+| # | Decisão | Opções | Critério de escolha | Pesquisa |
+|---|---|---|---|---|
+| 1 | Banco managed | Supabase vs Neon | Auth nativo, performance, branching, free tier limits | IF01, IF06 |
+| 2 | Hospedagem web | Vercel vs Netlify | Build time, edge functions, free tier, integração com SvelteKit | IF03 |
+| 3 | VM SKU | B1s ($7) vs B2s ($30) | RAM disponível pra Docker (Java + n8n + ML juntos) | IF02 |
+| 4 | Migrations | Flyway (Java) vs Liquibase vs Supabase migrations | Compatibilidade com SOA + sequenciamento | IF07 |
+| 5 | Classificador HTTP | FastAPI standalone vs sidecar Java vs Java→Python direto | Latência vs manutenção | IF05 |
+
+> Decidir antes de 12/05/2026 pra não atrasar o deploy.
+
+---
+
+## Parte 7 — Cronograma realista
+
+> **v2.1 (17/05/2026):** cronograma original previa 18 dias; consumimos os primeiros 11 entre fechar ADRs, executar 02c/02d e absorver o dataset oficial recebido em 11/05. Restam **7 dias** até a entrega — corte de escopo focal abaixo.
+
+**Hoje:** 17/05/2026. **Deadline:** 24/05/2026. **Janela:** **7 dias** corridos (~5 úteis).
+
+### Plano dos 7 dias (compactado, v2.1)
+
+| Dia | Foco | Quem |
+|---|---|---|
+| **D-7 (17/05, sáb)** | Reset do plano + atualização do DOC 03 + follow-up pro grupo + commits iniciais dos artefatos do 02e | Líder + grupo lê follow-up |
+| **D-6 (18/05, dom)** | Notebooks 01 (EDA oficial) + 02 (feature engineering) — concluir antes do começo da semana | ML |
+| **D-5 (19/05, seg)** | Notebook 03 (K-means) + endpoints Java `/segment` e `/classify` esqueleto + mobile auth | ML + Backend + Mobile |
+| **D-4 (20/05, ter)** | Notebook 04 (classificação XGBoost) + endpoint `/recommended-action` regras + mobile telas + deploy Azure dev | ML + Backend + Mobile + Infra |
+| **D-3 (21/05, qua)** | Notebook 05 (survival, se sobrar; caso contrário corta) + dashboard web "Visão da frota" + n8n flow live + pitch escrito + Archi começar | ML + Web + n8n + Testing |
+| **D-2 (22/05, qui)** | Relatório PDF ML + MODEL_CARD + Archi finalizar + vídeo 3min gravar | ML + Testing + grupo |
+| **D-1 (23/05, sex)** | Integração end-to-end + smoke test + revisão final + slides finais | Grupo todo |
+| **D-0 (24/05, sáb)** | Submissão via Tarefas Teams | Líder |
+
+### O que foi recortado vs v2.0
+
+- **Notebook 06 (propensão sintética)** vira **opcional** — só se sobrar tempo no D-4/D-5
+- **Notebook 05 (survival)** vira **opcional** — Kaplan-Meier por modelo×ano é "se sobrar tempo"; Curva da Morte vem do `MaintenanceNumber` direto
+- **3ª tela mobile** continua planejada mas é a primeira a cair se ML atrasar
+- **Flow n8n** mantido como flow único (não 2 ou 3)
+
+### O cronograma original (v2.0, 06/05 → 24/05, 18 dias)
+
+```mermaid
+gantt
+    title Sprint 1 — ForwardService — 06/05 a 24/05
+    dateFormat YYYY-MM-DD
+    axisFormat %d/%m
+
+    section Decisões
+    ADRs (Supabase vs Neon, Vercel vs Netlify, VM SKU)  :crit, dec, 2026-05-06, 6d
+
+    section Pesquisa II
+    Pesquisas críticas (DS+ML+IF+CY)                    :crit, p2, 2026-05-06, 4d
+    Pesquisas importantes                               :p2b, after p2, 5d
+
+    section ML
+    EDA Base 1 + Segmentação K-means                    :ml1, 2026-05-08, 5d
+    Classificação Base 2 (3+ algoritmos)                :ml2, after ml1, 5d
+    Relatório PDF + MODEL_CARD                          :ml3, 2026-05-19, 4d
+
+    section Backend
+    Endpoints novos (segment, classify, action)         :be1, 2026-05-08, 6d
+    Flyway + SpringDoc                                  :be2, after be1, 3d
+    Cyber gaps (criptografia, anonim, audit)            :be3, after be2, 4d
+
+    section Mobile
+    Auth + dual-mode                                    :mb1, 2026-05-10, 4d
+    3 telas + push notification                         :mb2, after mb1, 7d
+
+    section Web
+    Dashboard "Visão da frota"                          :web1, 2026-05-12, 6d
+
+    section n8n
+    1 flow live (WhatsApp inbound + outbound)           :nn1, 2026-05-14, 5d
+
+    section Infra
+    Deploy Azure (VM + banco managed)                   :inf1, 2026-05-13, 4d
+    Cron segmentador                                    :inf2, after inf1, 2d
+
+    section Acadêmica (Testing)
+    Pitch + Canvas + Quadro Valor                       :ac1, 2026-05-12, 6d
+    TOGAF/Archi                                         :ac2, after ac1, 4d
+    Vídeo + slides finais                               :ac3, 2026-05-21, 3d
+
+    section Entrega
+    Integração end-to-end + smoke test                  :ent1, 2026-05-22, 2d
+    Submissão Teams                                     :milestone, ent2, 2026-05-24, 0d
+```
+
+### Semana a semana
+
+| Semana | Datas | Foco principal |
+|---|---|---|
+| **S1** | 06-12/05 | Decisões pendentes (ADRs) + Pesquisa II 🔴 + EDA Base 1 + endpoints Java |
+| **S2** | 13-19/05 | Segmentação rodando + Classificação iniciada + deploy Azure + mobile telas + dashboard web + Pitch escrito |
+| **S3** | 20-23/05 | Classificação completa + Relatório PDF + n8n flow + TOGAF Archi + vídeo 3min + integração end-to-end |
+| **D-1** | 23/05 | Smoke test + revisão final |
+| **Entrega** | **24/05** | Submissão via Tarefas Teams |
+
+**Carga estimada:** ~12-15h/semana × 4 pessoas × 3 semanas = ~150-180h. Dentro do realístico.
+
+---
+
+## Parte 8 — Modelo de Dados
 
 ```mermaid
 erDiagram
     dealers ||--o{ users : "has staff"
-    dealers ||--o{ service_orders : "performs"
-    customers ||--o{ vehicles : "owns"
-    vehicles ||--o{ service_orders : "receives"
-    vehicles ||--o{ churn_scores : "has"
-    vehicles ||--o{ leads : "generates"
-    leads ||--o{ communications : "triggers"
-    communications ||--o{ lead_outcomes : "results in"
+    dealers ||--o{ services_history : "performs"
+    clients ||--o{ vehicles : "owns"
+    vehicles ||--o{ services_history : "receives"
+    clients ||--o{ client_segments : "labeled"
+    clients ||--o{ client_scores : "scored"
+    clients ||--o{ recommended_actions : "for"
+    recommended_actions ||--o{ executed_actions : "executed as"
+    executed_actions ||--o{ conversations : "may include"
+    audit_log }o--|| users : "by"
 
     dealers {
         uuid id PK
@@ -371,22 +675,20 @@ erDiagram
         string state
         float latitude
         float longitude
-        float ihc_score
     }
 
-    customers {
+    clients {
         uuid id PK
         string name
-        string phone
-        string email
-        string address
-        string document
+        string phone_hash
+        string email_hash
+        string document_hash
         enum type "PF | PJ"
     }
 
     vehicles {
         uuid id PK
-        uuid customer_id FK
+        uuid client_id FK
         string vin
         string brand
         string model
@@ -397,7 +699,7 @@ erDiagram
         enum fleet_segment "active | recent | mature | legacy"
     }
 
-    service_orders {
+    services_history {
         uuid id PK
         uuid vehicle_id FK
         uuid dealer_id FK
@@ -406,219 +708,185 @@ erDiagram
         int odometer_reading
         enum type "scheduled | repair | recall | warranty"
         decimal total_value
-        decimal parts_value
-        decimal labor_value
     }
 
-    churn_scores {
+    client_segments {
         uuid id PK
-        uuid vehicle_id FK
+        uuid client_id FK
+        enum segment "loyal | economic | forgotten | abandoned"
+        string model_version
+        timestamp computed_at
+    }
+
+    client_scores {
+        uuid id PK
+        uuid client_id FK
         int score "0-100"
-        enum profile "loyal | economic | forgotten | abandoned"
-        decimal lsv
-        timestamp calculated_at
+        json probabilities "by segment"
+        string model_version
+        timestamp computed_at
     }
 
-    leads {
+    recommended_actions {
         uuid id PK
-        uuid vehicle_id FK
+        uuid client_id FK
         uuid dealer_id FK
-        enum type "revision | warranty_expiring | recall | churn_risk | reactivation"
-        enum priority "critical | high | medium | low"
+        enum action "call | whatsapp | email | leave_alone"
         string reason
-        string recommended_action
-        enum status "pending | contacted | scheduled | converted | lost"
+        string template_id
+        enum status "pending | dispatched | done | dismissed"
         timestamp created_at
     }
 
-    communications {
+    executed_actions {
         uuid id PK
-        uuid lead_id FK
+        uuid recommended_action_id FK
         enum channel "whatsapp | sms | email | phone"
-        string template_used
-        timestamp sent_at
+        timestamp dispatched_at
         enum delivery_status "sent | delivered | read | failed"
+        json metadata
     }
 
-    lead_outcomes {
+    conversations {
         uuid id PK
-        uuid lead_id FK
-        boolean scheduled
-        boolean visited
-        decimal amount_spent
-        int nps_score
-        timestamp outcome_at
+        uuid executed_action_id FK
+        uuid client_id FK
+        text body
+        enum direction "inbound | outbound"
+        timestamp at
+    }
+
+    audit_log {
+        uuid id PK
+        uuid user_id FK
+        string action
+        string resource
+        json before
+        json after
+        timestamp at
     }
 ```
 
-## Row Level Security (RBAC)
+### RBAC (Row Level Security ou Spring Security)
 
 | Role | Vê o quê | Altera o quê |
 |---|---|---|
-| `attendant` | Clientes e veículos do seu dealer | Leads (status), Communications |
-| `manager` | Tudo do seu dealer + métricas | Leads, configurações do dealer |
-| `dealer_owner` | Tudo do seu dealer + benchmark | Configurações |
-| `ford_regional` | Todos os dealers da sua região | Nada (read-only) |
-| `ford_admin` | Tudo | Configurações globais |
+| `attendant` | clientes e veículos do seu dealer | recommended_actions (status), conversations |
+| `manager` | tudo do seu dealer + métricas | recommended_actions, configurações do dealer |
+| `dealer_owner` | tudo do seu dealer + benchmark | configurações |
+| `ford_regional` | todos os dealers da sua região | nada (read-only) |
+| `ford_admin` | tudo | configurações globais |
 
-Implementado via Supabase RLS policies — cada query filtra automaticamente pelo dealer do usuário autenticado. Isso atende Cybersecurity (RBAC) sem código adicional.
+### Anonimização (Cyber) — atualização v2.1
 
----
+- **`vehicles.vin` substituído por `vehicles.vin_hash`** — Ford já entrega SHA1 robusto (5M tentativas de reversão = 0 matches; ver [02e §5](./02e_DATASET_OFICIAL_E_FONTES.md#parte-5--teste-de-reversão-sha1)). Tratamento conservador: **pseudonimizado** (LGPD aplicável).
+- `clients.phone`, `email`, `document` armazenados como **hash** quando vierem (CY01) — no oficial Ford não temos esses campos; vivem da camada de CRM/sintético.
+- `audit_log` registra acesso a dados pessoais
+- ML lê **view anonimizada** `vehicles_for_ml` (sem PII; só `vin_hash` + features comportamentais derivadas)
 
-# Parte 6 — Mapa de Disciplinas
-
-Como o produto cobre as entregas acadêmicas (5 disciplinas com entrega confirmada + 3 pendentes).
-
-## Disciplinas com entrega confirmada
-
-| Disciplina | O que entregamos do produto | Entregável específico |
-|---|---|---|
-| **Arq. Serviços e Web Services** | Supabase (APIs REST/GraphQL automáticas) + N8N (webhooks) + Python ML (FastAPI) | Swagger/OpenAPI dos endpoints FastAPI, desenho de arquitetura SOA, banco com migrations, documentação dos workflows N8N |
-| **Mobile Development e IoT** | App React Native/Expo (atendente + cliente) | App multiplataforma com Expo Router, consumo de API, notificações |
-| **Testing, Compliance e QA** | Pitch + Canvas + TOGAF + vídeo | Apresentação 10-15 slides, vídeo 3min, arquivo .archimate |
-| **Cybersecurity** | Supabase Auth (JWT) + RLS (RBAC) + validação + HTTPS | Implementação real de segurança nos 5 eixos do PDF |
-| **IA e Machine Learning** | Radar de Churn (segmentação + classificação) | Jupyter Notebook + Relatório PDF |
-
-## Disciplinas pendentes de confirmação
-
-| Disciplina | O que provavelmente herda | Ação |
-|---|---|---|
-| **CS Software Development** | Pode exigir código/metodologia própria | Confirmar com Prof. Reinaldo Ramos |
-| **Operating Systems** | Pode herdar nota ou exigir algo de Docker/infra | Confirmar com Prof. José Ricardo |
-| **Physical Computing IoT e IOB** | Pode exigir componente IoT/hardware | Confirmar com Prof. Lucas Demetrius |
-
----
-
-# Parte 7 — Cronograma
-
-## Visão geral
+### Tabela complementar — `vin_features` (v2.1, derivada do oficial)
 
 ```mermaid
-gantt
-    title ForwardService — Cronograma 2026
-    dateFormat YYYY-MM-DD
-    axisFormat %d/%m
-
-    section Sprint 1 Acadêmica
-    Setup projeto + repo           :s1, 2026-04-10, 7d
-    Modelo ML (notebook)           :s2, after s1, 14d
-    API docs + Swagger             :s3, after s1, 10d
-    App mobile telas básicas       :s4, after s1, 14d
-    Pitch + Canvas + TOGAF         :s5, 2026-05-05, 14d
-    Cyber implementação básica     :s6, 2026-05-05, 14d
-    Entrega Sprint 1               :milestone, 2026-05-24, 0d
-
-    section Produto MVP
-    Supabase schema + seed         :m1, 2026-05-25, 7d
-    Dashboard SvelteKit            :m2, after m1, 21d
-    N8N setup + workflows          :m3, after m1, 10d
-    Python ML service deploy       :m4, after m1, 14d
-    Pulse Leads engine             :m5, after m2, 14d
-    CommEngine workflows N8N       :m6, after m3, 10d
-    App mobile completo            :m7, 2026-06-15, 30d
-    Performance Console            :m8, after m5, 14d
-    Integração end-to-end          :m9, 2026-08-01, 21d
-    Polish + Demo                  :m10, 2026-09-01, 30d
-    Banca final                    :milestone, 2026-10-15, 0d
+erDiagram
+    vehicles ||--|| vin_features : "1:1 derivada"
+    vin_features {
+        string vin_hash PK
+        int events_count
+        date first_service_date
+        date last_service_date
+        int days_since_last_service
+        int tenure_days
+        float gap_avg_days
+        int gap_last_days
+        int km_max
+        int dealers_distinct
+        string primary_dealer
+        float primary_dealer_share
+        string model_name
+        int model_year
+        date invoice_date
+        date sales_date
+        date warranty_start
+        int service_types_distinct
+        int service_codes_distinct
+        timestamp computed_at
+    }
 ```
 
-## Sprint 1 (10/04 → 24/05) — Detalhamento semana a semana
+> Materializada **1×/dia** pelo `scripts/run_segmenter.py` a partir do dataset oficial. CSV de referência: `forward-ml/data/processed/vin_features.csv` (175.554 linhas).
 
-O objetivo da Sprint 1 é **ter material suficiente para impressionar**, não o produto pronto.
+### Tabelas auxiliares de fonte externa (v2.1)
 
-| Semana | Datas | Foco | Entregáveis |
+| Tabela | Origem | Quem alimenta | Uso |
 |---|---|---|---|
-| **S1** | 10-16/04 | Setup | Criar org GitHub, repo, Supabase project, SvelteKit scaffold, Expo scaffold |
-| **S2** | 17-23/04 | ML + Schema | Começar notebook de segmentação (Base 1), criar schema no Supabase, seed com dados sintéticos |
-| **S3** | 24-30/04 | ML + N8N | Terminar segmentação, iniciar classificação (Base 2), setup N8N + primeiro workflow (lembrete WhatsApp) |
-| **S4** | 01-07/05 | Mobile + Dashboard | Telas básicas no Expo (Vista 360, Leads), tela de dashboard no SvelteKit |
-| **S5** | 08-14/05 | QA + Cyber | Pitch (slides), Canvas, baixar Archi e criar TOGAF, implementar auth Supabase |
-| **S6** | 15-21/05 | Integração + Vídeo | Conectar tudo, gravar vídeo de pitch (3 min), ajustes finais |
-| **S7** | 22-24/05 | Entrega | Revisar, empacotar, entregar via Teams |
-
-**Horas estimadas:** ~12h/semana × 6.5 semanas = ~78h. Suficiente para o escopo da Sprint 1.
+| `dealers_directory` | ABRADIF (80 dealers BR) | seed inicial | mapa Service Share / Rede Invertida |
+| `fipe_values` | API Parallelum FIPE | refresh mensal | join no LSV (componente valor do veículo) |
+| `recall_campaigns` | Senacon + Ford BR (12 campanhas) | seed inicial + curadoria | Recall Gateway (LN4) |
+| `maintenance_schedules` | Manual de manutenção Ford (8 modelos) | seed inicial | flag "atrasado pra revisão" |
+| `vio_estimates` | FENABRAVE/Sindipeças | seed estatístico | denominador do VIN Share absoluto |
 
 ---
 
-# Parte 8 — Decisões de Design
+## Parte 9 — Decisões registradas
 
-## UI/UX — Princípios
+ADRs completos ficam em `forward-docs/decisions/`. Aqui só o resumo executivo:
 
-O tech lead do grupo acumula a função de designer, então o processo é direto do conceito ao código — sem etapa separada de mockups. Os princípios que guiam as decisões visuais:
-
-| Princípio | Regra |
-|---|---|
-| **Clean e funcional** | Sem decoração. Cada pixel serve um propósito |
-| **Data-first** | Dashboard mostra dados, não ilustrações |
-| **Mobile-first para o app** | Atendente usa no balcão, tela pequena |
-| **Desktop-first para dashboard** | Gestor usa na mesa, tela grande |
-| **Cores da Ford** | Azul Ford (#003478) como primária, tons neutros como base |
-| **Tipografia** | System fonts (Inter, -apple-system) — sem webfonts pesadas |
-| **i18n desde o dia 1** | Toda string via chave de tradução, nunca hardcoded |
-| **Dark mode** | Não no MVP. Foco em light theme limpo |
-
-## Referências visuais
-
-| Produto | O que pegar de referência |
-|---|---|
-| Linear | Navegação lateral clean, densidade de informação |
-| Vercel Dashboard | Cards com métricas, tipografia limpa |
-| Stripe Dashboard | Tabelas com filtros, detalhamento progressivo |
-| Apple Health | Cards de resumo no mobile, dados com cor semântica |
-
-## Sistema de componentes
-
-Bibliotecas de componentes escolhidas por stack:
-
-| Camada | Recomendação |
-|---|---|
-| **SvelteKit web** | shadcn-svelte (ports de shadcn/ui para Svelte) ou Skeleton UI |
-| **React Native** | Tamagui ou NativeWind (Tailwind para RN) |
-| **Charts** | Chart.js ou Recharts (web) / Victory Native (mobile) |
-| **Mapas** | Leaflet ou Mapbox GL (web) / react-native-maps (mobile) |
-| **Tabelas** | TanStack Table (funciona em Svelte e React) |
+| ID | Decisão | Status |
+|---|---|---|
+| **ADR-001** | Banco managed: Supabase vs Neon | ⏳ pendente, decisão até 12/05 |
+| **ADR-002** | Backend Go → Java (21/04/2026) | ✅ executado |
+| **ADR-003** | Mobile dual-mode (single codebase, role decide o modo) | ✅ aprovado |
+| **ADR-004** | SOA via Mermaid no markdown (combinado com Salatiel) | ✅ aprovado |
+| **ADR-005** | Hospedagem: Azure VM única + Vercel/Netlify (web) — sem Railway, sem managed K8s | ✅ direção, sub-escolhas pendentes |
+| **ADR-006** | Recomendador via regras (Sprint 1) ao invés de ML | ✅ aprovado |
+| **ADR-007** | n8n como Action Engine único (não dividir com código custom) | ✅ aprovado |
+| **ADR-008** | Show & Tell como estratégia de Sprint 1 (constrói parte, vende todo) | ✅ aprovado |
+| **ADR-009** | Anti-data-leakage: separação física Base 1 / Base 2 + flag `is_post_purchase` no feature_dictionary | ⚠️ válido pro sintético, **não aplicável ao oficial** (não há labels) — ver ADR-010 |
+| **ADR-010** | **Re-modelagem ML pós-dataset oficial (17/05/2026):** Pilar 1 migra de classificação supervisionada (target `churn_rede_24m` do sintético) para **survival + clustering comportamental + classificação com target engenheirado** (`days_since_last_service > 365`). Detalhes em [02e §9](./02e_DATASET_OFICIAL_E_FONTES.md#parte-9--decisões-propostas). | ✅ aprovado |
+| **ADR-011** | **Fontes externas adotadas (17/05/2026):** integradas no pipeline 5 fontes públicas — FENABRAVE (VIO), ABRADIF (80 dealers geocodificados), FIPE (95 valores), Senacon (12 recalls), Manual Ford (cronograma 10k km/12 meses). Bibliografia completa em [02e_REFERENCIAS.md](./02e_REFERENCIAS.md). | ✅ aprovado |
+| **ADR-012** | **Sintético como simulação documentada (17/05/2026):** CSV `ford_clientes_*.csv` não descartado. Vira input do modelo paralelo de propensão socioeconômica; pitch reflete arquitetura "preparada pra ingerir CRM real quando Ford liberar". | ✅ aprovado |
 
 ---
 
-## Repositório — Estrutura Multi-Repo (Org GitHub)
+## Parte 10 — Limites de escopo
 
-**Org:** `ford-forward` (ou nome definitivo do projeto)
+**O que a ForwardService É:**
+- Plataforma de inteligência e ação para retenção pós-venda
+- Desenhada para o contexto específico da Ford Brasil
+- Baseada em dados reais, ML auditável e lógicas de negócio diferenciadoras
+- Mensurável: cada ação tem ROI rastreável
 
-Cada serviço/produto em repo separado. Facilita delegação, CI/CD independente, e permissões granulares.
+**O que a ForwardService NÃO É:**
+- Não é DMS — não substitui o sistema operacional da concessionária
+- Não é ERP — não gerencia estoque, contabilidade, RH
+- Não é sistema de vendas — a ponte serviço-venda gera leads, a venda acontece nos sistemas existentes
+- Não implementa vans nem oficinas parceiras — identifica desertos e simula impacto
+- Não define políticas da Ford — fornece infraestrutura e recomendações
 
-| Repo | Stack | Deploy | Responsabilidade |
-|---|---|---|---|
-| `forward-web` | SvelteKit | Vercel | Dashboard web (dealers, Ford, performance) |
-| `forward-mobile` | React Native / Expo | EAS / Expo Go | App mobile (atendente + cliente) |
-| `forward-api-java` | Java 17 / Spring Boot 3 | Railway / Azure | **Backend oficial** — REST + SOAP (rubrica SOA) |
-| `forward-n8n` | N8N (Docker) | Railway / Azure | Workflows de automação: WhatsApp, LLM, webhooks, cron jobs |
-| `forward-ml` | Python | Railway | ML service + Notebooks (entrega IA/ML) |
-| `forward-infra` | SQL / Docker | Supabase Cloud | Migrations, seed, config, IaC |
-| `forward-docs` | Markdown | GitHub Pages (opcional) | Documentação, pesquisas, specs, entregas acadêmicas |
+**O que NÃO entra no Sprint 1 (mas está no design):**
+- Recomendador via ML (Sprint 1 = regras explícitas)
+- Performance Console completa (Sprint 1 = 1 dashboard)
+- Anonimização full em repouso (Sprint 1 = parcial)
+- Closed-Loop ROI completo (Sprint 1 = schema + dados parciais)
+- Rede Invertida, Recall Gateway, Ponte Serviço-Venda (Sprint 1 = documentado)
+- Multi-canal além de WhatsApp (Sprint 1 = só WhatsApp)
+- Auth Multi-fator (futuro)
+- Dark mode (futuro)
 
-**Branch strategy:** Trunk-based com feature branches. `main` protegida, merge só via PR com approval do tech lead.
-
-**Delegação para o grupo:** Issues com descrição precisa no GitHub → integrante cria branch `feat/xxx` → abre Pull Request → tech lead faz code review → merge na main.
-
-> A estrutura interna de pastas de cada repo será definida durante a implementação (DOC 04 — Arquitetura).
-
----
-
-## Log de decisões técnicas
-
-| # | Decisão | Alternativa descartada | Motivo |
-|---|---|---|---|
-| 1 | Supabase-first (sem backend separado para CRUD) | Backend Java/Go/TS monolítico | Menos código, auth pronto, equipe já tem experiência com Supabase |
-| 2 | **N8N para automação** de comunicação | Go/TS/Java custom para WhatsApp e webhooks | N8N faz nativamente (WhatsApp, LLM, webhooks), sem código, com UI visual demonstrável na banca |
-| 2b | **Java 17 + Spring Boot 3** como backend oficial (rubrica SOA) | Go + Fiber (primeira implementação, agora arquivada) / TypeScript / manter só N8N | Prof Salatiel de SOA exigiu Java. Spring Boot é padrão didático esperado e cobre REST + SOAP + WSDL sem extensões; Go fica como referência. |
-| 3 | SvelteKit para web | React/Next.js | Equipe trabalha com Svelte profissionalmente |
-| 4 | Python ML como serviço separado batch | ML no backend principal | Desacoplamento, sem lock de linguagem, deploy independente |
-| 5 | Multi-repo (um repo por serviço) | Monorepo único | CI/CD independente por serviço, facilita delegação de tarefas ao grupo |
-| 6 | Supabase Auth (JWT nativo) | JWT manual | Atende requisitos de Cybersecurity sem código adicional |
-| 7 | i18n desde o dia 1 | Adicionar depois | Profissionalismo e preparação para possível expansão |
-| 8 | Sem Figma | Design system formal | Tech lead é designer, vai direto do conceito ao código |
-| 9 | N8N para orquestração de comunicação | Código custom (Go/TS) | Workflow visual, sem código, integrantes do grupo conseguem editar, demonstrável na banca, deploy via Docker |
+**O que NÃO entra em nenhuma sprint deste semestre:**
+- Integração real com DMS de concessionárias (depende da Ford)
+- Conectividade veicular com modelos descontinuados (impossível por design)
+- Painel admin completo de configuração de regras (fica pra fase 2)
 
 ---
 
-> *Este documento é o blueprint de construção. O DOC 04 (Arquitetura) vai detalhar contratos de API, Swagger specs e o diagrama TOGAF. Este aqui define O QUE construir. O 04 define o contrato técnico de COMO.*
+> *Este documento substitui a v1.0 (09/04/2026) de cabo a rabo. Quando bater dúvida sobre escopo, prazo ou tecnologia, volte aqui. Quando este doc estiver desatualizado, atualize-o antes de tomar decisão grande.*
+
+> Documentos relacionados:
+> - **DOC 00** — Base Fundacional (tese + pilares + lógicas + escopo macro)
+> - **DOC 01b** — Mapa de Pesquisa II (71 pesquisas novas, status próximo)
+> - **DOC 04** — Arquitetura (próximo, contratos + fluxos detalhados)
+> - **DOC 05** — Sprint 1 (próximo, status de cada entrega + links)
+> - **DOC 06** — Plano de Segurança (próximo, Cyber detalhado)
+> - **DOC 07** — Plano de ML (próximo, IA detalhado)
+> - **DOC 08** — Plano Mobile (próximo, telas e fluxos detalhados)

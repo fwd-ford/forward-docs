@@ -1,0 +1,58 @@
+{
+  "name": "Ford Forward — Teste Simples Leads",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Quando clicar teste",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:18080/api/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "limit", "value": "10" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-API-Key", "value": "forward-internal-dev-key-2026" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000002",
+      "name": "Buscar Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $input.all();\nconst items = [];\nfor (const lead of leads) {\n  const d = lead.json;\n  items.push({\n    json: {\n      vin: d.vin || '—',\n      prioridade: d.priority,\n      status: d.status,\n      motivo: d.reason || '',\n      valor: `R$ ${(d.expected_value_brl || 0).toFixed(2)}`\n    }\n  });\n}\nreturn items;"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000003",
+      "name": "Formatar Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 380]
+    }
+  ],
+  "connections": {
+    "Quando clicar teste": {
+      "main": [[{ "node": "Buscar Leads", "type": "main", "index": 0 }]]
+    },
+    "Buscar Leads": {
+      "main": [[{ "node": "Formatar Resultado", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
