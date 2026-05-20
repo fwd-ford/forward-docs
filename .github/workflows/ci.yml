@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 jobs:
+<<<<<<< HEAD
   secrets:
     name: Secrets scan
     uses: fwd-ford/.github/.github/workflows/secrets-scan.yml@main
@@ -17,3 +18,14 @@ jobs:
   docs:
     name: Docs quality
     uses: fwd-ford/.github/.github/workflows/docs-quality.yml@main
+=======
+  docs:
+    name: Docs quality
+    uses: fwd-ford/.github/.github/workflows/docs-quality.yml@main
+
+  secrets:
+    name: Secrets
+    uses: fwd-ford/.github/.github/workflows/secrets-scan.yml@main
+    with:
+      scan-history: false
+>>>>>>> 8bedbd1 (ci: add docs CI pipeline (markdownlint + lychee + gitleaks))
