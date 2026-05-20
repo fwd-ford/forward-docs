@@ -120,7 +120,7 @@ Para gerar mensagens personalizadas, resumos de leads, ou enriquecer textos com 
 4. Selecione qualquer projeto Google Cloud (ou crie um novo — é grátis)
 5. A key será gerada:
    ```
-   AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   AIzaSy<sua-chave-aqui>
    ```
 6. Copie e guarde
 
@@ -168,7 +168,7 @@ Caso prefira GPT em vez de Gemini. Tem $5 de crédito grátis na primeira conta.
 5. Dê um nome: `ford-forward-n8n`
 6. Copie a key:
    ```
-   sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   sk-proj-<sua-chave-aqui>
    ```
    **Atenção:** a key só aparece uma vez. Se perder, gera outra.
 
@@ -201,7 +201,7 @@ Caso prefira GPT em vez de Gemini. Tem $5 de crédito grátis na primeira conta.
 5. Nome: `ford-forward-n8n`
 6. Copie a key:
    ```
-   sk-ant-apiXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   sk-ant-api-<sua-chave-aqui>
    ```
 
 ### 4.2 Créditos
