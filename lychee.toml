@@ -1,0 +1,44 @@
+# Lychee configuration for forward-docs.
+# Academic documentation references many external URLs that are either rate-limited,
+# require a logged-in session, or are blocked from GitHub-hosted runners. We only
+# fail CI on internal/relative link breakage; external links are validated locally.
+
+# Treat 200, 206, 403, 429 as acceptable.
+accept = ["200", "206", "403", "429"]
+
+# Match the docs spec - allow project-relative paths and same-repo links.
+include_fragments = false
+max_concurrency = 4
+max_retries = 1
+timeout = 10
+
+# Skip protocols and hosts that are not meaningful in CI.
+exclude = [
+    # Local references and templates
+    '^https?://localhost',
+    '^https?://127\.0\.0\.1',
+    '^https?://example\.(com|org)',
+
+    # Mail and tel
+    '^mailto:',
+    '^tel:',
+
+    # Brazilian government and academic sites - frequently rate-limit GH IPs
+    '^https?://(www\.)?planalto\.gov\.br',
+    '^https?://(www\.)?gov\.br',
+    '^https?://(www\.)?fenabrave\.org\.br',
+    '^https?://(www\.)?denatran\.gov\.br',
+
+    # Other commonly-blocked external sites
+    '^https?://(www\.)?sebrae\.com\.br',
+    '^https?://(www\.)?inovacaosebraeminas\.com\.br',
+    '^https?://(www\.)?linkedin\.com',
+    '^https?://(www\.)?facebook\.com',
+    '^https?://(www\.)?aistudio\.google\.com',
+    '^https?://(www\.)?developers\.facebook\.com',
+    '^https?://(www\.)?platform\.openai\.com',
+    '^https?://(www\.)?console\.anthropic\.com',
+    '^https?://(www\.)?supabase\.co',
+    '^https?://(www\.)?railway\.app',
+    '^https?://generativelanguage\.googleapis\.com',
+]
