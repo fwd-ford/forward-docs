@@ -92,7 +92,7 @@ flowchart LR
 
 A visão **100% rodando**, narrada como um dia real. Esse texto é a base do **pitch** e do roteiro do **vídeo de 3 minutos**.
 
-### Quarta-feira, 14h32. João Silva, Ka 2014, sumido há 11 meses.
+### Quarta-feira, 14h32 — João Silva, Ka 2014, sumido há 11 meses
 
 **02h da madrugada.**
 A plataforma não dorme. Enquanto a Ford inteira tá em casa, o **cérebro** acorda, lê o banco, e re-etiqueta os 12,4 milhões de clientes do Brasil. João, que ontem era "Risco Médio", virou **"Esquecido"** e o termômetro dele subiu pra **78** — porque a próxima revisão dele venceu ontem.

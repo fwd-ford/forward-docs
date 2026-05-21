@@ -121,7 +121,7 @@ Listagem completa em `tmp_research/official/data/ford_dealers.csv`.
 
 ### Nomes truncados
 - A ABRADIF guarda só os primeiros ~20 caracteres do nome no popup do mapa
-  (ex.: "BH FOR - BELO HORI" = "BH FOR - BELO HORIZONTE"; "REGIVEL - RIO VERD" = 
+  (ex.: "BH FOR - BELO HORI" = "BH FOR - BELO HORIZONTE"; "REGIVEL - RIO VERD" =
   "REGIVEL - RIO VERDE"). Para nome legal/comercial completo seria necessário
   scraping individual de cada concessionária — não feito (excederia orçamento de calls).
 
