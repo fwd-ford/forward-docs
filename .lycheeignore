@@ -1,0 +1,19 @@
+# Lychee ignore patterns
+# One regex per line. Matches against the full URL.
+
+# Local placeholders used in examples and templates
+^https?://localhost(:\d+)?
+^https?://127\.0\.0\.1
+^https?://example\.(com|org)
+^https?://your-
+
+# Supabase/N8N/Railway placeholders that only resolve in deployed environments
+^https?://[^/]+\.supabase\.co/.*placeholder
+^https?://[^/]+\.railway\.app/.*placeholder
+
+# Mailto and tel links
+^mailto:
+^tel:
+
+# Anchors-only (lychee already handles these but be explicit)
+^#

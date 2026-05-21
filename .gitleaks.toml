@@ -1,0 +1,15 @@
+# Gitleaks config for forward-docs
+# Catches credentials accidentally pasted into documentation.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Doc allowlist - sample/template values"
+paths = [
+    '''(?i).*[/\\]templates?[/\\].*''',
+    '''(?i).*example.*\.md$''',
+]
+regexes = [
+    '''(?i)example|sample|dummy|placeholder|change-?me|your-?key|<.+>''',
+]
