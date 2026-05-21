@@ -22,7 +22,7 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-API-Key", "value": "forward-internal-dev-key-2026" }
+            { "name": "X-API-Key", "value": "REPLACE_WITH_API_KEY" }
           ]
         },
         "options": {}
