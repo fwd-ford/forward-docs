@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Business Model Canvas — ForwardService</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; }
+
+  @media print {
+    body { background: white; }
+    .page { page-break-after: always; }
+    .no-print { display: none; }
+  }
+
+  h1.title {
+    text-align: center;
+    background: #00274A;
+    color: white;
+    padding: 14px 20px 8px;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    background: #1E56A0;
+    color: #F96302;
+    padding: 6px;
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  /* ── Canvas Grid ── */
+  .canvas-wrapper { padding: 10px 14px; }
+  .canvas-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 6px;
+    background: #00274A;
+    padding: 6px;
+    border-radius: 6px;
+  }
+
+  .block {
+    background: white;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-height: 160px;
+  }
+
+  .block h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #F96302;
+    border-bottom: 2px solid #00274A;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+  .block ul { padding-left: 14px; }
+  .block li { font-size: 12px; color: #2d3748; margin-bottom: 5px; line-height: 1.4; }
+  .block .tag {
+    display: inline-block;
+    background: #1E56A0;
+    color: white;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-top: 6px;
+  }
+
+  /* Grid positioning */
+  .key-partners   { grid-column: 1 / 3; grid-row: 1 / 3; }
+  .key-activities { grid-column: 3 / 5; grid-row: 1; }
+  .key-resources  { grid-column: 3 / 5; grid-row: 2; }
+  .value-prop     { grid-column: 5 / 7; grid-row: 1 / 3; background: #EBF4FF; border: 2px solid #1E56A0; }
+  .customer-rel   { grid-column: 7 / 9; grid-row: 1; }
+  .channels       { grid-column: 7 / 9; grid-row: 2; }
+  .customer-seg   { grid-column: 9 / 11; grid-row: 1 / 3; background: #FFF5EC; border: 2px solid #F96302; }
+  .cost-struct    { grid-column: 1 / 6; grid-row: 3; }
+  .revenue-streams{ grid-column: 6 / 11; grid-row: 3; }
+
+  /* ── Extras ── */
+  .extras-section { margin-top: 14px; }
+  .extras-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .extra-block {
+    background: white;
+    border-radius: 6px;
+    padding: 14px;
+    border-left: 5px solid #00274A;
+  }
+  .extra-block.orange { border-left-color: #F96302; }
+  .extra-block h3 { font-size: 13px; color: #00274A; margin-bottom: 10px; }
+  .extra-block.orange h3 { color: #F96302; }
+  .extra-block table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .extra-block th { background: #00274A; color: white; padding: 5px 8px; text-align: left; font-size: 11px; }
+  .extra-block.orange th { background: #F96302; }
+  .extra-block td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; color: #2d3748; }
+  .extra-block ul { padding-left: 16px; }
+  .extra-block li { font-size: 12px; color: #2d3748; margin-bottom: 5px; }
+
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #718096;
+    padding: 10px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 12px;
+  }
+
+  .print-btn {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 30px;
+    background: #00274A;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">Imprimir / Salvar como PDF</button>
+
+<h1 class="title">BUSINESS MODEL CANVAS — ForwardService</h1>
+<div class="subtitle">Plataforma de Retenção Pós-Venda Ford Brasil · Ford Challenge FIAP 2026 · Sprint 1</div>
+
+<div class="canvas-wrapper">
+  <div class="canvas-grid">
+
+    <!-- KEY PARTNERS -->
+    <div class="block key-partners">
+      <h3>🤝 Parceiros-Chave</h3>
+      <ul>
+        <li><strong>Ford Brasil</strong> — fornecedor do dataset oficial (175k VINs) e dos requisitos do desafio</li>
+        <li><strong>FIAP</strong> — formação, orientação acadêmica e infraestrutura do desafio</li>
+        <li><strong>Supabase / Neon</strong> — banco gerenciado PostgreSQL 16 em nuvem</li>
+        <li><strong>Meta (WhatsApp Business)</strong> — canal primário de comunicação (97% abertura no BR)</li>
+        <li><strong>Microsoft Azure</strong> — hospedagem VM (backend + n8n + ML)</li>
+        <li><strong>Vercel / Netlify</strong> — hospedagem do dashboard web (forward-web)</li>
+        <li><strong>FENABRAVE / ABRADIF</strong> — dados de frota e geolocalização de 80 dealers</li>
+        <li><strong>OpenAI / Anthropic (futuro)</strong> — LLM para CommEngine personalizado</li>
+      </ul>
+      <span class="tag">B2B2C</span>
+    </div>
+
+    <!-- KEY ACTIVITIES -->
+    <div class="block key-activities">
+      <h3>⚙️ Atividades-Chave</h3>
+      <ul>
+        <li>Operar scoring de churn (K-means + XGBoost) sobre 175k VINs diariamente</li>
+        <li>Disparar ações automáticas via n8n + WhatsApp Business</li>
+        <li>Manter e retreinar modelos de ML (Flywheel de Dados)</li>
+        <li>Integrar com DMS de concessionárias (futuro)</li>
+        <li>Monitorar KPIs e IHC por dealer em tempo real</li>
+        <li>Suporte técnico e onboarding de atendentes (&lt;15 min)</li>
+      </ul>
+    </div>
+
+    <!-- KEY RESOURCES -->
+    <div class="block key-resources">
+      <h3>🔑 Recursos-Chave</h3>
+      <ul>
+        <li><strong>Dataset Ford:</strong> 602k eventos × 175k VINs únicos</li>
+        <li><strong>Modelos ML:</strong> Segmentador, Classificador, Survival Analysis</li>
+        <li><strong>Infra Azure:</strong> VM B-series + Postgres + n8n</li>
+        <li><strong>Código:</strong> 5 repositórios (java, mobile, web, ml, infra)</li>
+        <li><strong>Equipe:</strong> 4 integrantes multidisciplinares</li>
+        <li><strong>FIPE + Senacon + ABRADIF:</strong> 5 fontes externas públicas</li>
+      </ul>
+    </div>
+
+    <!-- VALUE PROPOSITION -->
+    <div class="block value-prop">
+      <h3>💎 Proposta de Valor</h3>
+      <ul>
+        <li><strong>Para Ford BR:</strong> VIN Share de ~4% → meta 8–10%. Retenção mensurável com ROI por ação.</li>
+        <li><strong>Para dealer:</strong> Lista diária de leads priorizados por risco + LSV. Sem planilha, sem achismo.</li>
+        <li><strong>Para cliente Ka/EcoSport:</strong> Fluxo Simplificado — a Ford não te abandonou. WhatsApp, lembrete, proposta.</li>
+        <li><strong>Para cliente Ranger:</strong> Ford Care (plano pré-pago). Preço fixo, sem surpresa. Retenção 3× maior.</li>
+        <li><strong>Para Ford corporativa:</strong> Cockpit nacional. 9 dealers acima da meta, 3 abaixo. Em tempo real.</li>
+      </ul>
+      <br>
+      <strong style="font-size:11px; color:#1E56A0;">4 PILARES:</strong><br>
+      <span class="tag">Intelligence Hub</span>
+      <span class="tag">Action Engine</span>
+      <span class="tag">Experience Layer</span>
+      <span class="tag">Performance Console</span>
+    </div>
+
+    <!-- CUSTOMER RELATIONSHIPS -->
+    <div class="block customer-rel">
+      <h3>💬 Relacionamento c/ Cliente</h3>
+      <ul>
+        <li><strong>Self-service:</strong> App mobile dual-mode (Modo Cliente) — agendamento, histórico, revisão</li>
+        <li><strong>Personalizado via dealer:</strong> atendente Maria com ficha completa do João</li>
+        <li><strong>Automatizado 24/7:</strong> n8n + WhatsApp — lembrete, cupom, follow-up</li>
+        <li><strong>Proativo (não reativo):</strong> a Ford fala antes de o cliente sumir</li>
+        <li><strong>Ford Care:</strong> relacionamento de longo prazo via plano pré-pago (3× retenção)</li>
+      </ul>
+    </div>
+
+    <!-- CHANNELS -->
+    <div class="block channels">
+      <h3>📡 Canais</h3>
+      <ul>
+        <li><strong>WhatsApp Business</strong> — canal primário BR (97% abertura, 45–60% conversão)</li>
+        <li><strong>App Mobile</strong> (React Native/Expo) — Ford + Cliente em um único codebase</li>
+        <li><strong>Dashboard Web</strong> (SvelteKit) — Ford corporativa e gerentes regionais</li>
+        <li><strong>n8n</strong> — orquestrador (email, SMS, push — expansão Sprint 2)</li>
+        <li><strong>Recall</strong> — porta de entrada: 3,4M pendentes no BR (LN4)</li>
+      </ul>
+    </div>
+
+    <!-- CUSTOMER SEGMENTS -->
+    <div class="block customer-seg">
+      <h3>🎯 Segmentos de Clientes</h3>
+      <ul>
+        <li><strong>Ford Brasil (B2B)</strong><br>Gestor de pós-venda nacional</li>
+        <li><strong>Concessionárias (B2B)</strong><br>145 dealers ativos — dono + gerente + atendente</li>
+        <li><strong>Donos de modelos recentes</strong><br>Ranger, Territory, Bronco — app mobile completo</li>
+        <li><strong>Donos de modelos descontinuados</strong><br>2,5M+ de Ka/Fiesta/EcoSport — Fluxo Simplificado</li>
+        <li><strong>Gestores regionais Ford</strong><br>Dashboard de frota por região</li>
+      </ul>
+      <span class="tag">4 perfis ML: Fiel · Econômico · Esquecido · Abandono</span>
+    </div>
+
+    <!-- COST STRUCTURE -->
+    <div class="block cost-struct">
+      <h3>💸 Estrutura de Custos</h3>
+      <ul style="columns: 2; column-gap: 20px;">
+        <li><strong>Azure VM (B-series):</strong> $7–30/mês (backend + n8n + ML)</li>
+        <li><strong>Banco (Supabase/Neon):</strong> $0–25/mês</li>
+        <li><strong>WhatsApp Business API:</strong> free tier 1.000 msgs/mês (Sprint 1)</li>
+        <li><strong>Expo EAS Build:</strong> free tier 30 builds/mês (Sprint 1)</li>
+        <li><strong>Hospedagem web (Vercel):</strong> free tier</li>
+        <li><strong>Custos de qualidade:</strong> retrabalho de modelo ML, suporte a dealers, incidentes de integração</li>
+        <li><strong>Treinamento:</strong> onboarding de atendentes (&lt;15 min por usuário)</li>
+        <li><strong>Total estimado Sprint 1:</strong> $15–35/mês (dentro do crédito Azure de $100)</li>
+      </ul>
+    </div>
+
+    <!-- REVENUE STREAMS -->
+    <div class="block revenue-streams">
+      <h3>💰 Fontes de Receita</h3>
+      <ul>
+        <li><strong>Licenciamento Ford Brasil (SaaS):</strong> taxa mensal pela plataforma — modelo a negociar pós-MVP</li>
+        <li><strong>Cobrança por dealer ativo:</strong> assinatura por concessionária conectada (145 potenciais)</li>
+        <li><strong>Ford Care (planos pré-pagos):</strong> receita antecipada de revisões + retenção 3× maior</li>
+        <li><strong>Impacto financeiro validado:</strong> +5% retenção = +25% a 95% de lucro (Bain &amp; Company)</li>
+        <li><strong>ROI campanhas WhatsApp:</strong> R$ 300 investidos → R$ 90k+ de revisões agendadas (300:1)</li>
+      </ul>
+    </div>
+
+  </div><!-- end canvas-grid -->
+
+  <!-- EXTRAS OBRIGATÓRIOS -->
+  <div class="extras-section">
+    <h2 style="font-size:15px; color:#00274A; margin: 14px 0 10px; border-left: 4px solid #F96302; padding-left: 10px;">
+      Análise de Impacto de Falhas + Custos de Qualidade (exigidos pelo PDF Ford-FIAP)
+    </h2>
+    <div class="extras-grid">
+
+      <div class="extra-block">
+        <h3>⚠️ Análise de Impacto de Falhas</h3>
+        <table>
+          <tr><th>Dimensão</th><th>Cenário de falha</th><th>Impacto</th></tr>
+          <tr>
+            <td><strong>Operacional</strong></td>
+            <td>Segmentador ML offline &gt;24h</td>
+            <td>Scores desatualizados; atendentes sem leads priorizados; fallback: regras simples do Java (LN2 hardcoded)</td>
+          </tr>
+          <tr>
+            <td><strong>Operacional</strong></td>
+            <td>n8n / WhatsApp indisponível</td>
+            <td>Campanhas não disparadas; fila de ações acumula; fallback: email manual via dealer</td>
+          </tr>
+          <tr>
+            <td><strong>Financeiro</strong></td>
+            <td>Falso positivo alto (&gt;10%) no churn</td>
+            <td>Custo de campanha sem retorno; desgaste do cliente com msgs desnecessárias; ROI 300:1 cai para 50:1</td>
+          </tr>
+          <tr>
+            <td><strong>Financeiro</strong></td>
+            <td>API Ford indisponível (dados)</td>
+            <td>Pipeline ML para; features desatualizadas; impacto em campanhas do dia seguinte</td>
+          </tr>
+          <tr>
+            <td><strong>Reputacional</strong></td>
+            <td>Vazamento de dado (VIN + telefone)</td>
+            <td>Multa LGPD + dano de marca Ford; VIN_Hash SHA1 reduz probabilidade a &lt;0,001%; audit_log trilha acesso</td>
+          </tr>
+          <tr>
+            <td><strong>Reputacional</strong></td>
+            <td>Mensagem automática inadequada</td>
+            <td>Cliente insatisfeito publica nas redes; templates aprovados pela Meta limitam variações; revisão humana em escalations</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="extra-block orange">
+        <h3>📊 Custos de Qualidade</h3>
+        <table>
+          <tr><th>Categoria</th><th>Descrição</th><th>Estimativa</th></tr>
+          <tr>
+            <td><strong>Retrabalho ML</strong></td>
+            <td>Re-treino ao receber dataset com schema diferente do esperado (ocorreu: sintético → oficial 11/05)</td>
+            <td>~40h equipe ML · 2–3 dias de sprint</td>
+          </tr>
+          <tr>
+            <td><strong>Suporte</strong></td>
+            <td>Onboarding de atendentes por dealer; suporte a erros de integração WhatsApp</td>
+            <td>~2h/dealer · 145 dealers = ~290h no longo prazo</td>
+          </tr>
+          <tr>
+            <td><strong>Incidentes</strong></td>
+            <td>Downtime Azure VM; templates recusados pela Meta; dados com qualidade ruim (KM 955M no dataset)</td>
+            <td>SLA 99% = 7h15 downtime/ano permitido</td>
+          </tr>
+          <tr>
+            <td><strong>Prevenção</strong></td>
+            <td>Testes automatizados, CI/CD, Flyway migrations, rate limiting, CORS configurado</td>
+            <td>~15h/sprint de overhead técnico (investimento em qualidade)</td>
+          </tr>
+          <tr>
+            <td><strong>Treinamento</strong></td>
+            <td>Manual de uso do app para atendentes; documentação técnica para integração futura com DMS</td>
+            <td>Onboarding &lt;15 min por usuário (critério de aceite UX)</td>
+          </tr>
+          <tr>
+            <td><strong>Auditoria LGPD</strong></td>
+            <td>Revisão semestral de dados pseudonimizados; relatório de acesso; teste de reversão SHA1</td>
+            <td>~8h/semestre · baixo custo marginal pós-implementação</td>
+          </tr>
+        </table>
+      </div>
+
+    </div><!-- end extras-grid -->
+  </div><!-- end extras-section -->
+</div><!-- end canvas-wrapper -->
+
+<div class="footer">
+  ForwardService · Ford Challenge FIAP 2026 · Sprint 1 · Testing, Compliance &amp; Quality Assurance (Prof. Elias Bernardo)<br>
+  Equipe: Rodrigo Jimenez · Jota Mendes · Lucca [Sobrenome] · Ruan [Sobrenome]<br>
+  <em>Para gerar PDF: use Ctrl+P no navegador → "Salvar como PDF" · Orientação: Paisagem · Margens: Mínimas</em>
+</div>
+
+</body>
+</html>

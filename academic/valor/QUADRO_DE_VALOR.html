@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Quadro de Valor — ForwardService</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; font-size: 13px; }
+  @media print {
+    body { background: white; font-size: 11px; }
+    .no-print { display: none; }
+    @page { size: A3 landscape; margin: 10mm; }
+  }
+
+  .header {
+    background: #00274A;
+    color: white;
+    padding: 14px 20px;
+  }
+  .header h1 { font-size: 20px; }
+  .header .sub { font-size: 12px; color: #F96302; margin-top: 4px; }
+
+  .section { padding: 16px 20px; }
+  .section h2 { font-size: 15px; color: #00274A; margin-bottom: 12px; border-left: 4px solid #F96302; padding-left: 10px; }
+
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  thead { background: #00274A; color: white; }
+  thead.orange { background: #F96302; }
+  th { padding: 9px 10px; text-align: left; font-size: 11px; letter-spacing: 0.5px; white-space: nowrap; }
+  td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7fafc; }
+
+  .tag-alta   { background: #FC8181; color: #7B341E; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+  .tag-media  { background: #F6E05E; color: #744210; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+  .tag-baixa  { background: #68D391; color: #1A4731; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+
+  .stakeholder-name { font-weight: bold; color: #00274A; }
+  .metric-negocio { color: #1E56A0; font-weight: bold; }
+  .metric-quality { color: #276749; font-weight: bold; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .kpi-card { background: white; border-radius: 6px; padding: 12px 14px; border-top: 4px solid #00274A; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .kpi-card.orange { border-top-color: #F96302; }
+  .kpi-card .value { font-size: 22px; font-weight: bold; color: #00274A; }
+  .kpi-card.orange .value { color: #F96302; }
+  .kpi-card .label { font-size: 11px; color: #718096; margin-top: 2px; }
+
+  .footer { text-align: center; font-size: 11px; color: #718096; padding: 12px; border-top: 1px solid #e2e8f0; margin-top: 10px; }
+  .print-btn { display: block; margin: 10px auto; padding: 9px 28px; background: #00274A; color: white; border: none; border-radius: 5px; font-size: 13px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">Imprimir / Salvar como PDF (use A3 Paisagem)</button>
+
+<div class="header">
+  <h1>Quadro de Valor — ForwardService</h1>
+  <div class="sub">QA-3 · Ford Challenge FIAP 2026 · Testing, Compliance &amp; Quality Assurance — Prof. Elias Bernardo · Sprint 1</div>
+</div>
+
+<!-- KPIs resumo -->
+<div class="section">
+  <h2>Números-Chave da Proposta</h2>
+  <div class="kpi-grid">
+    <div class="kpi-card orange"><div class="value">~3,5–5%</div><div class="label">VIN Share atual Ford BR<br>(meta: ≥8% em 24 meses)</div></div>
+    <div class="kpi-card"><div class="value">300:1</div><div class="label">ROI campanha WhatsApp<br>(R$300 → R$90k em revisões)</div></div>
+    <div class="kpi-card orange"><div class="value">3×</div><div class="label">Mais retenção com Ford Care<br>(plano pré-pago: 20% → 60%)</div></div>
+    <div class="kpi-card"><div class="value">+25–95%</div><div class="label">Aumento de lucro com<br>+5% retenção (Bain &amp; Co.)</div></div>
+  </div>
+</div>
+
+<!-- Quadro Principal -->
+<div class="section">
+  <h2>Quadro de Valor por Stakeholder</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:14%">Stakeholder</th>
+        <th style="width:18%">Dor / Expectativa</th>
+        <th style="width:22%">Promessa do ForwardService</th>
+        <th style="width:19%">Métrica de Negócio</th>
+        <th style="width:19%">Métrica de Qualidade</th>
+        <th style="width:8%">Prioridade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="stakeholder-name">Ford Brasil<br>(Diretoria)</span></td>
+        <td>"Não sei onde estou perdendo clientes nem quanto custa"</td>
+        <td>Dashboard nacional em tempo real: VIN Share por UF, Curva da Morte medida, ROI de cada ação rastreável via Closed-Loop ROI</td>
+        <td><span class="metric-negocio">VIN Share ≥ 8% em 24 meses</span><br><em>(base: ~3,5–5% hoje, dado real Ford 602k eventos)</em></td>
+        <td><span class="metric-quality">Disponibilidade ≥ 99%<br>Latência API p95 &lt; 300ms</span></td>
+        <td><span class="tag-alta">🔴 Alta</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Gestor Regional Ford</span></td>
+        <td>"Não consigo comparar dealers nem justificar budget de campanha"</td>
+        <td>Cockpit regional: IHC 0-100 por dealer, ranking comparativo, identificação de dealers abaixo da meta com causa-raiz</td>
+        <td><span class="metric-negocio">≥ 80% dos dealers acima da meta regional de IHC</span></td>
+        <td><span class="metric-quality">IHC atualizado 1×/dia sem falha<br>Silhouette K-means &gt; 0,4</span></td>
+        <td><span class="tag-alta">🔴 Alta</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Dono de Concessionária</span></td>
+        <td>"Minha equipe age no escuro — não sei quem está prestes a sumir"</td>
+        <td>Pulse Leads: lista diária priorizada por risco + LSV (Lifetime Service Value), com ação sugerida automaticamente embutida</td>
+        <td><span class="metric-negocio">Taxa de conversão lead → revisão ≥ 35%</span></td>
+        <td><span class="metric-quality">Endpoint /leads &lt; 200ms<br>Zero leads duplicados por dia</span></td>
+        <td><span class="tag-alta">🔴 Alta</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Gerente de Serviço (dealer)</span></td>
+        <td>"Passo horas tentando decidir quem ligar. Sempre erro"</td>
+        <td>Ficha do cliente com etiqueta colorida de segmento (Fiel/Econômico/Esquecido/Abandono) + ação sugerida pelo ML automaticamente</td>
+        <td><span class="metric-negocio">Redução de 40% no tempo médio de priorização de contatos</span></td>
+        <td><span class="metric-quality">AUC classificador ≥ 0,82<br>Falsos positivos &lt; 10%</span></td>
+        <td><span class="tag-alta">🔴 Alta</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Atendente (dealer)</span></td>
+        <td>"Não sei nada do cliente que me liga — tenho que perguntar tudo de novo"</td>
+        <td>Vista 360: histórico completo, modelo, última revisão, score de risco, ação sugerida — tudo numa tela, sem planilha</td>
+        <td><span class="metric-negocio">NPS do atendimento ≥ 60</span><br><em>(benchmark do setor: ~50)</em></td>
+        <td><span class="metric-quality">Carga da Vista 360 &lt; 1s<br>Onboarding &lt; 15 minutos</span></td>
+        <td><span class="tag-media">🟡 Média</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Dono de modelo recente</span><br><em>(Ranger, Territory, Bronco)</em></td>
+        <td>"Manutenção na Ford é cara e eu não sei quando fazer"</td>
+        <td>App Modo Cliente: revisão sugerida por km/meses (Manual Ford: 10k km/12 meses), Ford Care com preço fixo pré-pago, agendamento em 1 toque</td>
+        <td><span class="metric-negocio">Adoção Ford Care ≥ 20% dos elegíveis em 12 meses</span></td>
+        <td><span class="metric-quality">App carrega em &lt; 2s<br>Push notification em &lt; 5s</span></td>
+        <td><span class="tag-media">🟡 Média</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Dono de modelo descontinuado</span><br><em>(2,5M+ Ka, EcoSport, Fiesta)</em></td>
+        <td>"A Ford me abandonou — sem app, sem lembrete, peça com espera de semanas"</td>
+        <td>Fluxo Simplificado: WhatsApp como canal principal, cadastro de VIN manual, lembrete por km estimada, agendamento sem precisar do app oficial</td>
+        <td><span class="metric-negocio">Reativação ≥ 15% dos VINs inativos &gt;12 meses no 1º semestre</span></td>
+        <td><span class="metric-quality">Entrega WhatsApp &lt; 30s<br>Taxa de abertura ≥ 80%</span></td>
+        <td><span class="tag-alta">🔴 Alta</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Equipe Técnica ForwardService</span></td>
+        <td>"Precisamos garantir que o sistema escale sem degradar os modelos"</td>
+        <td>Flywheel de Dados: precisão cresce com uso. Arquitetura SOA com fronteiras claras — cada componente evolui sem quebrar os outros (ADR-004)</td>
+        <td><span class="metric-negocio">Precisão ML: mês 1 70% → mês 6 80% → ano 2 90%</span></td>
+        <td><span class="metric-quality">Cobertura de testes ≥ 70%<br>Deploy sem downtime (rolling)</span></td>
+        <td><span class="tag-media">🟡 Média</span></td>
+      </tr>
+      <tr>
+        <td><span class="stakeholder-name">Analista de Retenção Ford</span></td>
+        <td>"Não consigo simular o impacto de uma campanha antes de aprovar o budget"</td>
+        <td>Strategy Simulator: "Se investir R$ X em [perfil] com [ação], retorno esperado: R$ Y" — margem ±25% (padrão de mercado validado na pesquisa)</td>
+        <td><span class="metric-negocio">Redução de 30% no ciclo de aprovação de campanhas</span></td>
+        <td><span class="metric-quality">Cálculo do simulador &lt; 3s<br>Precisão estimativa ±25%</span></td>
+        <td><span class="tag-baixa">🟢 Baixa</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Métricas Resumo -->
+<div class="section">
+  <h2>Métricas de Qualidade Consolidadas por Componente</h2>
+  <table>
+    <thead class="orange">
+      <tr><th>Componente</th><th>Métrica</th><th>Valor-Alvo</th><th>Observação</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Backend API (forward-api-java)</td><td>Latência p95</td><td class="metric-quality">&lt; 300ms</td><td>Spring Boot 3 + HikariCP connection pool</td></tr>
+      <tr><td>Backend API</td><td>Disponibilidade</td><td class="metric-quality">≥ 99%</td><td>≤ 7h15 downtime/ano permitido</td></tr>
+      <tr><td>ML — Classificador XGBoost</td><td>AUC</td><td class="metric-quality">0,82–0,90</td><td>Target engenheirado: days_since_last_service &gt; 365</td></tr>
+      <tr><td>ML — Segmentador K-means</td><td>Silhouette Score</td><td class="metric-quality">&gt; 0,4</td><td>k=4 clusters (Fiel/Econômico/Esquecido/Abandono)</td></tr>
+      <tr><td>ML — Falsos positivos</td><td>Taxa de falso churn</td><td class="metric-quality">&lt; 10%</td><td>Threshold tunable por perfil de cliente</td></tr>
+      <tr><td>ML — Flywheel</td><td>Crescimento de precisão</td><td class="metric-quality">70% → 80% → 90%</td><td>Mês 1 → 6 → Ano 2</td></tr>
+      <tr><td>App Mobile (forward-mobile)</td><td>Tempo de carga</td><td class="metric-quality">&lt; 2s</td><td>React Native/Expo + cache local</td></tr>
+      <tr><td>WhatsApp (n8n)</td><td>Entrega da mensagem</td><td class="metric-quality">&lt; 30s</td><td>Meta Business API + template pré-aprovado</td></tr>
+      <tr><td>Onboarding do atendente</td><td>Tempo de treinamento</td><td class="metric-quality">&lt; 15 minutos</td><td>UX dual-mode intuitivo — critério de aceite</td></tr>
+      <tr><td>Dados — LGPD</td><td>Reversibilidade do VIN_Hash</td><td class="metric-quality">0 matches em 5M tentativas</td><td>SHA1 + salt Ford. Pseudonimizado por decisão conservadora (CY01)</td></tr>
+      <tr><td>Deploy / CI-CD</td><td>Downtime por release</td><td class="metric-quality">0</td><td>Rolling update — Docker + Azure VM</td></tr>
+      <tr><td>Cobertura de testes</td><td>% código coberto</td><td class="metric-quality">≥ 70%</td><td>Critério da disciplina Cybersecurity</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  ForwardService · Ford Challenge FIAP 2026 · Sprint 1 · Testing, Compliance &amp; Quality Assurance — Prof. Elias Bernardo<br>
+  Equipe: Rodrigo Jimenez · Jota Mendes · Lucca [Sobrenome] · Ruan [Sobrenome]<br>
+  Fontes: 00_BASE_FUNDACIONAL.md · 03_SOLUTION_DESIGN.md v2.1 · 02e_DATASET_OFICIAL_E_FONTES.md · Cox Automotive 2025 · NADA 2025 · Bain &amp; Company<br>
+  <em>Para PDF: Ctrl+P → "Salvar como PDF" · Orientação: A3 Paisagem · Margens: Mínimas</em>
+</div>
+
+</body>
+</html>
