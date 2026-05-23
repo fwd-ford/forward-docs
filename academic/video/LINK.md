@@ -34,7 +34,7 @@
 
 ---
 
-### 🎤 Jota Mendes — Problema + Diferenciação (45s)
+### 🎤 João Victor Franco — Problema + Diferenciação (45s)
 
 **Fala sugerida:**
 > "A Ford fechou suas fábricas no Brasil em 2021 — mas ainda tem 12 milhões de veículos circulando.  
@@ -46,7 +46,7 @@
 
 ---
 
-### 🎤 Lucca [Sobrenome] — Inteligência: Dataset + ML (45s)
+### 🎤 Lucca Borges — Inteligência: Dataset + ML (45s)
 
 **Fala sugerida:**
 > "Nossa solução começa com dados — 602 mil eventos reais de manutenção Ford, com 175 mil veículos únicos.  
@@ -58,7 +58,7 @@
 
 ---
 
-### 🎤 Ruan [Sobrenome] — Arquitetura Técnica (45s)
+### 🎤 Ruan Melo — Arquitetura Técnica (45s)
 
 **Fala sugerida:**
 > "A arquitetura segue o padrão SOA: tudo passa pelo forward-api-java, nosso portão central em Java 17 com Spring Boot.  

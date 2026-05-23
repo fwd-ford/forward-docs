@@ -1,23 +1,29 @@
 """
-QA-1 — Gerador do Pitch ForwardService
-Produz PITCH.pptx com 15 slides baseado nos docs do projeto.
+QA-1 — Gerador do Pitch ForwardService (v2 — 16 slides)
+Inclui: Pitch (1-11) + Canvas (12) + Quadro de Valor (13) + TOGAF (14) + Equipe (15) + Encerramento (16)
 Paleta Ford: azul escuro #00274A, azul claro #1E56A0, laranja acento #F96302
 """
+import os
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-from pptx.util import Inches, Pt
-import pptx.oxml.ns as ns
-from lxml import etree
 
 # ── Cores ──────────────────────────────────────────────────────────────────────
-FORD_DARK   = RGBColor(0x00, 0x27, 0x4A)   # azul Ford escuro
-FORD_BLUE   = RGBColor(0x1E, 0x56, 0xA0)   # azul Ford médio
-FORD_ORANGE = RGBColor(0xF9, 0x63, 0x02)   # laranja acento
+FORD_DARK   = RGBColor(0x00, 0x27, 0x4A)
+FORD_BLUE   = RGBColor(0x1E, 0x56, 0xA0)
+FORD_ORANGE = RGBColor(0xF9, 0x63, 0x02)
 WHITE       = RGBColor(0xFF, 0xFF, 0xFF)
 LIGHT_GRAY  = RGBColor(0xF0, 0xF4, 0xF8)
 GRAY        = RGBColor(0x64, 0x74, 0x87)
+
+# ── Equipe ────────────────────────────────────────────────────────────────────
+TEAM = [
+    ("Rodrigo Jimenez",      "558148", "Testing/QA · Arquitetura TOGAF\nPitch · Canvas · Quadro de Valor\nCoordenação dos artefatos acadêmicos"),
+    ("João Victor Franco",   "556790", "Liderança técnica · Documentação\nSpecs TOGAF (suporte ao Rodrigo)\nIntegração entre disciplinas"),
+    ("Lucca Borges",         "554608", "Machine Learning\nEDA · Feature Engineering\nK-means · XGBoost · Survival Analysis"),
+    ("Ruan Melo",            "557599", "Backend Java\nSOA · REST + SOAP\nSpring Boot 3 · Flyway · Cyber"),
+]
 
 prs = Presentation()
 prs.slide_width  = Inches(13.33)
@@ -26,7 +32,7 @@ prs.slide_height = Inches(7.5)
 blank_layout = prs.slide_layouts[6]  # blank
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
-def add_rect(slide, l, t, w, h, fill_color, opacity=None):
+def add_rect(slide, l, t, w, h, fill_color):
     shape = slide.shapes.add_shape(1, Inches(l), Inches(t), Inches(w), Inches(h))
     shape.line.fill.background()
     shape.fill.solid()
@@ -49,21 +55,18 @@ def add_text(slide, text, l, t, w, h, size=20, bold=False, color=WHITE,
     return txBox
 
 def slide_header(slide, tag, label, bg=FORD_DARK):
-    """Barra superior com tag de seção."""
-    add_rect(slide, 0, 0, 13.33, 7.5, LIGHT_GRAY)  # fundo geral
-    add_rect(slide, 0, 0, 13.33, 1.0, bg)           # header bar
+    add_rect(slide, 0, 0, 13.33, 7.5, LIGHT_GRAY)
+    add_rect(slide, 0, 0, 13.33, 1.0, bg)
     add_text(slide, tag,   0.3, 0.05, 2.5, 0.4, size=11, bold=True,  color=FORD_ORANGE, align=PP_ALIGN.LEFT)
     add_text(slide, label, 0.3, 0.45, 12,  0.5, size=22, bold=True,  color=WHITE,       align=PP_ALIGN.LEFT)
 
 def accent_line(slide, t=1.05):
-    """Linha divisória laranja abaixo do header."""
     rect = slide.shapes.add_shape(1, Inches(0), Inches(t), Inches(13.33), Inches(0.05))
     rect.line.fill.background()
     rect.fill.solid()
     rect.fill.fore_color.rgb = FORD_ORANGE
 
 def add_bullet_box(slide, items, l, t, w, h, title=None, title_color=FORD_DARK, size=14, indent=True):
-    """Bloco de tópicos com bullets."""
     if title:
         add_text(slide, title, l, t, w, 0.4, size=14, bold=True, color=title_color)
         t += 0.38
@@ -85,7 +88,6 @@ def add_bullet_box(slide, items, l, t, w, h, title=None, title_color=FORD_DARK, 
         p.space_after = Pt(4)
 
 def add_kpi_box(slide, value, label, l, t, w=2.8, h=1.3, bg=FORD_BLUE):
-    """Caixa de KPI grande."""
     add_rect(slide, l, t, w, h, bg)
     add_text(slide, value, l, t+0.05, w, 0.7, size=30, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
     add_text(slide, label, l, t+0.75, w, 0.5, size=11, bold=False, color=WHITE, align=PP_ALIGN.CENTER)
@@ -102,11 +104,11 @@ add_text(s, "ForwardService", 0.5, 1.0, 12, 1.2, size=60, bold=True, color=WHITE
 add_text(s, "Plataforma de Retenção Pós-Venda Ford Brasil", 0.5, 2.2, 12, 0.7, size=22, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
 add_text(s, "Inteligência + Automação + ROI Mensurável", 0.5, 2.9, 12, 0.5, size=16, color=FORD_ORANGE, align=PP_ALIGN.CENTER, italic=True)
 
-team = (
-    "Rodrigo Jimenez — RM: [PREENCHER]          Jota Mendes — RM: [PREENCHER]\n"
-    "Lucca [Sobrenome] — RM: [PREENCHER]         Ruan [Sobrenome] — RM: [PREENCHER]"
+team_str = (
+    f"{TEAM[0][0]} — RM: {TEAM[0][1]}          {TEAM[1][0]} — RM: {TEAM[1][1]}\n"
+    f"{TEAM[2][0]} — RM: {TEAM[2][1]}             {TEAM[3][0]} — RM: {TEAM[3][1]}"
 )
-add_text(s, team, 0.5, 4.0, 12, 1.2, size=13, color=WHITE, align=PP_ALIGN.CENTER)
+add_text(s, team_str, 0.5, 4.0, 12, 1.2, size=13, color=WHITE, align=PP_ALIGN.CENTER)
 add_text(s, "Testing, Compliance & Quality Assurance — Prof. Elias Bernardo", 0.5, 5.2, 12, 0.5, size=12, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
 add_text(s, "Sprint 1 — Maio 2026     |     Vídeo Pitch: [INSERIR LINK APÓS GRAVAR]", 0.5, 6.05, 12, 0.5, size=12, color=WHITE, align=PP_ALIGN.CENTER)
 
@@ -142,10 +144,10 @@ slide_header(s, "SOLUÇÃO", "ForwardService — Os 4 Pilares")
 accent_line(s)
 
 pilares = [
-    ("🧠  INTELLIGENCE HUB",  "Quem está prestes a sair?\nK-means + XGBoost + Survival Analysis\nsobre 175k VINs reais Ford BR"),
-    ("⚡  ACTION ENGINE",      "O que fazer, agora, automaticamente?\nWhatsApp · n8n · Pulse Leads\nROI 300:1 por campanha"),
-    ("✨  EXPERIENCE LAYER",   "Por que o cliente vai querer voltar?\nFord Care (plano pré-pago)\nFluxo Simplificado (Ka/Fiesta/EcoSport)"),
-    ("📊  PERFORMANCE CONSOLE","Funcionou? Quanto retornou?\nClosed-Loop ROI · IHC 0-100\nFlywheel — fica mais inteligente a cada ciclo"),
+    ("INTELLIGENCE HUB",  "Quem está prestes a sair?\nK-means + XGBoost + Survival Analysis\nsobre 175k VINs reais Ford BR"),
+    ("ACTION ENGINE",      "O que fazer, agora, automaticamente?\nWhatsApp · n8n · Pulse Leads\nROI 300:1 por campanha"),
+    ("EXPERIENCE LAYER",   "Por que o cliente vai querer voltar?\nFord Care (plano pré-pago)\nFluxo Simplificado (Ka/Fiesta/EcoSport)"),
+    ("PERFORMANCE CONSOLE","Funcionou? Quanto retornou?\nClosed-Loop ROI · IHC 0-100\nFlywheel — fica mais inteligente a cada ciclo"),
 ]
 x_positions = [0.3, 3.6, 6.85, 10.1]
 for (title, body), x in zip(pilares, x_positions):
@@ -413,7 +415,7 @@ riscos = [
      "Agrupamento por UF via heurística. 80 dealers geocodificados (ABRADIF) para mapa de cobertura. Mapeamento exato no Sprint 2."),
     ("Ferramenta Archi (.archimate) nova",
      "BAIXO",  FORD_DARK,
-     "Export PNG como fallback. XML do modelo entregue. Suporte do Jota com specs MD das 4 views."),
+     "Export PNG como fallback. XML do modelo entregue. Suporte do João Victor com specs MD das 4 views."),
     ("Retenção baixa mesmo com a plataforma",
      "BAIXO",  FORD_DARK,
      "Planos Ford Care elevam retenção de 20% para 60% (3x). Fluxo Simplificado alcança 80% da frota que o app atual ignora."),
@@ -467,108 +469,244 @@ for i, (title, items) in enumerate(metricas):
         p.space_after = Pt(3)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SLIDE 12 — Screenshots App Mobile (placeholder)
+# SLIDE 12 — Business Model Canvas (resumo)
 # ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(blank_layout)
-slide_header(s, "PRODUTO", "App Mobile — Modo Ford (Atendente) + Modo Cliente")
-accent_line(s)
+add_rect(s, 0, 0, 13.33, 7.5, LIGHT_GRAY)
+add_rect(s, 0, 0, 13.33, 0.85, FORD_DARK)
+add_text(s, "CANVAS", 0.3, 0.05, 3, 0.35, size=10, bold=True, color=FORD_ORANGE)
+add_text(s, "Business Model Canvas — ForwardService", 0.3, 0.42, 12, 0.38, size=18, bold=True, color=WHITE)
+add_rect(s, 0, 0.85, 13.33, 0.04, FORD_ORANGE)
 
-# Wireframes em boxes representativos
-for i, (title, desc, x) in enumerate([
-    ("📱 MODO FORD — Lista de Leads",
-     "Tela A — Maria vê clientes da concessionária\nOrdenados por risco · Etiqueta colorida por segmento\nFiltro: Esquecido | Econômico | Fiel | Abandono",
-     0.5),
-    ("📱 MODO FORD — Ficha do Cliente",
-     "Tela B — João Silva · Ka 2014\nSegmento: Esquecido · Risco: 71\nAção sugerida: Ligar + WhatsApp 20% off\nHistórico de revisões",
-     4.6),
-    ("📱 MODO CLIENTE — Meu Carro",
-     "Tela C — João vê pelo app\n'Sua revisão está agendada — Sexta 09h'\n6 itens recomendados · Total R$ 487\nLink para WhatsApp da concessionária",
-     8.7),
-]):
-    add_rect(s, x, 1.2, 3.8, 5.9, FORD_DARK)
-    add_rect(s, x, 1.2, 3.8, 0.06, FORD_ORANGE)
-    add_text(s, title, x+0.15, 1.3, 3.6, 0.6, size=11.5, bold=True, color=WHITE)
-    add_rect(s, x, 1.88, 3.8, 0.04, FORD_BLUE)
-    add_rect(s, x+0.3, 2.05, 3.2, 4.5, RGBColor(0x0A, 0x1A, 0x2E))  # "tela do celular"
-    add_text(s, desc, x+0.45, 2.6, 3.0, 3.8, size=11, color=LIGHT_GRAY)
-    add_text(s, "[Screenshot do app aqui]", x+0.5, 4.8, 2.8, 0.5, size=10, color=GRAY, italic=True, align=PP_ALIGN.CENTER)
+def cblock(slide, title, items, x, t, w, h, bg=FORD_DARK):
+    add_rect(slide, x, t, w, h, bg)
+    add_text(slide, title, x+0.1, t+0.05, w-0.15, 0.28, size=8, bold=True, color=FORD_ORANGE)
+    add_rect(slide, x, t+0.33, w, 0.02, FORD_ORANGE if bg != FORD_BLUE else WHITE)
+    txBox = slide.shapes.add_textbox(Inches(x+0.1), Inches(t+0.36), Inches(w-0.15), Inches(h-0.42))
+    tf = txBox.text_frame; tf.word_wrap = True
+    first = True
+    for it in items:
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False
+        p.text = "• " + it
+        p.font.size = Pt(8)
+        p.font.color.rgb = WHITE
+        p.space_after = Pt(1)
 
-add_text(s, "Um único codebase React Native/Expo — o login define o modo. Sem dois apps para manter.", 0.4, 7.1, 12.5, 0.35, size=12, italic=True, color=FORD_DARK, align=PP_ALIGN.CENTER)
+# Row 1 — 5 colunas com alturas diferentes (parceiros e segmentos têm 2 linhas = mais altos)
+GAP = 0.06
+# Key Partners (col 1, rows 1+2 combined = mais alto)
+cblock(s, "PARCEIROS-CHAVE", [
+    "Ford Brasil (dataset oficial)",
+    "Meta — WhatsApp Business (97%)",
+    "Microsoft Azure (infra VM)",
+    "Supabase / Neon (Postgres 16)",
+    "FENABRAVE (dados frota BR)",
+    "OpenAI / Anthropic (futuro)",
+], 0.1, 0.92, 2.1, 3.3, FORD_DARK)
+
+# Key Activities (col 2, row 1)
+cblock(s, "ATIVIDADES-CHAVE", [
+    "ML scoring 175k VINs/dia",
+    "Disparos n8n + WhatsApp auto",
+    "Manter e retreinar modelos (Flywheel)",
+    "KPIs e IHC por dealer real time",
+], 2.28, 0.92, 2.1, 1.57, FORD_BLUE)
+
+# Key Resources (col 2, row 2)
+cblock(s, "RECURSOS-CHAVE", [
+    "Dataset 602k eventos Ford",
+    "Modelos ML (3 camadas)",
+    "Infra Azure VM + Postgres",
+    "Equipe 4 devs multidisciplinar",
+], 2.28, 2.57, 2.1, 1.65, FORD_DARK)
+
+# Value Proposition (col 3, rows 1+2 — destaque)
+add_rect(s, 4.46, 0.92, 2.55, 3.3, FORD_BLUE)
+add_rect(s, 4.46, 0.92, 2.55, 0.06, FORD_ORANGE)
+add_text(s, "PROPOSTA DE VALOR", 4.56, 0.97, 2.4, 0.28, size=8, bold=True, color=FORD_ORANGE)
+add_rect(s, 4.46, 1.25, 2.55, 0.02, WHITE)
+vp_items = [
+    "Ford BR: VIN Share 4% → 8-10%",
+    "Dealer: Pulse Leads diários por risco",
+    "Cliente Ka/EcoSport: Fluxo Simplificado",
+    "Cliente Ranger: Ford Care (3× retenção)",
+    "Cockpit nacional em tempo real",
+    "ROI 300:1 por campanha WhatsApp",
+]
+txBox = s.shapes.add_textbox(Inches(4.56), Inches(1.3), Inches(2.38), Inches(2.8))
+tf = txBox.text_frame; tf.word_wrap = True
+first = True
+for it in vp_items:
+    p = tf.paragraphs[0] if first else tf.add_paragraph()
+    first = False
+    p.text = "• " + it
+    p.font.size = Pt(8)
+    p.font.bold = True
+    p.font.color.rgb = WHITE
+    p.space_after = Pt(2)
+
+# Customer Relationships (col 4, row 1)
+cblock(s, "RELACIONAMENTO", [
+    "Self-service: app dual-mode",
+    "Personalizado via dealer (Maria)",
+    "WhatsApp automático 24/7",
+    "Ford Care (longo prazo pré-pago)",
+], 7.09, 0.92, 2.1, 1.57, FORD_DARK)
+
+# Channels (col 4, row 2)
+cblock(s, "CANAIS", [
+    "WhatsApp Business (97% abertura)",
+    "App Mobile React Native/Expo",
+    "Dashboard Web SvelteKit",
+    "n8n (email/SMS — Sprint 2)",
+], 7.09, 2.57, 2.1, 1.65, FORD_BLUE)
+
+# Customer Segments (col 5, rows 1+2 combined)
+cblock(s, "SEGMENTOS", [
+    "Ford Brasil (B2B — matriz)",
+    "145 concessionárias ativas",
+    "Donos modelos recentes (Ranger)",
+    "Donos Ka/EcoSport/Fiesta (2,5M+)",
+    "Gestores regionais Ford",
+    "4 perfis ML: Fiel/Econom/Esquec/Aband",
+], 9.27, 0.92, 3.96, 3.3, FORD_DARK)
+
+# Bottom Row
+cblock(s, "ESTRUTURA DE CUSTOS", [
+    "Azure VM: $7-30/mês · Supabase: $0-25/mês",
+    "WhatsApp API: free 1k msgs/mês (Sprint 1)",
+    "Retrabalho ML, suporte dealers, incidentes",
+    "Treinamento atendentes: <15 min/usuário",
+], 0.1, 4.3, 6.6, 2.0, FORD_BLUE)
+
+cblock(s, "FONTES DE RECEITA", [
+    "SaaS Ford Brasil: licença mensal pós-MVP",
+    "Assinatura por dealer: 145 potenciais",
+    "Ford Care: receita antecipada de revisões",
+    "ROI 300:1 documentado por campanha",
+], 6.78, 4.3, 6.45, 2.0, FORD_DARK)
+
+add_text(s, "Detalhes completos (impacto de falhas + custos de qualidade): CANVAS.html / CANVAS.pdf", 0.2, 6.38, 12.9, 0.3, size=8, color=GRAY, italic=True, align=PP_ALIGN.CENTER)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SLIDE 13 — Dashboard Web + n8n
+# SLIDE 13 — Quadro de Valor
 # ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(blank_layout)
-slide_header(s, "PRODUTO", "Dashboard Web + Automação n8n")
+slide_header(s, "QUADRO DE VALOR", "Partes Interessadas — O que cada stakeholder ganha")
 accent_line(s)
 
-# Dashboard
-add_rect(s, 0.3, 1.25, 7.7, 5.9, FORD_DARK)
-add_text(s, "📊 forward-web — Cockpit Corporativo Ford", 0.5, 1.35, 7.4, 0.55, size=13, bold=True, color=FORD_ORANGE)
-add_rect(s, 0.3, 1.9, 7.7, 0.05, FORD_BLUE)
-kpis_web = [
-    ("47 Esquecidos\ncontatados", 0.5, 2.0),
-    ("22 Agendamentos\n47% conversão", 3.0, 2.0),
-    ("R$ 184k\nprevisto", 5.8, 2.0),
-]
-for txt, x, y in kpis_web:
-    add_rect(s, x, y, 2.3, 1.1, FORD_BLUE)
-    add_text(s, txt, x+0.1, y+0.1, 2.1, 0.95, size=12, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-add_text(s, "[Screenshot dashboard aqui]\nVisão da frota · Segmentos · Curva da Morte\nRanking IHC por dealer (0-100)\nFiltro: região / período / categoria", 0.5, 3.3, 7.3, 3.7, size=12, color=LIGHT_GRAY)
+add_text(s, "Para cada benefício: métrica de negócio (resultado) + métrica de qualidade (SLA técnico)", 0.4, 1.1, 12.5, 0.35, size=12, italic=True, color=FORD_DARK)
 
-# n8n
-add_rect(s, 8.2, 1.25, 4.85, 5.9, FORD_BLUE)
-add_text(s, "⚡ n8n — Action Engine", 8.4, 1.35, 4.5, 0.55, size=13, bold=True, color=FORD_ORANGE)
-add_rect(s, 8.2, 1.9, 4.85, 0.05, WHITE)
-n8n_flow = [
-    "INBOUND: WhatsApp webhook → POST Java",
-    "OUTBOUND: Java → n8n → WhatsApp template",
-    "Rotação de templates aprovados Meta",
-    "Log de cada mensagem no audit_log",
-    "Free tier Meta: 1.000 msgs/mês (suficiente demo)",
-    "ROI 300:1 — R$ 300 investidos → R$ 90k receita",
+# Table header
+hdr_y = 1.5
+cols = [("STAKEHOLDER", 0.15, 2.1), ("PROMESSA FORWARDSERVICE", 2.3, 3.5),
+        ("MÉTRICA DE NEGÓCIO", 5.85, 3.2), ("MÉTRICA DE QUALIDADE", 9.1, 2.8), ("PRIO", 11.95, 1.2)]
+for label, x, w in cols:
+    add_rect(s, x, hdr_y, w, 0.38, FORD_DARK)
+    add_text(s, label, x+0.05, hdr_y+0.04, w-0.1, 0.3, size=8, bold=True, color=WHITE)
+
+rows = [
+    ("Ford Brasil", "Dashboard nacional real time:\nVIN Share por UF · ROI rastreável",
+     "VIN Share ≥ 8% em 24 meses\n(base: ~3,5-5% hoje)", "Disponib. ≥ 99%\nLatência API p95 < 300ms", "ALTA", FORD_ORANGE),
+    ("Gestor Regional", "Cockpit: IHC 0-100 por dealer,\nranking e causa-raiz",
+     "≥ 80% dealers acima\nda meta regional de IHC", "IHC atualiz. 1×/dia\nSilhouette K-means > 0,4", "ALTA", FORD_ORANGE),
+    ("Dono de Concessionária", "Pulse Leads: lista diária\npor risco + LSV automático",
+     "Conversão lead → revisão\n≥ 35%", "Endpoint /leads < 200ms\nZero leads duplicados/dia", "ALTA", FORD_ORANGE),
+    ("Gerente de Serviço", "Ficha do cliente: etiqueta de\nsegmento + ação sugerida pelo ML",
+     "Redução 40% no tempo\nde priorização de contatos", "AUC classificador ≥ 0,82\nFalsos positivos < 10%", "ALTA", FORD_ORANGE),
+    ("Dono modelo descontin.", "Fluxo Simplificado: WhatsApp,\ncadastro VIN manual, lembrete km",
+     "Reativação ≥ 15% dos VINs\ninativos >12 meses (1º semestre)", "Entrega WhatsApp < 30s\nAbertura ≥ 80%", "ALTA", FORD_ORANGE),
+    ("Atendente (dealer)", "Vista 360: histórico completo,\nscore, ação — uma tela",
+     "NPS do atendimento ≥ 60\n(benchmark setor: ~50)", "Vista 360 < 1s\nOnboarding < 15 min", "MÉDIA", FORD_BLUE),
+    ("Dono modelo recente", "App: revisão por km/meses,\nFord Care pré-pago, agendam. 1 toque",
+     "Adoção Ford Care ≥ 20%\ndos elegíveis em 12 meses", "App carrega < 2s\nPush notif. < 5s", "MÉDIA", FORD_BLUE),
+    ("Equipe ForwardService", "Flywheel: precisão cresce com uso.\nSOA: cada componente evolui sozinho",
+     "Precisão ML: 70%→80%→90%\n(mês 1 → 6 → ano 2)", "Cobertura testes ≥ 70%\nDeploy zero downtime (rolling)", "MÉDIA", FORD_BLUE),
 ]
-add_bullet_box(s, n8n_flow, 8.35, 2.0, 4.55, 4.9, size=11)
+
+row_h = 0.61
+for i, (stakeholder, promessa, met_neg, met_qual, prio, prio_color) in enumerate(rows):
+    ry = hdr_y + 0.4 + i * row_h
+    bg_row = RGBColor(0xF7, 0xFA, 0xFC) if i % 2 == 0 else WHITE
+    add_rect(s, 0.15, ry, 13.0, row_h - 0.02, bg_row)
+    # Stakeholder
+    add_text(s, stakeholder, 0.2, ry+0.03, 2.0, row_h-0.08, size=8.5, bold=True, color=FORD_DARK)
+    # Promessa
+    add_text(s, promessa, 2.35, ry+0.03, 3.35, row_h-0.08, size=8, color=FORD_DARK)
+    # Métrica negócio
+    add_text(s, met_neg, 5.9, ry+0.03, 3.1, row_h-0.08, size=8, bold=True, color=FORD_BLUE)
+    # Métrica qualidade
+    add_text(s, met_qual, 9.15, ry+0.03, 2.65, row_h-0.08, size=8, bold=True, color=RGBColor(0x27, 0x67, 0x49))
+    # Prioridade
+    add_rect(s, 12.0, ry+0.08, 1.1, row_h-0.22, prio_color)
+    add_text(s, prio, 12.0, ry+0.1, 1.1, row_h-0.25, size=7.5, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+
+add_text(s, "Documento completo com 9 stakeholders e métricas consolidadas: QUADRO_DE_VALOR.html / PDF", 0.3, 6.55, 12.7, 0.3, size=8, color=GRAY, italic=True, align=PP_ALIGN.CENTER)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SLIDE 14 — Equipe
+# SLIDE 14 — Arquitetura TOGAF (6 Vistas)
+# ══════════════════════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(blank_layout)
+slide_header(s, "TOGAF / ARCHI", "Arquitetura da Solução — 6 Vistas ArchiMate 3.1")
+accent_line(s)
+
+add_text(s, "Visão · Negócio · Aplicação · Tecnologia · Requisitos de Qualidade · Monitoramento", 0.4, 1.12, 12.5, 0.35, size=12, italic=True, color=FORD_DARK, align=PP_ALIGN.CENTER)
+
+togaf_views = [
+    ("01 — Motivation\n(Drivers, Stakeholders, Goals)", r"C:\Users\USER\Desktop\espm\forward-docs\academic\togaf\views\01_motivation_view.png"),
+    ("02 — Business\n(Processo As-Is vs To-Be)", r"C:\Users\USER\Desktop\espm\forward-docs\academic\togaf\views\02_business_view.png"),
+    ("03 — Application\n(Componentes + Comunicações)", r"C:\Users\USER\Desktop\espm\forward-docs\academic\togaf\views\03_application_view.png"),
+    ("04 — Technology\n(Infra: Azure, Docker, TLS)", r"C:\Users\USER\Desktop\espm\forward-docs\academic\togaf\views\04_technology_view.png"),
+    ("05 — Requirements\n(Qualidade → Componentes)", r"C:\Users\USER\Desktop\espm\forward-docs\academic\togaf\views\05_requirements_view.png"),
+    ("06 — Monitoring\n(Observabilidade em Produção)", r"C:\Users\USER\Desktop\espm\forward-docs\academic\togaf\views\06_monitoring_view.png"),
+]
+
+img_w = 4.1
+img_h = 2.3
+for i, (label, img_path) in enumerate(togaf_views):
+    row = i // 3
+    col = i % 3
+    x = 0.1 + col * (img_w + 0.28)
+    y = 1.55 + row * (img_h + 0.65)
+    if os.path.exists(img_path):
+        s.shapes.add_picture(img_path, Inches(x), Inches(y), Inches(img_w), Inches(img_h))
+    else:
+        add_rect(s, x, y, img_w, img_h, FORD_BLUE)
+        add_text(s, "[PNG não encontrado]", x, y+0.8, img_w, 0.5, size=10, color=WHITE, align=PP_ALIGN.CENTER)
+    add_rect(s, x, y + img_h + 0.03, img_w, 0.52, FORD_DARK)
+    add_text(s, label, x+0.08, y + img_h + 0.05, img_w - 0.12, 0.46, size=8, color=WHITE)
+
+add_text(s, "Arquivo editável: ForwardService.archimate (abre no Archi 4.x, gratuito em archimatetool.com)", 0.3, 7.08, 12.7, 0.35, size=9, color=GRAY, italic=True, align=PP_ALIGN.CENTER)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 15 — Equipe
 # ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(blank_layout)
 slide_header(s, "EQUIPE", "Equipe ForwardService — FIAP 2026")
 accent_line(s)
 
-membros = [
-    ("Rodrigo Jimenez\n(Roji)", "RM: [PREENCHER]",
-     "Testing/QA · Arquitetura TOGAF\nPitch · Canvas · Quadro de Valor\nCoordenação dos artefatos acadêmicos"),
-    ("Jota Mendes\n(Jota)", "RM: [PREENCHER]",
-     "Liderança técnica · Documentação\nSpecs TOGAF (suporte ao Roji)\nIntegração entre disciplinas"),
-    ("Lucca [Sobrenome]", "RM: [PREENCHER]",
-     "Machine Learning\nEDA · Feature Engineering\nK-means · XGBoost · Survival Analysis"),
-    ("Ruan [Sobrenome]", "RM: [PREENCHER]",
-     "Backend Java\nSOA · REST + SOAP\nSpring Boot 3 · Flyway · Cyber"),
-]
 x_positions = [0.4, 3.5, 6.6, 9.7]
-for (name, rm, role), x in zip(membros, x_positions):
+for (name, rm, role), x in zip(TEAM, x_positions):
     add_rect(s, x, 1.3, 3.1, 5.5, FORD_DARK)
     add_rect(s, x, 1.3, 3.1, 0.06, FORD_ORANGE)
-    # Avatar placeholder
     add_rect(s, x+0.55, 1.5, 2.0, 2.0, FORD_BLUE)
     add_text(s, "👤", x+0.55, 1.7, 2.0, 1.5, size=36, color=WHITE, align=PP_ALIGN.CENTER)
     add_text(s, name, x+0.15, 3.6, 2.8, 0.7, size=13, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    add_text(s, rm,   x+0.15, 4.3, 2.8, 0.4, size=11, color=FORD_ORANGE, align=PP_ALIGN.CENTER)
+    add_text(s, f"RM: {rm}", x+0.15, 4.3, 2.8, 0.4, size=11, color=FORD_ORANGE, align=PP_ALIGN.CENTER)
     add_rect(s, x, 4.72, 3.1, 0.04, FORD_BLUE)
     add_text(s, role, x+0.15, 4.82, 2.8, 1.8, size=10, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
 
 add_text(s, "Disciplina: Testing, Compliance & Quality Assurance — Prof. Elias Bernardo", 0.4, 7.0, 12.5, 0.45, size=12, color=FORD_DARK, italic=True, align=PP_ALIGN.CENTER)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SLIDE 15 — Próximos Passos + Agradecimentos
+# SLIDE 16 — Próximos Passos + Agradecimentos
 # ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(blank_layout)
 add_rect(s, 0, 0, 13.33, 7.5, FORD_DARK)
 add_rect(s, 0, 0, 13.33, 1.0, FORD_BLUE)
 add_rect(s, 0, 0.95, 13.33, 0.07, FORD_ORANGE)
-add_text(s, "PRÓXIMOS PASSOS", 0.4, 0.05, 12.5, 0.45, size=11, bold=True, color=FORD_ORANGE, align=PP_ALIGN.LEFT)
+add_text(s, "PRÓXIMOS PASSOS", 0.4, 0.05, 12.5, 0.45, size=11, bold=True, color=FORD_ORANGE)
 add_text(s, "O que vem depois do Sprint 1", 0.4, 0.45, 12.5, 0.5, size=22, bold=True, color=WHITE)
 
 proximos = [
