@@ -10,7 +10,7 @@
 ## Link do Vídeo
 
 ```
-[INSERIR LINK AQUI APÓS PUBLICAR]
+https://youtu.be/EbFjxzzq1Lw
 ```
 
 > Publicar no **YouTube (não-listado)** ou **Google Drive (link público compartilhado)**.  
