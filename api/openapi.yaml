@@ -1,0 +1,742 @@
+openapi: 3.0.1
+info:
+  title: Forward API
+  description: |-
+    REST and SOAP backend for ForwardService, the Ford x FIAP 2026 challenge platform. Exposes customer, vehicle, lead, churn score and service event resources for the dealer network.
+
+    **Authentication**: every endpoint except `/health` and `/ready` requires a bearer JWT (Supabase) **or** an `X-API-Key` header for server-to-server callers (n8n, cron jobs).
+
+    **Rate limiting**: requests are limited per IP and subject via Bucket4j. When the bucket is empty the API returns `429 Too Many Requests`.
+
+    **Errors**: every error response follows RFC 7807 `application/problem+json` using Spring's `ProblemDetail` model. User-facing `detail` messages are in Portuguese (pt-BR).
+  contact:
+    name: Forward Team
+    url: https://github.com/fwd-ford/forward-api-java
+    email: dev@fwd-ford.com
+  license:
+    name: Proprietary
+    url: https://github.com/fwd-ford/forward-api-java/blob/main/LICENSE
+  version: 0.1.0
+externalDocs:
+  description: "Repository, runbook and architecture docs"
+  url: https://github.com/fwd-ford/forward-api-java#readme
+servers:
+- url: http://localhost:18080
+  description: Local Docker
+- url: http://localhost:8080
+  description: Local native (mvnw)
+- url: https://forward-api.fwd-ford.com
+  description: Production
+security:
+- bearerAuth: []
+- apiKey: []
+tags:
+- name: Service Events
+  description: Service event registration (scheduled vehicle maintenance).
+- name: Health
+  description: Liveness and readiness probes (public).
+- name: Me
+  description: Current authenticated subject.
+- name: Customers
+  description: Customer profile lookup with RBAC.
+- name: Vehicles
+  description: Vehicle lookup by VIN.
+- name: Leads
+  description: Sales lead listing with optional filters.
+- name: Scores
+  description: Customer churn score lookup.
+paths:
+  /api/v1/service-events:
+    post:
+      tags:
+      - Service Events
+      summary: Register a service event
+      description: "Records a scheduled maintenance event for a vehicle. The VIN must\
+        \ already exist in the system; otherwise 404 is returned. The dealerCode and\
+        \ serviceCode pair identifies the workshop and the kind of service performed.\
+        \ Returns 201 with the created resource and a Location header pointing at\
+        \ /api/v1/service-events/{id}."
+      operationId: createServiceEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateServiceEventRequest"
+        required: true
+      responses:
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Forbidden by RBAC
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: VIN not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "201":
+          description: Service event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceEvent"
+        "400":
+          description: Validation failed on the request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /ready:
+    get:
+      tags:
+      - Health
+      summary: Readiness probe
+      description: Public endpoint that confirms the process is ready to serve traffic
+        and returns the running version. Does not test downstream dependencies.
+      operationId: readiness
+      responses:
+        "200":
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+      security: []
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Liveness probe
+      description: Public endpoint that confirms the process is up and returns the
+        running version. Does not test downstream dependencies.
+      operationId: liveness
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+      security: []
+  /api/v1/vehicles/{vin}:
+    get:
+      tags:
+      - Vehicles
+      summary: Get vehicle by VIN
+      description: "Returns vehicle data for the given 17-character VIN. VIN is validated\
+        \ against ISO 3779 (no I, O, Q)."
+      operationId: getVehicle
+      parameters:
+      - name: vin
+        in: path
+        description: "17-character Vehicle Identification Number (ISO 3779, no I/O/Q)."
+        required: true
+        schema:
+          pattern: "^[A-HJ-NPR-Z0-9]{17}$"
+          type: string
+        example: 1HGCM82633A123456
+      responses:
+        "404":
+          description: Vehicle not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "400":
+          description: Invalid VIN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "200":
+          description: Vehicle found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+  /api/v1/scores/{customerId}:
+    get:
+      tags:
+      - Scores
+      summary: Get current churn score for a customer
+      description: Returns the most recent churn score computed for the given customer.
+        RBAC is enforced inside the service layer.
+      operationId: getCurrentChurnScore
+      parameters:
+      - name: customerId
+        in: path
+        description: Customer UUID.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 2ddd2b47-9a80-4a0c-8c0a-8ee35d6f8b10
+      responses:
+        "400":
+          description: Invalid customer UUID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Forbidden by RBAC
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "200":
+          description: Score found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChurnScore"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: No score available for this customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/v1/me:
+    get:
+      tags:
+      - Me
+      summary: Get current subject
+      description: Returns the `sub` and `role` parsed from the validated JWT or X-API-Key.
+        Useful to confirm auth is working end-to-end.
+      operationId: me
+      responses:
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "200":
+          description: Subject and role of the authenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthMe"
+  /api/v1/leads:
+    get:
+      tags:
+      - Leads
+      summary: List leads
+      description: "Returns a list of leads optionally filtered by dealer and status.\
+        \ Default limit is 50, maximum 200."
+      operationId: listLeads
+      parameters:
+      - name: dealer_id
+        in: query
+        description: Filter by dealer UUID.
+        required: false
+        schema:
+          type: string
+          format: uuid
+        example: 11111111-1111-1111-1111-111111111111
+      - name: status
+        in: query
+        description: Filter by lead status.
+        required: false
+        schema:
+          type: string
+          enum:
+          - new
+          - assigned
+          - contacted
+          - converted
+          - lost
+          - expired
+        example: new
+      - name: limit
+        in: query
+        description: "Max items to return. Defaults to 50, hard cap at 200."
+        required: false
+        schema:
+          maximum: 200
+          minimum: 1
+          type: integer
+        example: 50
+      responses:
+        "200":
+          description: List of leads (may be empty)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lead"
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "400":
+          description: "Invalid query parameter (dealer_id, status or limit)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/v1/customers/{id}:
+    get:
+      tags:
+      - Customers
+      summary: Get customer by id
+      description: "Returns the customer profile for the given UUID. RBAC: end users\
+        \ can only read their own record; analyst, admin and dealer roles can read\
+        \ anyone."
+      operationId: getCustomer
+      parameters:
+      - name: id
+        in: path
+        description: Customer UUID.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 2ddd2b47-9a80-4a0c-8c0a-8ee35d6f8b10
+      responses:
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "200":
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "400":
+          description: Invalid UUID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Forbidden by RBAC
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+components:
+  schemas:
+    CreateServiceEventRequest:
+      required:
+      - dealerCode
+      - mainSource
+      - maintenanceNumber
+      - serviceCode
+      - serviceDate
+      - vin
+      type: object
+      properties:
+        vin:
+          pattern: "^[A-HJ-NPR-Z0-9]{17}$"
+          type: string
+          description: 17-character Vehicle Identification Number (ISO 3779).
+          example: 1HGCM82633A123456
+        dealerCode:
+          type: string
+          description: Dealer code (workshop identifier).
+          example: BR-SP-0042
+        serviceCode:
+          maximum: 5
+          minimum: 1
+          type: integer
+          description: "Service type code, ranging from 1 (oil change) to 5 (full\
+            \ overhaul)."
+          format: int32
+          example: 2
+        maintenanceNumber:
+          minimum: 0
+          type: integer
+          description: "Scheduled maintenance number (0 for unscheduled, 1+ for revisions)."
+          format: int32
+          example: 3
+        km:
+          minimum: 0
+          type: integer
+          description: "Vehicle mileage at service time, in kilometers."
+          format: int32
+          nullable: true
+          example: 42500
+        serviceDate:
+          type: string
+          description: Service date and time (ISO 8601 with offset).
+          format: date-time
+          example: 2026-05-24T14:30:00-03:00
+        mainSource:
+          pattern: ^(dealer_app|n8n|manual|legacy)$
+          type: string
+          description: Origin of the event payload.
+          example: dealer_app
+          enum:
+          - dealer_app
+          - n8n
+          - manual
+          - legacy
+      description: Payload to register a new service event for a vehicle.
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        properties:
+          type: object
+          additionalProperties:
+            type: object
+    ServiceEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        vin:
+          type: string
+        dealerId:
+          type: string
+        orderType:
+          type: string
+        status:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+        mileageKm:
+          type: integer
+          format: int32
+        maintenanceNumber:
+          type: integer
+          format: int32
+        mainSource:
+          type: string
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Always "ok" when the service is responsive.
+          example: ok
+        timestamp:
+          type: string
+          description: Server timestamp in ISO 8601.
+          format: date-time
+          example: 2026-05-24T19:00:00Z
+        service:
+          type: string
+          description: Service identifier.
+          example: forward-api
+        version:
+          type: string
+          description: Running version (Maven artifact version).
+          example: 0.1.0
+      description: Health probe payload. Indicates the process is up and reports its
+        version.
+    Vehicle:
+      type: object
+      properties:
+        vin:
+          pattern: "^[A-HJ-NPR-Z0-9]{17}$"
+          type: string
+          description: 17-character Vehicle Identification Number (ISO 3779).
+          example: 1HGCM82633A123456
+        customer_id:
+          type: string
+          description: Owner's customer UUID.
+          format: uuid
+          example: 2ddd2b47-9a80-4a0c-8c0a-8ee35d6f8b10
+        model:
+          type: string
+          description: Commercial model name.
+          example: Ranger
+        year:
+          minimum: 1900
+          type: integer
+          description: Model year.
+          format: int32
+          example: 2024
+        version:
+          type: string
+          description: Trim or version of the model.
+          example: Limited 3.0 V6
+        color:
+          type: string
+          description: Exterior color.
+          example: Azul Atlas
+        discontinued:
+          type: boolean
+          description: True if the model is no longer in production.
+          example: false
+        purchase_date:
+          type: string
+          description: Date the customer purchased the vehicle.
+          format: date
+          example: 2023-08-14
+        last_service_at:
+          type: string
+          description: Timestamp of the most recent service event for this vehicle.
+          format: date-time
+          example: 2026-04-22T13:05:00-03:00
+      description: Vehicle record identified by VIN.
+    ChurnScore:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Score UUID.
+          format: uuid
+          example: 5e1d2f3a-4b6c-4d7e-8f9a-0b1c2d3e4f50
+        customer_id:
+          type: string
+          description: Customer UUID this score belongs to.
+          format: uuid
+          example: 2ddd2b47-9a80-4a0c-8c0a-8ee35d6f8b10
+        vin:
+          pattern: "^[A-HJ-NPR-Z0-9]{17}$"
+          type: string
+          description: VIN of the vehicle considered when computing the score (nullable).
+          nullable: true
+          example: 1HGCM82633A123456
+        model_version:
+          type: string
+          description: Identifier of the ML model that produced this score.
+          example: v1.3.0
+        segment:
+          type: string
+          description: Behavioral segment inferred by the model.
+          example: abandono
+          enum:
+          - fiel
+          - abandono
+          - esquecido
+          - economico
+        churn_probability:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: "Predicted probability of churn in the next 90 days, in [0,\
+            \ 1]."
+          format: double
+          example: 0.82
+        confidence:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: "Confidence of the prediction, in [0, 1] (nullable)."
+          format: double
+          nullable: true
+          example: 0.91
+        computed_at:
+          type: string
+          description: Timestamp the score was computed.
+          format: date-time
+          example: 2026-05-23T22:10:00-03:00
+      description: Latest churn probability and behavioral segment computed for a
+        customer.
+    AuthMe:
+      type: object
+      properties:
+        sub:
+          type: string
+          description: "Subject identifier (Supabase user UUID for JWT, service id\
+            \ for API key)."
+          example: f7b3c1d2-4a55-4e8c-9b6f-1234567890ab
+        role:
+          type: string
+          description: Role granted to the caller.
+          example: admin
+          enum:
+          - end_user
+          - dealer
+          - analyst
+          - admin
+          - service
+      description: Subject and role of the authenticated caller (JWT or X-API-Key).
+    Lead:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Lead UUID.
+          format: uuid
+          example: 9a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d
+        customer_id:
+          type: string
+          description: Customer UUID this lead refers to.
+          format: uuid
+          example: 2ddd2b47-9a80-4a0c-8c0a-8ee35d6f8b10
+        vin:
+          pattern: "^[A-HJ-NPR-Z0-9]{17}$"
+          type: string
+          description: 17-character VIN of the vehicle this lead refers to.
+          example: 1HGCM82633A123456
+        dealer_id:
+          type: string
+          description: Dealer UUID assigned to follow up.
+          format: uuid
+          example: 11111111-1111-1111-1111-111111111111
+        priority:
+          type: string
+          description: Priority level inferred from churn score and segment.
+          example: high
+          enum:
+          - low
+          - medium
+          - high
+          - critical
+        status:
+          type: string
+          description: Lifecycle status of the lead.
+          example: new
+          enum:
+          - new
+          - assigned
+          - contacted
+          - converted
+          - lost
+          - expired
+        reason:
+          type: string
+          description: Why the lead was generated (free text or canonical code).
+          example: expected_churn>0.8
+        expected_value_brl:
+          minimum: 0
+          type: number
+          description: Expected revenue in BRL if this lead converts.
+          format: double
+          example: 18500.0
+        created_at:
+          type: string
+          description: Timestamp the lead was created.
+          format: date-time
+          example: 2026-05-20T09:15:00-03:00
+        converted_at:
+          type: string
+          description: Timestamp the lead became a sale (null when not converted yet).
+          format: date-time
+          nullable: true
+          example: 2026-05-22T17:42:00-03:00
+      description: Sales lead generated for the dealer network.
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Customer UUID.
+          format: uuid
+          example: 2ddd2b47-9a80-4a0c-8c0a-8ee35d6f8b10
+        full_name:
+          type: string
+          description: Customer full name.
+          example: Maria Aparecida Silva
+        email:
+          type: string
+          description: Customer email (RFC 5322).
+          format: email
+          example: maria.silva@example.com
+        phone:
+          type: string
+          description: Phone number with country and area code.
+          example: "+5511987654321"
+        city:
+          type: string
+          description: City of residence.
+          example: Sao Paulo
+        state:
+          maxLength: 2
+          minLength: 2
+          type: string
+          description: Brazilian state abbreviation (UF).
+          example: SP
+        opt_in_whatsapp:
+          type: boolean
+          description: True when the customer accepted WhatsApp outreach.
+          example: true
+        created_at:
+          type: string
+          description: Timestamp the customer record was created.
+          format: date-time
+          example: 2025-09-12T18:34:00-03:00
+      description: "Customer profile, returned with RBAC enforcement."
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: Supabase JWT issued to authenticated users. Validated against the
+        configured HS256 secret or the project JWKS (asymmetric).
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      description: "Internal API key for server-to-server calls (n8n, cron). Set via\
+        \ the `INTERNAL_API_KEY` env var."
+      name: X-API-Key
+      in: header
