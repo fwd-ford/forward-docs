@@ -77,7 +77,7 @@
 Itens marcados como **risco residual aceito** no [01_THREAT_MODEL.md §6](./01_THREAT_MODEL.md#6-riscos-residuais-aceitos-para-sprint-1). Aqui consolidamos prioridade, esforço e janela.
 
 | ID | Item | Prioridade | Esforço | Janela | Critério de pronto |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | R1 | Migrar RBAC inline para `@PreAuthorize` declarativo | P2 | 1 dia | Sprint 2 | Todos os endpoints anotados; testes de RBAC verdes |
 | R2 | Field-level encryption (Hibernate `@Converter` ou Jasypt) para CPF/e-mail/telefone | P1 | 2 dias | Sprint 2 | DB dump não revela PII em claro |
 | R3 | `MaskingPatternLayout` no Logback para mascarar CPF/e-mail/telefone em logs | P1 | 0.5 dia | Sprint 2 | Grep no Loki/Fly logs por CPF de fixture retorna 0 hits |
@@ -101,7 +101,7 @@ Itens marcados como **risco residual aceito** no [01_THREAT_MODEL.md §6](./01_T
 ## 4. Compliance LGPD
 
 | Artigo / requisito | Implementação |
-|---|---|
+| --- | --- |
 | Art. 5 — base legal e consentimento | Coluna `lgpd_consent_at` em `customers`; mobile precisa coletar (R11) |
 | Art. 16 — eliminação após término | Reaper `anonymize_expired_customers()` diário ([013](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)) |
 | Art. 18 — direitos do titular (deletion request) | `lgpd_deletion_requested_at` + cooling-off 30d + `anonymize_customer()` |
@@ -118,7 +118,7 @@ Itens marcados como **risco residual aceito** no [01_THREAT_MODEL.md §6](./01_T
 Todos os controles abaixo são código ou configuração versionada — nada é "manual operacional".
 
 | Controle | Tipo | Arquivo |
-|---|---|---|
+| --- | --- | --- |
 | Force HTTPS | Config | [fly.toml:18](../../../forward-api-java/fly.toml) |
 | Security headers | Filter | [SecurityHeadersFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
 | CORS allowlist | Config + Bean | [CorsConfig.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) + [fly.toml:11](../../../forward-api-java/fly.toml) |
@@ -145,7 +145,7 @@ Todos os controles abaixo são código ou configuração versionada — nada é 
 Métricas que devem ser medidas continuamente em produção. Para Sprint 1 são alvos; instrumentação completa entra no Sprint 2.
 
 | Métrica | Alvo Sprint 1 | Alvo Sprint 2 |
-|---|---|---|
+| --- | --- | --- |
 | % requests com `X-Request-Id` correlacionável end-to-end | 100% | 100% (já garantido por filtro) |
 | Tempo entre CVE CRITICAL publicado e PR aberto | < 7 dias | < 24h (Dependabot + Trivy) |
 | Tempo médio para anonimizar request LGPD | manual | < 30 dias (reaper diário) |
@@ -192,7 +192,7 @@ Ver [01_THREAT_MODEL.md §7](./01_THREAT_MODEL.md#7-procedimento-de-resposta-a-i
 ## 8. Pendências para fechamento do Sprint 1
 
 | # | Item | Status | Quem |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | Threat model documentado | ✅ pronto | Cyber |
 | 2 | OWASP Top 10 mapeado | ✅ pronto | Cyber |
 | 3 | Plano de segurança (este doc) | ✅ pronto | Cyber |

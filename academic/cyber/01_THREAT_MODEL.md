@@ -17,7 +17,7 @@ ForwardService manipula dados de cliente Ford (nome, CPF, e-mail, telefone, VIN)
 **Postura defensiva resumida:**
 
 | Camada | Controle principal | Arquivo de referência |
-|---|---|---|
+| --- | --- | --- |
 | Edge | TLS 1.2+ forçado via Fly.io | [fly.toml:18](../../../forward-api-java/fly.toml) |
 | Header | HSTS, CSP, X-Frame-Options DENY | [SecurityHeadersFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
 | AuthN | JWT (HS256 ou JWKS) ou X-API-Key | [AuthFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java) |
@@ -35,7 +35,7 @@ ForwardService manipula dados de cliente Ford (nome, CPF, e-mail, telefone, VIN)
 Ordenados por sensibilidade decrescente.
 
 | # | Ativo | Sensibilidade | Por que importa |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A1 | PII do cliente (nome, CPF, e-mail, telefone) | Alta (LGPD art. 5) | Vazamento implica multa, dano reputacional |
 | A2 | Token JWT Supabase | Alta | Impersonação por janela de vida do token |
 | A3 | INTERNAL_API_KEY (N8N → API) | Alta | Bypass total da camada JWT |
@@ -104,7 +104,7 @@ flowchart LR
 ### 4.1 Edge HTTP (Fly.io + Tomcat)
 
 | Ameaça | Cenário | Mitigação | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **S** Spoofing | Cliente falsifica origem (host header injection, IP spoof) | Fly.io edge valida TLS handshake; backend lê `X-Forwarded-For` apenas para log, decisões usam `request.getRemoteAddr()` em [RateLimitFilter.java:72](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) | ✅ |
 | **T** Tampering | MITM em trânsito | `force_https = true` em [fly.toml:18](../../../forward-api-java/fly.toml); HSTS `max-age=31536000` em [SecurityHeadersFilter.java:26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) | ✅ |
 | **R** Repudiation | Cliente nega ação que fez | Body raw + `X-Request-Id` em audit_log; ver §4.6 | ✅ |
@@ -115,7 +115,7 @@ flowchart LR
 ### 4.2 AuthFilter (validação de token)
 
 | Ameaça | Cenário | Mitigação | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **S** | Token forjado | JWT validado com chave Supabase (HS256) ou JWKS asymmetric; `AlgAwareJwtValidator` roteia pelo header `alg` ([JwtValidatorFactory.java:30](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/JwtValidatorFactory.java)) | ✅ |
 | **S** | Reuso de X-API-Key vazada | Reduzido por HMAC opcional ([HmacValidator.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java)); fora isso, rotação manual | ⚠️ (rotação manual) |
 | **T** | Token modificado em trânsito | Assinatura JWT invalidaria; HTTPS impede inspeção | ✅ |
@@ -127,7 +127,7 @@ flowchart LR
 ### 4.3 Camada de serviço (RBAC + business logic)
 
 | Ameaça | Cenário | Mitigação | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **S** | Service chama outro service como usuário diferente | `AuthPrincipal` é imutável e atravessa a stack por request attribute, não thread-local global | ✅ |
 | **T** | Injection via parâmetro de query | Tudo via `NamedParameterJdbcTemplate` com `:bind` (ver [repository/](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/repository/)); zero concatenação de SQL | ✅ |
 | **R** | Ação destrutiva sem trilha | INSERTs em audit_log via service quando ação for sensível (anonimização em [013_lgpd_retention_policy.sql:46](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)); cobertura para CRUD comum é P1 (ver seção 6) | ⚠️ (cobertura parcial) |
@@ -138,7 +138,7 @@ flowchart LR
 ### 4.4 Validação de entrada
 
 | Vetor | Mitigação | Arquivo |
-|---|---|---|
+| --- | --- | --- |
 | UUID malformado | Regex RFC 4122 | [Validations.java:11-26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
 | VIN inválido | Regex ISO 3779 (17 chars, sem I/O/Q) | [Validations.java:14, 30-36](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
 | Enum fora do whitelist | `validateEnum` com lista fixa | [Validations.java:70-78](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
@@ -150,7 +150,7 @@ flowchart LR
 ### 4.5 CORS e cabeçalhos
 
 | Cabeçalho | Valor | Por que |
-|---|---|---|
+| --- | --- | --- |
 | `Access-Control-Allow-Origin` | Allowlist explícita de `ALLOWED_ORIGINS` em [fly.toml:11](../../../forward-api-java/fly.toml) | Nunca `*`; expo.dev, expo.io, localhost dev. Validado em [CorsConfig.java:26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | HSTS preload-ready, evita downgrade |
 | `X-Frame-Options` | `DENY` | Anti-clickjacking |
@@ -164,7 +164,7 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 ### 4.6 Auditoria e logs
 
 | Componente | Comportamento |
-|---|---|
+| --- | --- |
 | `RequestIdFilter` | Gera `X-Request-Id` (UUID) ou aceita o do cliente; injeta no MDC do SLF4J |
 | `logback-spring.xml` | JSON estruturado em prod via Logstash encoder; `service: forward-api` como custom field |
 | `audit_log` | Tabela append-only ([009_create_audit_log.sql](../../../forward-infra/supabase/migrations/009_create_audit_log.sql)); `REVOKE UPDATE, DELETE ON audit_log FROM PUBLIC`. Campos: `actor_id`, `actor_role`, `action`, `resource_type`, `resource_id`, `ip_address`, `user_agent`, `request_id`, `payload` JSONB |
@@ -173,7 +173,7 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 ### 4.7 Dados em repouso e privacidade (LGPD)
 
 | Item | Estratégia |
-|---|---|
+| --- | --- |
 | VIN | Pseudonimizado pela Ford com SHA1 (testado: 5M tentativas de reversão = 0 matches, conforme [02e Parte 5](../../project/02e_DATASET_OFICIAL_E_FONTES.md)) |
 | PII em DB | Cifrado em repouso pelo Supabase (AES-256 no storage layer). Sem cifragem adicional aplicação (decisão Sprint 1; ver seção 6) |
 | Direito ao esquecimento | `anonymize_customer(uuid)` ([013_lgpd_retention_policy.sql:21-57](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)); preserva FK setando PII para NULL ou `[ANONYMIZED]` |
@@ -184,7 +184,7 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 ### 4.8 Pipeline CI/CD
 
 | Risco | Mitigação |
-|---|---|
+| --- | --- |
 | Dependência com CVE | **Trivy filesystem scan** em CI com gate em CRITICAL/HIGH ([java-security.yml:11-23](../../../.github/.github/workflows/java-security.yml)); **Dependabot** abre PRs automáticas para atualizações |
 | Segredo commitado | `secrets-scan.yml` (gitleaks) bloqueia push com segredo identificado |
 | Build supply chain | Maven wrapper pinado, `actions/checkout@v4` e `actions/setup-java@v4` em versões fixas |
@@ -196,7 +196,7 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 ## 5. Atores e intents
 
 | Ator | Intent legítimo | Intent malicioso modelado |
-|---|---|---|
+| --- | --- | --- |
 | Cliente final | Ver próprio veículo, status de serviço | Tentar acessar dados de outro cliente |
 | Atendente do dealer | Ver leads e clientes do seu dealer | Exfiltrar lista de clientes para concorrência |
 | Analista Ford HQ | Ver agregados, scores | Acessar PII bruta sem necessidade |
@@ -209,7 +209,7 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 ## 6. Riscos residuais aceitos para Sprint 1
 
 | # | Risco | Severidade | Mitigação planejada | Quando |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | R1 | RBAC inline em service vs `@PreAuthorize` declarativo | Baixa (cobertura existe, é só estilo) | Migrar para annotations no Sprint 2 | Sprint 2 |
 | R2 | Sem field-level encryption adicional sobre o que o Supabase já cifra | Média | Avaliar `Jasypt` ou `Hibernate @Converter` para CPF/e-mail | Sprint 2 |
 | R3 | PII pode aparecer em log se controller logar payload manualmente | Média | Adicionar `MaskingPatternLayout` no Logback com regex de CPF/e-mail/telefone | Sprint 2 |
@@ -223,7 +223,7 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 ## 7. Procedimento de resposta a incidente (resumo)
 
 | Severidade | Detecção | Ação |
-|---|---|---|
+| --- | --- | --- |
 | P0 (vazamento de PII) | Alerta no log Fly.io `level=ERROR action=anonymize` em volume > baseline | Rotacionar JWT secret + INTERNAL_API_KEY, snapshot audit_log, notificar ANPD em 72h (LGPD art. 48) |
 | P1 (CVE crítico em dep) | Dependabot PR + Trivy CI fail | Triage, merge, deploy em < 24h |
 | P2 (suspeita de brute force) | Spike no MDC `rate_limited` | Bloquear IP no Fly.io firewall manualmente |

@@ -17,7 +17,7 @@
 ## Resumo por categoria
 
 | # | Categoria | Status | Camada principal |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A01 | Broken Access Control | ✅ Mitigado | RBAC service + RLS Postgres |
 | A02 | Cryptographic Failures | ✅ Mitigado | TLS edge + AES-256 Supabase + HMAC opcional |
 | A03 | Injection | ✅ Mitigado | Validations + NamedParameterJdbcTemplate |
@@ -71,7 +71,7 @@
 **Mitigações implementadas:**
 
 | Item | Implementação |
-|---|---|
+| --- | --- |
 | TLS em trânsito | `force_https = true` em [fly.toml:18](../../../forward-api-java/fly.toml); TLS 1.2+ pelo edge Fly.io |
 | HSTS | `Strict-Transport-Security: max-age=31536000; includeSubDomains` em [SecurityHeadersFilter.java:26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
 | Cifragem em repouso | Supabase Postgres cifra storage com AES-256 nativamente |
@@ -153,7 +153,7 @@
 **Mitigações implementadas:**
 
 | Misconfiguration | Mitigação | Arquivo |
-|---|---|---|
+| --- | --- | --- |
 | CORS wildcard | Allowlist explícita; rejeita `*`. | [CorsConfig.java:26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) + [fly.toml:11](../../../forward-api-java/fly.toml) |
 | Session habilitada (CSRF) | STATELESS, CSRF desabilitado | [SecurityConfig.java:28, 35](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/SecurityConfig.java) |
 | Form login default | Desabilitado | [SecurityConfig.java:29](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/SecurityConfig.java) |
@@ -186,7 +186,7 @@ Em 2026-05-23 o profile Maven `security` (que rodava `dependency-check-maven 10.
 **Cobertura atual de CVE em dependências:**
 
 | Ferramenta | Função | Onde |
-|---|---|---|
+| --- | --- | --- |
 | **Trivy filesystem scan** | Gate de CI em CRITICAL/HIGH, `exit-code: 1`, `ignore-unfixed: true` | [java-security.yml:11-23](../../../.github/.github/workflows/java-security.yml) |
 | **Dependabot** | PRs automáticas para atualizações | configurado por repo |
 | **SpotBugs + FindSecBugs** | SAST estático no profile `quality` | [pom.xml](../../../forward-api-java/pom.xml) |
@@ -245,7 +245,7 @@ Em 2026-05-23 o profile Maven `security` (que rodava `dependency-check-maven 10.
 **Mitigações implementadas:**
 
 | Item | Implementação |
-|---|---|
+| --- | --- |
 | Correlation ID | `X-Request-Id` UUID em [RequestIdFilter.java:27-33](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/RequestIdFilter.java); injetado em MDC e devolvido no response |
 | Logs estruturados | JSON em produção via Logstash encoder ([logback-spring.xml:7-11](../../../forward-api-java/src/main/resources/logback-spring.xml)); `service: forward-api` como campo fixo |
 | Audit trail | Tabela [audit_log](../../../forward-infra/supabase/migrations/009_create_audit_log.sql) append-only; campos: `actor_id`, `actor_role`, `action`, `resource_type`, `resource_id`, `ip_address`, `user_agent`, `request_id`, `payload`, `created_at` |
@@ -286,7 +286,7 @@ Não há endpoint que aceite URL do cliente e faça fetch (ex: image proxy, webh
 Mapeamento das categorias do OWASP Top 10 para os 5 critérios do Prof. Vitor:
 
 | Critério (rubrica) | Categorias OWASP relacionadas | Pontuação estimada |
-|---|---|---|
+| --- | --- | --- |
 | 1. Validação entrada (20) | A03 Injection | **20/20** |
 | 2. AuthN/AuthZ (20) | A01, A07 | **20/20** |
 | 3. Proteção API (20) | A02, A05, A08 (HMAC opcional 5pts) | **20/20** |
