@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="ForwardService — Ford Challenge FIAP 2026" id="id-a3d684c8e72c" version="4.10.0">
+  <folder name="Motivation" id="id-e088e9962221" type="motivation">
+    <element xsi:type="archimate:Stakeholder" name="Ford Brasil (Diretoria)" id="id-002a2f3f98d9">
+      <documentation>Diretoria executiva — quer VIN Share crescente e ROI mensurável</documentation>
+    </element>
+    <element xsi:type="archimate:Stakeholder" name="Concessionária (Dealer)" id="id-ae4cb76591a6">
+      <documentation>145 dealers ativos — precisa de leads priorizados e IHC</documentation>
+    </element>
+    <element xsi:type="archimate:Stakeholder" name="Cliente Ford" id="id-47f535aa1e54">
+      <documentation>Dono de veículo Ford — quer lembrete proativo e experiência simplificada</documentation>
+    </element>
+    <element xsi:type="archimate:Stakeholder" name="Gestor Regional Ford" id="id-ddef721ad6c0">
+      <documentation>Compara performance de dealers por UF</documentation>
+    </element>
+    <element xsi:type="archimate:Stakeholder" name="Equipe ForwardService" id="id-678c9f3e6cd4">
+      <documentation>4 desenvolvedores FIAP — entregam plataforma</documentation>
+    </element>
+    <element xsi:type="archimate:Driver" name="Churn pós-garantia" id="id-2ef8058420d9">
+      <documentation>Retenção despenca de 82% para 20-40% ao término da garantia (Cox Automotive 2025)</documentation>
+    </element>
+    <element xsi:type="archimate:Driver" name="VIN Share baixo" id="id-f32b17959bb5">
+      <documentation>Apenas ~3,5-5% da frota Ford usa a rede oficial — 95% vai para independentes</documentation>
+    </element>
+    <element xsi:type="archimate:Driver" name="3,4M Recalls pendentes" id="id-4af525ef6458">
+      <documentation>Taxa de atendimento de recalls no Brasil: ~40%. Novo CTB bloqueia licenciamento</documentation>
+    </element>
+    <element xsi:type="archimate:Driver" name="Frota descontinuada" id="id-fc04b0380fe2">
+      <documentation>80% da frota são Ka/Fiesta/EcoSport — sem app, sem lembrete oficial</documentation>
+    </element>
+    <element xsi:type="archimate:Goal" name="Aumentar VIN Share" id="id-5586086122f0">
+      <documentation>Meta: VIN Share ≥ 8% em 24 meses (base: ~3,5-5%)</documentation>
+    </element>
+    <element xsi:type="archimate:Goal" name="Reduzir churn pós-venda" id="id-392d86d067b4">
+      <documentation>Aumentar taxa de retorno pós-1ª revisão de 71% para ≥ 80%</documentation>
+    </element>
+    <element xsi:type="archimate:Goal" name="ROI mensurável" id="id-5506aceff8bb">
+      <documentation>Cada ação rastreada do disparo ao resultado financeiro em R$</documentation>
+    </element>
+    <element xsi:type="archimate:Goal" name="Escalar cobertura" id="id-9b8a9dbdce88">
+      <documentation>Alcançar clientes de modelos descontinuados via Fluxo Simplificado</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-01: Latência API p95 &lt; 300ms" id="id-261474cc3d07">
+      <documentation>Performance: endpoint p95 abaixo de 300ms</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-02: Disponibilidade ≥ 99%" id="id-dd816ad4d10a">
+      <documentation>SLA: no máximo 7h15 de downtime por ano</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-03: AUC classificador ≥ 0,82" id="id-be3bda42f067">
+      <documentation>ML: XGBoost com target engenheirado — dias_sem_revisão &gt; 365</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-04: Falsos positivos churn &lt; 10%" id="id-5314fe54221b">
+      <documentation>Qualidade do modelo de segmentação K-means</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-05: LGPD — dados pseudonimizados" id="id-4ec674696e5b">
+      <documentation>VIN_Hash SHA1 + salt. Sem PII reversível no pipeline ML</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-06: Onboarding atendente &lt; 15 min" id="id-44defbbf9477">
+      <documentation>UX: atendente operacional sem treinamento longo</documentation>
+    </element>
+    <element xsi:type="archimate:Requirement" name="REQ-07: Entrega WhatsApp &lt; 30s" id="id-1bd39f136c57">
+      <documentation>n8n + Meta Business API: confirmação em 30 segundos</documentation>
+    </element>
+    <element xsi:type="archimate:Principle" name="SOA — Portão Único" id="id-80cfb8cba108">
+      <documentation>Tudo passa pelo forward-api-java. Mobile/Web não falam direto com banco ou ML</documentation>
+    </element>
+    <element xsi:type="archimate:Principle" name="Flywheel de Dados" id="id-9447adfd197b">
+      <documentation>Cada ciclo de ação gera dado que melhora o modelo. Precisão cresce com uso</documentation>
+    </element>
+    <element xsi:type="archimate:Principle" name="Proatividade sobre reatividade" id="id-0c8257e19923">
+      <documentation>A plataforma age antes do cliente sair — não espera ele sumir</documentation>
+    </element>
+  </folder>
+  <folder name="Strategy" id="id-d45bed9eaf09" type="strategy"/>
+  <folder name="Business" id="id-bba316d5a691" type="business">
+    <element xsi:type="archimate:BusinessActor" name="Atendente" id="id-3219f11fd2a9">
+      <documentation>Func. da concessionária — usa app mobile Modo Ford</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessActor" name="Gerente de Serviço" id="id-183f1f573f5d">
+      <documentation>Gerencia leads e NPS do dealer</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessActor" name="Diretor Regional" id="id-0e6fc6c34064">
+      <documentation>Usa dashboard web para visão macro</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessActor" name="Cliente Ativo" id="id-bc6e5d026ed8">
+      <documentation>Dono de Ford que ainda usa a rede</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessActor" name="Cliente Churned" id="id-c8a4024aa98c">
+      <documentation>Dono de Ford que parou de usar a rede</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessRole" name="Gestor de Retenção" id="id-5ba27699623d">
+      <documentation>Responsável por campanhas de reativação</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessRole" name="Analista ML" id="id-057485811225">
+      <documentation>Opera e retreina os modelos de segmentação/classificação</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Processo AS-IS: Pós-Venda Ford" id="id-9e0d28dce5c2">
+      <documentation>Processo atual: sem proatividade, sem segmentação, sem ROI rastreável</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Segmentar Clientes" id="id-5b59f714bf92">
+      <documentation>K-means cego sobre 175k VINs — 4 perfis: Fiel/Econômico/Esquecido/Abandono</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Priorizar Leads" id="id-2e3aca7b87d5">
+      <documentation>Pulse Leads: ordenar por risco × LSV — lista diária para o atendente</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Disparar Ação" id="id-3f7fc796e4f0">
+      <documentation>CommEngine: WhatsApp personalizado via n8n no momento crítico</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Medir ROI" id="id-c8ad041b24d4">
+      <documentation>Closed-Loop ROI: rastrear ação → resposta → agendamento → receita em R$</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Recall como Porta" id="id-f624d10195cc">
+      <documentation>Recall Gateway: transformar recall pendente em oportunidade de reconexão</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Agendamento Digital" id="id-afdb16ca743d">
+      <documentation>Cliente agenda pelo app ou WhatsApp em 1 toque</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessService" name="Serviço de Scoring" id="id-1b67df9e8f6e">
+      <documentation>API que devolve segmento + score de churn + ação sugerida por VIN</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessService" name="Serviço de Leads" id="id-e8fa5204a489">
+      <documentation>API que devolve lista priorizada para o dealer do dia</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessService" name="Serviço de Notificação" id="id-ebe559400121">
+      <documentation>Dispara WhatsApp/push/email via n8n</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessService" name="Serviço de Agendamento" id="id-39838971a795">
+      <documentation>Registra e confirma revisão no banco</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessObject" name="VIN (Vehicle ID)" id="id-2519ff96c141">
+      <documentation>Número de chassi pseudonimizado — unidade de análise central do sistema</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessObject" name="Score de Churn" id="id-25495ff66d8e">
+      <documentation>Probabilidade 0-100 de abandono de um VIN. Atualizado 1×/dia.</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessObject" name="Perfil de Segmento" id="id-abb8c89a150b">
+      <documentation>Fiel | Econômico | Esquecido | Abandono — saída do K-means</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessObject" name="Ação Recomendada" id="id-c86bfbe2d9ba">
+      <documentation>O que fazer com o cliente: whatsapp | ligação | email | deixar quieto</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessObject" name="IHC — Saúde do Dealer" id="id-773e2f8d0cd6">
+      <documentation>Score 0-100 da concessionária (VIN Share 25% + Conversão 20% + NPS 15% + outros)</documentation>
+    </element>
+  </folder>
+  <folder name="Application" id="id-95bfb2c8a67e" type="application">
+    <element xsi:type="archimate:ApplicationComponent" name="forward-api-java" id="id-65669a9b6b00">
+      <documentation>Backend core — Java 17 + Spring Boot 3.2. Portão único: REST + SOAP. JWT/RBAC. Flyway. SpringDoc OpenAPI.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="forward-ml" id="id-18d5d9406e60">
+      <documentation>Serviço de ML — Python. K-means (segmentador) + XGBoost (classificador) + Kaplan-Meier (survival). Roda 1×/dia via cron.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="forward-mobile" id="id-258468a8f0d1">
+      <documentation>App React Native/Expo. Dual-mode: Modo Ford (atendente) + Modo Cliente. 3 telas Sprint 1.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="forward-web" id="id-f51042c8b8bf">
+      <documentation>Dashboard SvelteKit. Cockpit Ford corporativo. Read-only. Chart.js/visx. Consome só forward-api-java.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="n8n (Action Engine)" id="id-bd32156a4142">
+      <documentation>Orquestrador low-code self-hosted. Inbound: webhook WhatsApp → Java. Outbound: Java → WhatsApp template.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="Supabase / PostgreSQL" id="id-2636edc598be">
+      <documentation>Banco gerenciado. Fonte da verdade. Só forward-api-java e segmentador batch escrevem.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationInterface" name="REST API (OpenAPI)" id="id-c64e94aaac70">
+      <documentation>Endpoints públicos: /clients, /leads, /scores, /classify, /analytics</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationInterface" name="SOAP / WSDL" id="id-4ad556adf966">
+      <documentation>Operação GetVehicle — requisito SOA (Prof. Salatiel). WSDL exposto.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationInterface" name="WebSocket Push" id="id-1cc473143205">
+      <documentation>Notificações em tempo real para o app mobile (push notifications)</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationInterface" name="WhatsApp Business API" id="id-30e4d93f15a5">
+      <documentation>Integração Meta — templates aprovados, 97% abertura, ROI 300:1</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Scoring Service" id="id-a3f498a64a4e">
+      <documentation>Calcula segmento + score + ação sugerida via ML</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Lead Prioritization" id="id-331bd2bcd91e">
+      <documentation>Gera lista diária Pulse Leads por dealer</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Notification Service" id="id-6174edc53b5a">
+      <documentation>Orquestra envio via n8n (WhatsApp/email/push)</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Analytics Service" id="id-4f1ec733ba4e">
+      <documentation>Agrega KPIs para dashboard web (IHC, VIN Share, Curva da Morte)</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Auth/RBAC Service" id="id-10f94a4f29a2">
+      <documentation>JWT HS256 + roles: attendant/manager/dealer_owner/ford_regional/ford_admin</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Audit Trail Service" id="id-7dc0e5c839cc">
+      <documentation>Registra acesso e ações em audit_log (LGPD)</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="vin_features.csv" id="id-18e72e938c85">
+      <documentation>175k VINs × 20+ features comportamentais — input pro ML</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="client_segments" id="id-1cecd3e219b8">
+      <documentation>Tabela: etiqueta + segmento por VIN. Atualizada 1×/dia pelo segmentador</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="client_scores" id="id-5a4b7a4d622d">
+      <documentation>Tabela: score 0-100 + probabilidades por VIN + versão do modelo</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="recommended_actions" id="id-5d22fc3be983">
+      <documentation>Tabela: ação sugerida, motivo, template, status (pending/dispatched/done)</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="audit_log" id="id-1085a834fd10">
+      <documentation>Trilha completa: quem acessou o quê, quando, antes/depois (LGPD)</documentation>
+    </element>
+  </folder>
+  <folder name="Technology" id="id-88aad8b507a5" type="technology">
+    <element xsi:type="archimate:Node" name="Azure VM (B-series)" id="id-45bc48940019">
+      <documentation>Standard_B1s ou B2s — hospeda Java + n8n + ML Python via Docker</documentation>
+    </element>
+    <element xsi:type="archimate:Node" name="Supabase Cloud / Neon" id="id-d1c8ef721e7d">
+      <documentation>Banco PostgreSQL 16 gerenciado — free/pro tier</documentation>
+    </element>
+    <element xsi:type="archimate:Node" name="Vercel / Netlify" id="id-6cd425c00da0">
+      <documentation>Hospedagem estática do forward-web (free tier)</documentation>
+    </element>
+    <element xsi:type="archimate:SystemSoftware" name="Docker Engine" id="id-fa451b4e1a71">
+      <documentation>Containeriza forward-api-java + n8n + ML script na Azure VM</documentation>
+    </element>
+    <element xsi:type="archimate:SystemSoftware" name="PostgreSQL 16" id="id-256bcd179de7">
+      <documentation>Banco relacional — fonte da verdade de todo o sistema</documentation>
+    </element>
+    <element xsi:type="archimate:SystemSoftware" name="JVM (Java 17)" id="id-359f3863726d">
+      <documentation>Runtime do Spring Boot 3.2 — HikariCP, Flyway, SpringDoc</documentation>
+    </element>
+    <element xsi:type="archimate:SystemSoftware" name="Python 3.11" id="id-75488d224c65">
+      <documentation>Runtime ML — scikit-learn, pandas, lifelines, matplotlib</documentation>
+    </element>
+    <element xsi:type="archimate:SystemSoftware" name="n8n (Docker)" id="id-6857019ac60b">
+      <documentation>Orquestrador de workflows low-code — self-hosted na VM</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyInterface" name="HTTPS / TLS 1.2+" id="id-d3f4ba3354a4">
+      <documentation>Toda comunicação externa criptografada. HTTPS forçado.</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyInterface" name="WhatsApp Business API (Meta)" id="id-fc83a92789ee">
+      <documentation>Entrega de mensagens para clientes — 97% abertura no BR</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyInterface" name="Expo Push API" id="id-c682b6e1400e">
+      <documentation>Notificações push para app mobile via Expo</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyInterface" name="GitHub Actions CI" id="id-a6081c313e65">
+      <documentation>Pipeline de build + teste automático a cada PR</documentation>
+    </element>
+    <element xsi:type="archimate:CommunicationNetwork" name="Azure VNet" id="id-dde7ce2748ad">
+      <documentation>Rede privada que isola VM + banco + n8n internamente</documentation>
+    </element>
+    <element xsi:type="archimate:CommunicationNetwork" name="Internet / CDN" id="id-102c31c3eff2">
+      <documentation>Tráfego externo — mobile, web, WhatsApp webhook</documentation>
+    </element>
+    <element xsi:type="archimate:Artifact" name="forward-api-java.jar" id="id-3421bd1376f4">
+      <documentation>Build artefato Spring Boot — deployado via Docker na VM</documentation>
+    </element>
+    <element xsi:type="archimate:Artifact" name="forward-mobile.apk/.ipa" id="id-30de6797437d">
+      <documentation>Bundle Expo — publicado via EAS Build (30 builds/mês free)</documentation>
+    </element>
+    <element xsi:type="archimate:Artifact" name="forward-web (static)" id="id-f62c7246331f">
+      <documentation>Build SvelteKit — deployado no Vercel/Netlify</documentation>
+    </element>
+    <element xsi:type="archimate:Artifact" name="ML models (pickle/joblib)" id="id-252712886c3c">
+      <documentation>Modelos treinados persistidos no filesystem da VM</documentation>
+    </element>
+    <element xsi:type="archimate:Artifact" name="Flyway migrations" id="id-0abc1bb8b1aa">
+      <documentation>Versionamento do schema PostgreSQL — entrega obrigatória SOA</documentation>
+    </element>
+  </folder>
+  <folder name="Implementation" id="id-e357cb62367b" type="implementation_migration">
+    <element xsi:type="archimate:WorkPackage" name="Sprint 1 — Entrega 24/05/2026" id="id-01e99c489804">
+      <documentation>ML + Java + Mobile + Web + n8n + Infra + QA</documentation>
+    </element>
+    <element xsi:type="archimate:Deliverable" name="PITCH.pptx" id="id-ccde7ebecac0">
+      <documentation>QA-1: Apresentação 15 slides</documentation>
+    </element>
+    <element xsi:type="archimate:Deliverable" name="CANVAS.pdf" id="id-a8850d01d776">
+      <documentation>QA-2: Business Model Canvas</documentation>
+    </element>
+    <element xsi:type="archimate:Deliverable" name="QUADRO_DE_VALOR.pdf" id="id-27ba9d6eba91">
+      <documentation>QA-3: Quadro de Valor com métricas negócio + qualidade</documentation>
+    </element>
+    <element xsi:type="archimate:Deliverable" name="ForwardService.archimate" id="id-a2864e9f4db7">
+      <documentation>QA-4: Arquitetura TOGAF/Archi</documentation>
+    </element>
+    <element xsi:type="archimate:Deliverable" name="VIDEO_PITCH.mp4" id="id-a2de2fe7efc6">
+      <documentation>QA-5: Vídeo ≤3min com 4 integrantes</documentation>
+    </element>
+  </folder>
+  <folder name="Other" id="id-75b7e2d3034b" type="other">
+    <element xsi:type="archimate:Assessment" name="Grafana Dashboard" id="id-f9a4056b3c6d">
+      <documentation>Monitor de latência, throughput, erros da API Java + n8n</documentation>
+    </element>
+    <element xsi:type="archimate:Assessment" name="Alert: API p95 &gt; 300ms" id="id-a95469d5dfc8">
+      <documentation>Alerta quando latência ultrapassa SLA — dispara para equipe</documentation>
+    </element>
+    <element xsi:type="archimate:Assessment" name="Alert: Disponibilidade &lt;99%" id="id-470a7eaa83a0">
+      <documentation>Alerta de downtime — SLA: no máximo 7h15/ano</documentation>
+    </element>
+    <element xsi:type="archimate:Assessment" name="audit_log viewer" id="id-53f7af633a14">
+      <documentation>Interface interna para revisar trilha de auditoria LGPD</documentation>
+    </element>
+    <element xsi:type="archimate:Assessment" name="ML Model Monitor" id="id-08fcd1f15c76">
+      <documentation>Monitora AUC, drift de dados, qualidade do segmentador mensalmente</documentation>
+    </element>
+    <element xsi:type="archimate:Assessment" name="Cron segmentador 02h" id="id-a4fc48d7d826">
+      <documentation>Job Linux que roda run_segmenter.py 1×/dia e escreve em client_segments</documentation>
+    </element>
+  </folder>
+  <folder name="Relations" id="id-504613516a53" type="relations">
+    <element xsi:type="archimate:Association" id="id-5107e4be0c75" source="id-002a2f3f98d9" target="id-5586086122f0"/>
+    <element xsi:type="archimate:Association" id="id-c669d1f4c57e" source="id-ae4cb76591a6" target="id-392d86d067b4"/>
+    <element xsi:type="archimate:Association" id="id-4af4a20d1243" source="id-47f535aa1e54" target="id-9b8a9dbdce88"/>
+    <element xsi:type="archimate:Influence" id="id-2b2f25260a86" source="id-2ef8058420d9" target="id-5586086122f0" name="impulsiona"/>
+    <element xsi:type="archimate:Influence" id="id-57e326e95662" source="id-f32b17959bb5" target="id-5506aceff8bb" name="necessita"/>
+    <element xsi:type="archimate:Realization" id="id-6ee5ae0dc3a5" source="id-261474cc3d07" target="id-5506aceff8bb"/>
+    <element xsi:type="archimate:Realization" id="id-14118f826cac" source="id-be3bda42f067" target="id-392d86d067b4"/>
+    <element xsi:type="archimate:Realization" id="id-ea9c5b8c240d" source="id-4ec674696e5b" target="id-9b8a9dbdce88"/>
+    <element xsi:type="archimate:Assignment" id="id-17f5bf39206d" source="id-3219f11fd2a9" target="id-2e3aca7b87d5"/>
+    <element xsi:type="archimate:Assignment" id="id-c5efe5bb6d2e" source="id-183f1f573f5d" target="id-c8ad041b24d4"/>
+    <element xsi:type="archimate:Assignment" id="id-3629e66beb73" source="id-0e6fc6c34064" target="id-773e2f8d0cd6"/>
+    <element xsi:type="archimate:Triggering" id="id-55c1e257e93d" source="id-5b59f714bf92" target="id-2e3aca7b87d5"/>
+    <element xsi:type="archimate:Triggering" id="id-86df1cddacd8" source="id-2e3aca7b87d5" target="id-3f7fc796e4f0"/>
+    <element xsi:type="archimate:Triggering" id="id-6691a2ac9728" source="id-3f7fc796e4f0" target="id-c8ad041b24d4"/>
+    <element xsi:type="archimate:Triggering" id="id-ec6d8a7a8f45" source="id-c8ad041b24d4" target="id-5b59f714bf92" name="feedback loop (Flywheel)"/>
+    <element xsi:type="archimate:Serving" id="id-433bad49539c" source="id-1b67df9e8f6e" target="id-2e3aca7b87d5"/>
+    <element xsi:type="archimate:Serving" id="id-0a041cec45fc" source="id-e8fa5204a489" target="id-2e3aca7b87d5"/>
+    <element xsi:type="archimate:Association" id="id-da7a6ffb22fc" source="id-2519ff96c141" target="id-25495ff66d8e"/>
+    <element xsi:type="archimate:Association" id="id-e79773c5222e" source="id-2519ff96c141" target="id-abb8c89a150b"/>
+    <element xsi:type="archimate:Association" id="id-fd140874053b" source="id-25495ff66d8e" target="id-c86bfbe2d9ba"/>
+    <element xsi:type="archimate:Serving" id="id-c5cf0b0f3bbf" source="id-65669a9b6b00" target="id-258468a8f0d1" name="REST"/>
+    <element xsi:type="archimate:Serving" id="id-6f43b091c2bb" source="id-65669a9b6b00" target="id-f51042c8b8bf" name="REST"/>
+    <element xsi:type="archimate:Serving" id="id-1dfa91738e9a" source="id-65669a9b6b00" target="id-bd32156a4142" name="REST (ordens)"/>
+    <element xsi:type="archimate:Serving" id="id-785bba380d25" source="id-bd32156a4142" target="id-65669a9b6b00" name="webhook events"/>
+    <element xsi:type="archimate:Serving" id="id-86980bddc289" source="id-65669a9b6b00" target="id-18d5d9406e60" name="HTTP interno"/>
+    <element xsi:type="archimate:Access" id="id-e74ff54eacf9" source="id-18d5d9406e60" target="id-18e72e938c85" name="lê"/>
+    <element xsi:type="archimate:Access" id="id-e68a01de5059" source="id-18d5d9406e60" target="id-1cecd3e219b8" name="escreve 1×/dia"/>
+    <element xsi:type="archimate:Access" id="id-f61c071abd27" source="id-65669a9b6b00" target="id-5a4b7a4d622d" name="lê/escreve"/>
+    <element xsi:type="archimate:Access" id="id-9a7fa89380a9" source="id-65669a9b6b00" target="id-5d22fc3be983" name="lê/escreve"/>
+    <element xsi:type="archimate:Access" id="id-53e09c3fb6c1" source="id-65669a9b6b00" target="id-1085a834fd10" name="escreve sempre"/>
+    <element xsi:type="archimate:Realization" id="id-8419300dc2b3" source="id-65669a9b6b00" target="id-c64e94aaac70"/>
+    <element xsi:type="archimate:Realization" id="id-ab3e06215dc0" source="id-65669a9b6b00" target="id-4ad556adf966"/>
+    <element xsi:type="archimate:Composition" id="id-bd4dc7ac521c" source="id-65669a9b6b00" target="id-10f94a4f29a2"/>
+    <element xsi:type="archimate:Composition" id="id-93877ac2fb07" source="id-65669a9b6b00" target="id-7dc0e5c839cc"/>
+    <element xsi:type="archimate:Composition" id="id-df531523bdc7" source="id-65669a9b6b00" target="id-a3f498a64a4e"/>
+    <element xsi:type="archimate:Composition" id="id-5e687a242a8e" source="id-65669a9b6b00" target="id-331bd2bcd91e"/>
+    <element xsi:type="archimate:Composition" id="id-3b91139eb198" source="id-65669a9b6b00" target="id-6174edc53b5a"/>
+    <element xsi:type="archimate:Composition" id="id-57117c0b420e" source="id-65669a9b6b00" target="id-4f1ec733ba4e"/>
+    <element xsi:type="archimate:Serving" id="id-5b5964862513" source="id-45bc48940019" target="id-65669a9b6b00"/>
+    <element xsi:type="archimate:Serving" id="id-b512c4e56428" source="id-45bc48940019" target="id-bd32156a4142"/>
+    <element xsi:type="archimate:Serving" id="id-4792f29b7420" source="id-45bc48940019" target="id-18d5d9406e60"/>
+    <element xsi:type="archimate:Serving" id="id-ba3fa7e22419" source="id-d1c8ef721e7d" target="id-256bcd179de7"/>
+    <element xsi:type="archimate:Composition" id="id-01dffe63800e" source="id-fa451b4e1a71" target="id-3421bd1376f4"/>
+    <element xsi:type="archimate:Composition" id="id-f4277592cbe1" source="id-fa451b4e1a71" target="id-6857019ac60b"/>
+    <element xsi:type="archimate:Association" id="id-924ace82467a" source="id-dde7ce2748ad" target="id-45bc48940019"/>
+    <element xsi:type="archimate:Association" id="id-e3b25731a0db" source="id-dde7ce2748ad" target="id-d1c8ef721e7d"/>
+    <element xsi:type="archimate:Realization" id="id-05d5d8af5a03" source="id-3421bd1376f4" target="id-65669a9b6b00"/>
+    <element xsi:type="archimate:Realization" id="id-fcb49facf8aa" source="id-30de6797437d" target="id-258468a8f0d1"/>
+    <element xsi:type="archimate:Realization" id="id-e3eff9968b77" source="id-252712886c3c" target="id-18d5d9406e60"/>
+    <element xsi:type="archimate:Realization" id="id-e85b5b6bcb8e" source="id-0abc1bb8b1aa" target="id-256bcd179de7"/>
+    <element xsi:type="archimate:Association" id="id-b2fb83b718cd" source="id-d3f4ba3354a4" target="id-c64e94aaac70"/>
+    <element xsi:type="archimate:Association" id="id-634634384086" source="id-d3f4ba3354a4" target="id-4ad556adf966"/>
+  </folder>
+  <folder name="Views" id="id-4b11281791a6" type="diagrams">
+    <element xsi:type="archimate:ArchimateDiagramModel" name="1. Motivation View — Drivers, Goals, Requirements" id="id-c7d811dfffae" viewpoint="motivation">
+      <child xsi:type="archimate:DiagramObject" id="id-c113a1409fca" archimateElement="id-002a2f3f98d9">
+        <bounds x="12" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-a2f3d28e5fbb" archimateElement="id-ae4cb76591a6">
+        <bounds x="12" y="80" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-3be3d7454a52" archimateElement="id-47f535aa1e54">
+        <bounds x="12" y="148" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-341e44f7f0ba" archimateElement="id-2ef8058420d9">
+        <bounds x="160" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-87c90debc687" archimateElement="id-f32b17959bb5">
+        <bounds x="160" y="80" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-92683c6ea18c" archimateElement="id-4af525ef6458">
+        <bounds x="160" y="148" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-4bdc24a27134" archimateElement="id-fc04b0380fe2">
+        <bounds x="160" y="216" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-de813c85e2a5" archimateElement="id-5586086122f0">
+        <bounds x="310" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-0bb7b1d2dace" archimateElement="id-392d86d067b4">
+        <bounds x="310" y="80" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-fe546de711ab" archimateElement="id-5506aceff8bb">
+        <bounds x="310" y="148" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-b73254c9c3f0" archimateElement="id-9b8a9dbdce88">
+        <bounds x="310" y="216" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-dd9212d5f2c1" archimateElement="id-261474cc3d07">
+        <bounds x="460" y="12" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-0ff52aedacbe" archimateElement="id-dd816ad4d10a">
+        <bounds x="460" y="80" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-efa07aa2501e" archimateElement="id-be3bda42f067">
+        <bounds x="460" y="148" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-07d3a0d17368" archimateElement="id-5314fe54221b">
+        <bounds x="460" y="216" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-c6fd6c2956e4" archimateElement="id-4ec674696e5b">
+        <bounds x="460" y="284" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-50b26b5e3ab6" archimateElement="id-80cfb8cba108">
+        <bounds x="640" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-e2b4d78427d7" archimateElement="id-9447adfd197b">
+        <bounds x="640" y="80" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-eb85393269de" archimateElement="id-0c8257e19923">
+        <bounds x="640" y="148" width="130" height="55"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="2. Business View — AS-IS × TO-BE" id="id-bade1a7356ab">
+      <child xsi:type="archimate:DiagramObject" id="id-04175aa81d5b" archimateElement="id-9e0d28dce5c2">
+        <bounds x="12" y="12" width="160" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-7c513d7a3294" archimateElement="id-5b59f714bf92">
+        <bounds x="200" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-d3d731bdd785" archimateElement="id-2e3aca7b87d5">
+        <bounds x="350" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-b89b917229cb" archimateElement="id-3f7fc796e4f0">
+        <bounds x="500" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-dd11c8838250" archimateElement="id-c8ad041b24d4">
+        <bounds x="650" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-1c50a041bbfe" archimateElement="id-f624d10195cc">
+        <bounds x="800" y="12" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-6fe458881ef2" archimateElement="id-3219f11fd2a9">
+        <bounds x="200" y="100" width="100" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-1cf2a847a3ed" archimateElement="id-183f1f573f5d">
+        <bounds x="350" y="100" width="100" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-3f75bf5f571b" archimateElement="id-0e6fc6c34064">
+        <bounds x="500" y="100" width="100" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-fee119875c94" archimateElement="id-2519ff96c141">
+        <bounds x="200" y="180" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-a02944999320" archimateElement="id-25495ff66d8e">
+        <bounds x="350" y="180" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-105d10186f91" archimateElement="id-abb8c89a150b">
+        <bounds x="500" y="180" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-76c523861fee" archimateElement="id-c86bfbe2d9ba">
+        <bounds x="650" y="180" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-7d6117b4d085" archimateElement="id-773e2f8d0cd6">
+        <bounds x="800" y="180" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-0e13bbb1137e" archimateElement="id-1b67df9e8f6e">
+        <bounds x="200" y="260" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-fba3bb24aeb3" archimateElement="id-e8fa5204a489">
+        <bounds x="350" y="260" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-4fd57330c490" archimateElement="id-ebe559400121">
+        <bounds x="500" y="260" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-39944a7889e6" archimateElement="id-39838971a795">
+        <bounds x="650" y="260" width="130" height="55"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="3. Application View — Componentes de Software" id="id-5c03e5b66f55" viewpoint="layered">
+      <child xsi:type="archimate:DiagramObject" id="id-c67afd9cafa4" archimateElement="id-258468a8f0d1">
+        <bounds x="12" y="12" width="140" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-9de2649894d0" archimateElement="id-f51042c8b8bf">
+        <bounds x="170" y="12" width="140" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-434ad6c2c1a3" archimateElement="id-bd32156a4142">
+        <bounds x="328" y="12" width="140" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-de80630ba965" archimateElement="id-65669a9b6b00">
+        <bounds x="12" y="120" width="300" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-cfd8f182b456" archimateElement="id-18d5d9406e60">
+        <bounds x="328" y="120" width="140" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-4befda4c859d" archimateElement="id-2636edc598be">
+        <bounds x="12" y="220" width="460" height="70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-766f94d38915" archimateElement="id-c64e94aaac70">
+        <bounds x="12" y="310" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-34ba60b0f75d" archimateElement="id-4ad556adf966">
+        <bounds x="170" y="310" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-67e9f7e52862" archimateElement="id-30e4d93f15a5">
+        <bounds x="328" y="310" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-8a6dfbb50dff" archimateElement="id-10f94a4f29a2">
+        <bounds x="12" y="380" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-1217106facea" archimateElement="id-7dc0e5c839cc">
+        <bounds x="170" y="380" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-02e8fa6c9485" archimateElement="id-a3f498a64a4e">
+        <bounds x="328" y="380" width="140" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-87598e07a3c8" archimateElement="id-1cecd3e219b8">
+        <bounds x="12" y="460" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-d62518300110" archimateElement="id-5a4b7a4d622d">
+        <bounds x="160" y="460" width="130" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-abe742ee1404" archimateElement="id-5d22fc3be983">
+        <bounds x="308" y="460" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-610a77ba7280" archimateElement="id-1085a834fd10">
+        <bounds x="486" y="460" width="130" height="55"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="4. Technology View — Infra Azure, Docker, Postgres" id="id-58e1b5fef69e" viewpoint="layered">
+      <child xsi:type="archimate:DiagramObject" id="id-bc2c4bd89800" archimateElement="id-45bc48940019">
+        <bounds x="12" y="12" width="200" height="90"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-03a76bd48eb3" archimateElement="id-d1c8ef721e7d">
+        <bounds x="230" y="12" width="200" height="90"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-bbe2c43d9d64" archimateElement="id-6cd425c00da0">
+        <bounds x="448" y="12" width="180" height="90"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-4749c0c47774" archimateElement="id-fa451b4e1a71">
+        <bounds x="12" y="120" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-ce2788fe66c9" archimateElement="id-256bcd179de7">
+        <bounds x="230" y="120" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-fcaec251ea4a" archimateElement="id-359f3863726d">
+        <bounds x="12" y="190" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-294929209e63" archimateElement="id-75488d224c65">
+        <bounds x="230" y="190" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-0f99a2ca844c" archimateElement="id-6857019ac60b">
+        <bounds x="448" y="190" width="180" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-83859459ef59" archimateElement="id-d3f4ba3354a4">
+        <bounds x="12" y="270" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-0c2eaaa77f64" archimateElement="id-fc83a92789ee">
+        <bounds x="230" y="270" width="220" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-9486573a02b6" archimateElement="id-a6081c313e65">
+        <bounds x="470" y="270" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-a23f5640b452" archimateElement="id-dde7ce2748ad">
+        <bounds x="12" y="350" width="220" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-ba7a4152fc4a" archimateElement="id-3421bd1376f4">
+        <bounds x="12" y="430" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-a8173e285229" archimateElement="id-0abc1bb8b1aa">
+        <bounds x="190" y="430" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-9d2b1db24c9b" archimateElement="id-252712886c3c">
+        <bounds x="368" y="430" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-3e91bb54134e" archimateElement="id-30de6797437d">
+        <bounds x="546" y="430" width="170" height="55"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="5. Requirements View — Requisitos de Qualidade" id="id-e6fe299e656e" viewpoint="requirements_realization">
+      <child xsi:type="archimate:DiagramObject" id="id-d8facc60bb73" archimateElement="id-261474cc3d07">
+        <bounds x="12" y="12" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-6aaa360c77a2" archimateElement="id-dd816ad4d10a">
+        <bounds x="12" y="80" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-a15c902d8fd9" archimateElement="id-be3bda42f067">
+        <bounds x="12" y="148" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-8c0cf776caeb" archimateElement="id-5314fe54221b">
+        <bounds x="12" y="216" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-541ea831b67d" archimateElement="id-4ec674696e5b">
+        <bounds x="12" y="284" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-29e57acad568" archimateElement="id-44defbbf9477">
+        <bounds x="12" y="352" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-e957dfe64e8b" archimateElement="id-1bd39f136c57">
+        <bounds x="12" y="420" width="200" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-194f574cf585" archimateElement="id-65669a9b6b00">
+        <bounds x="240" y="12" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-81943f72caa4" archimateElement="id-18d5d9406e60">
+        <bounds x="240" y="80" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-352857e8865d" archimateElement="id-2636edc598be">
+        <bounds x="240" y="148" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-7e5fa37d0ae2" archimateElement="id-258468a8f0d1">
+        <bounds x="240" y="216" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-b32f0c7566c8" archimateElement="id-bd32156a4142">
+        <bounds x="240" y="284" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-b0198cbfd91c" archimateElement="id-10f94a4f29a2">
+        <bounds x="240" y="352" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-e0c3c6f97fca" archimateElement="id-7dc0e5c839cc">
+        <bounds x="240" y="420" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-863e06d5d46a" archimateElement="id-80cfb8cba108">
+        <bounds x="440" y="12" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-29cc33eb2221" archimateElement="id-9447adfd197b">
+        <bounds x="440" y="80" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-afdc2ac1be2b" archimateElement="id-0c8257e19923">
+        <bounds x="440" y="148" width="160" height="55"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="6. Monitoring View — Observabilidade e Alertas" id="id-5284e950ee41">
+      <child xsi:type="archimate:DiagramObject" id="id-cafde4e21463" archimateElement="id-f9a4056b3c6d">
+        <bounds x="12" y="12" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-418b16855baa" archimateElement="id-a95469d5dfc8">
+        <bounds x="12" y="80" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-3ed7c53db458" archimateElement="id-470a7eaa83a0">
+        <bounds x="12" y="148" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-236931150aa3" archimateElement="id-53f7af633a14">
+        <bounds x="12" y="216" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-2b6790d7ba83" archimateElement="id-08fcd1f15c76">
+        <bounds x="12" y="284" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-6bc7fe2a2f5e" archimateElement="id-a4fc48d7d826">
+        <bounds x="12" y="352" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-fb9f3255ca4d" archimateElement="id-65669a9b6b00">
+        <bounds x="200" y="12" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-0e7487a6f7a2" archimateElement="id-18d5d9406e60">
+        <bounds x="200" y="80" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-654b8660bc95" archimateElement="id-1085a834fd10">
+        <bounds x="200" y="148" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-b13e2179f24d" archimateElement="id-1cecd3e219b8">
+        <bounds x="200" y="216" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-ef95f6c7f7a6" archimateElement="id-45bc48940019">
+        <bounds x="380" y="12" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-471eeed87ec4" archimateElement="id-fa451b4e1a71">
+        <bounds x="380" y="80" width="160" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-d2188b94e40a" archimateElement="id-a6081c313e65">
+        <bounds x="380" y="148" width="160" height="55"/>
+      </child>
+    </element>
+  </folder>
+</archimate:model>
