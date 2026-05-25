@@ -29,14 +29,14 @@ Base path: `/api/v1`. Autenticação: `Authorization: Bearer <JWT>` (HS256+JWKS)
 
 | Verbo | Path | Controller | Função |
 | --- | --- | --- | --- |
-| `GET` | `/health` | [HealthController.java:32](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/HealthController.java#L32) | Liveness probe (Fly.io / Kubernetes) |
-| `GET` | `/ready` | [HealthController.java:48](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/HealthController.java#L48) | Readiness probe (DB + dependências) |
-| `GET` | `/api/v1/me` | [MeController.java:24](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/MeController.java#L24) | Quem é o caller (claims do JWT) |
-| `GET` | `/api/v1/customers/{id}` | [CustomerController.java:33](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/CustomerController.java#L33) | Detalhe de cliente (RBAC dealer/analyst/admin) |
-| `GET` | `/api/v1/vehicles/{vin}` | [VehicleController.java:32](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/VehicleController.java#L32) | Detalhe de veículo por VIN |
-| `GET` | `/api/v1/leads` | [LeadController.java:38](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/LeadController.java#L38) | Lista de leads do atendente (paginada + filtros) |
-| `GET` | `/api/v1/scores/{customerId}` | [ScoreController.java:33](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/ScoreController.java#L33) | Churn score atual de um cliente |
-| `POST` | `/api/v1/service-events` | [ServiceEventController.java:40](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/ServiceEventController.java#L40) | Registra evento de serviço (contato, agendamento, fechamento) |
+| `GET` | `/health` | [HealthController.java:32](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/HealthController.java#L32) | Liveness probe (Fly.io / Kubernetes) |
+| `GET` | `/ready` | [HealthController.java:48](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/HealthController.java#L48) | Readiness probe (DB + dependências) |
+| `GET` | `/api/v1/me` | [MeController.java:24](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/MeController.java#L24) | Quem é o caller (claims do JWT) |
+| `GET` | `/api/v1/customers/{id}` | [CustomerController.java:33](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/CustomerController.java#L33) | Detalhe de cliente (RBAC dealer/analyst/admin) |
+| `GET` | `/api/v1/vehicles/{vin}` | [VehicleController.java:32](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/VehicleController.java#L32) | Detalhe de veículo por VIN |
+| `GET` | `/api/v1/leads` | [LeadController.java:38](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/LeadController.java#L38) | Lista de leads do atendente (paginada + filtros) |
+| `GET` | `/api/v1/scores/{customerId}` | [ScoreController.java:33](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/ScoreController.java#L33) | Churn score atual de um cliente |
+| `POST` | `/api/v1/service-events` | [ServiceEventController.java:40](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/ServiceEventController.java#L40) | Registra evento de serviço (contato, agendamento, fechamento) |
 
 Cada controller usa `@Operation` do springdoc, então o Swagger renderiza descrição, parâmetros e exemplos em runtime sem trabalho manual.
 
@@ -50,10 +50,10 @@ Spring WS contract-first em `urn:forwardservice:vehicles`.
 | --- | --- |
 | **Endpoint** | `POST /soap/*` (servlet `MessageDispatcherServlet`) |
 | **WSDL público** | `GET /soap/vehicles.wsdl` (gerado dinamicamente) |
-| **Schema XSD** | [forward-api-java/src/main/resources/xsd/vehicles.xsd](../../../forward-api-java/src/main/resources/xsd/vehicles.xsd) |
+| **Schema XSD** | [forward-api-java · vehicles.xsd](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/resources/xsd/vehicles.xsd) |
 | **Operação** | `GetVehicleRequest → GetVehicleResponse` |
-| **Bootstrap** | [WebServiceConfig.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/soap/WebServiceConfig.java) |
-| **Handler** | [VehicleEndpoint.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/soap/VehicleEndpoint.java) |
+| **Bootstrap** | [WebServiceConfig.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/soap/WebServiceConfig.java) |
+| **Handler** | [VehicleEndpoint.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/soap/VehicleEndpoint.java) |
 
 Schema (fonte da verdade):
 
@@ -96,7 +96,7 @@ Padrão Mermaid usado: **labels curtas, sem emojis, sem `&` em strings** (quebra
 
 ## 5. Persistência e migrations
 
-13 migrations versionadas em [forward-infra/supabase/migrations/](../../../forward-infra/supabase/migrations/):
+13 migrations versionadas em [forward-infra · supabase/migrations/](https://github.com/fwd-ford/forward-infra/tree/main/supabase/migrations):
 
 ```
 001_create_dealers.sql              008_create_lead_outcomes.sql
@@ -157,7 +157,7 @@ curl -X POST https://forward-api-java.fly.dev/soap/vehicles \
 ```
 
 ### Mobile consumindo a API
-App em Expo Go, credencial de teste `teste@gmail.com` / `teste123` (ver [forward-mobile/README.md](../../../forward-mobile/README.md)). Os 8 endpoints REST estão sendo chamados no fluxo Home → Leads → Lead Detail.
+App em Expo Go, credencial de teste `teste@gmail.com` / `teste123` (ver [forward-mobile · README.md](https://github.com/fwd-ford/forward-mobile/blob/main/README.md)). Os 8 endpoints REST estão sendo chamados no fluxo Home → Leads → Lead Detail.
 
 ---
 
@@ -181,8 +181,8 @@ App em Expo Go, credencial de teste `teste@gmail.com` / `teste123` (ver [forward
 | Quero ver... | Vou pra... |
 | --- | --- |
 | Os diagramas | [project/03_SOLUTION_DESIGN.md §1, §2, §8](../../project/03_SOLUTION_DESIGN.md) |
-| Os controllers REST | [forward-api-java/src/main/java/com/fwdford/forwardapi/web/](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/) |
-| O contrato SOAP | [forward-api-java/src/main/resources/xsd/vehicles.xsd](../../../forward-api-java/src/main/resources/xsd/vehicles.xsd) |
-| As migrations | [forward-infra/supabase/migrations/](../../../forward-infra/supabase/migrations/) |
+| Os controllers REST | [forward-api-java · web/](https://github.com/fwd-ford/forward-api-java/tree/main/src/main/java/com/fwdford/forwardapi/web) |
+| O contrato SOAP | [forward-api-java · vehicles.xsd](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/resources/xsd/vehicles.xsd) |
+| As migrations | [forward-infra · supabase/migrations/](https://github.com/fwd-ford/forward-infra/tree/main/supabase/migrations) |
 | O backend rodando | `https://forward-api-java.fly.dev/swagger-ui.html` |
-| Como o mobile consome | [forward-mobile/lib/api.ts](../../../forward-mobile/lib/api.ts) |
+| Como o mobile consome | [forward-mobile · lib/api.ts](https://github.com/fwd-ford/forward-mobile/blob/main/lib/api.ts) |
