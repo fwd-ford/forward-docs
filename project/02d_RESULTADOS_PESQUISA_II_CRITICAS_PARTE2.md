@@ -170,7 +170,7 @@ Das 14 hipóteses críticas: **10 validadas**, **2 parcialmente validadas**, **2
   | DecisionTree | 0,8420 | **0,4964** | 0,2429 | **0,0474** | 0,6923 |
 
   **DIAGNÓSTICO CHURN:** Todos os modelos atingem ~85% accuracy **só batendo na classe majoritária** (recall positivo praticamente zero). ROC-AUC ~0,73 indica que **o sinal existe**, mas threshold default 0,5 está errado. Sem `class_weight='balanced'` ou SMOTE, o modelo é clinicamente inútil.
-- **Fonte:** Análise direta — [tmp_research/bloco_b_ml04_classifiers.py](../../tmp_research/bloco_b_ml04_classifiers.py), 06/05/2026
+- **Fonte:** Análise direta — `tmp_research/bloco_b_ml04_classifiers.py` (script local do lider), 06/05/2026
 - **Hipótese:** ⚠️ Parcial — perfil totalmente validado (LogReg vence); churn precisa segundo round com cost-sensitive antes de entrar em produção.
 - **Impacto:**
   - **Modelo final do segmentador (Sprint 1):** **LogReg com 24 features pré-compra** (rápido, interpretável, F1=0,86, sem ganho de GB que custa 80x mais fit).
@@ -316,7 +316,7 @@ Das 14 hipóteses críticas: **10 validadas**, **2 parcialmente validadas**, **2
 - **Fonte:** [Label Your Data — Synthetic vs Real (2026)](https://labelyourdata.com/articles/synthetic-data-vs-real-data); [YData — Validating Synthetic Predictive Performance](https://ydata.ai/resources/how-to-validate-the-predictive-performance-of-synthetic-data.html); [Qualtrics — Synthetic Data Validation](https://www.qualtrics.com/articles/strategy-research/synthetic-data-validation/); [arXiv:2302.04062 — ML for Synthetic Data Generation](https://arxiv.org/html/2302.04062v9)
 - **Hipótese:** ✅ Validada — protocolo claro de quando confiar e quando duvidar.
 - **Impacto:**
-  - **Posicionamento honesto no DOC 07 e no pitch:** "achados do Bloco A (DS01–DS10) são prova de método sobre dataset sintético de aquecimento. Quando o real chegar, rerodaremos `tmp_research/bloco_a_dataset.py` e aplicaremos teste TSTR vs TRTR — se F1 pós-real ≥ 0,95 × F1 atual (0,86 × 0,95 = **0,817**), modelo é aceito; senão, refit do zero."
+  - **Posicionamento honesto no DOC 07 e no pitch:** "achados do Bloco A (DS01-DS10) são prova de método sobre dataset sintético de aquecimento. Quando o real chegar, rerodaremos o script `tmp_research/bloco_a_dataset.py` (workspace local) e aplicaremos teste TSTR vs TRTR — se F1 pós-real >= 0,95 × F1 atual (0,86 × 0,95 = **0,817**), modelo é aceito; senão, refit do zero."
   - **Plano B no DOC 04:** se dataset real chegar tarde demais pro Sprint 1, manter sintético com asterisco e prometer iteração no Sprint 2.
   - **Estratégia de mistura:** quando real chegar com volume baixo, treinar híbrido (sintético + real, sample weights ponderando real mais).
 
@@ -379,7 +379,7 @@ Das 14 hipóteses críticas: **10 validadas**, **2 parcialmente validadas**, **2
 6. **Bloco I → DOC 04 + Performance Console:** VIN Share como hero metric; % migração entre perfis como leading.
 7. **Bloco J → mentalidade do time:** comunicar com o grupo (Salatiel + 2 outros) que disciplinas pesam no mesmo bloco — alinhamento de prioridade e zero retrabalho disciplinar.
 
-**Pesquisas 🟡 importantes** (~25 itens) e 🟢 enriquecimento (~16 itens) seguem catalogadas em [project_research_map_v2.md](../../../C--Users-jotin--claude-projects-c--Users-jotin-Documents-Ford/memory/project_research_map_v2.md) para execução conforme prioridade durante a Sprint.
+**Pesquisas 🟡 importantes** (~25 itens) e 🟢 enriquecimento (~16 itens) seguem catalogadas no mapa de pesquisa v2 (memory local do lider) para execução conforme prioridade durante a Sprint.
 
 ---
 

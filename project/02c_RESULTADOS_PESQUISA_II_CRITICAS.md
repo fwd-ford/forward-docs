@@ -57,7 +57,7 @@ ID — Título
 
 - **Pergunta:** Quantas colunas, dtypes, missing %, cardinalidade?
 - **Resposta:** **500.000 linhas × 37 colunas**. 22 numéricas (`float64`), 8 inteiras (`int64`), 7 categóricas (`object`). **14 colunas têm missing**, todas entre 0,60% e 2,47% — maior é `renda_mensal` (2,47%) e `score_credito` (2,04%). **Cardinalidade-chave:** `cliente_id` 500k unique (PK), `valor_veiculo` 477k (quase contínua), `modelo_veiculo` 14, `categoria_veiculo` 5, `regiao` 3, `perfil_latente` 4 (target de segmentação), `churn_rede_24m` 2 (target binário).
-- **Fonte:** Análise direta — [tmp_research/bloco_a_dataset.py](../../tmp_research/bloco_a_dataset.py), 06/05/2026
+- **Fonte:** Análise direta — `tmp_research/bloco_a_dataset.py` (script local do lider), 06/05/2026
 - **Hipótese:** ✅ Validada — dataset é tratável sem ETL pesado; missing é tudo MAR (Missing At Random) provável.
 - **Impacto:** Imputação por mediana é suficiente pro Sprint 1 (sem MICE/iterativo). Schema documentado vai pra DOC 07 anexo.
 

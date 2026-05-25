@@ -6,7 +6,7 @@
 
 > **Para quem é:** Prof. Vitor (Cybersecurity), avaliadores do Sprint 1, e qualquer pessoa que precise estender o sistema sem reabrir vulnerabilidades.
 >
-> **Escopo:** backend [forward-api-java](../../../forward-api-java/) (Spring Boot 3), banco [forward-infra](../../../forward-infra/) (Postgres + Supabase), app [forward-mobile](../../../forward-mobile/) (Expo). Excluído: serviço ML, web vazio, n8n.
+> **Escopo:** backend [forward-api-java](https://github.com/fwd-ford/forward-api-java) (Spring Boot 3), banco [forward-infra](https://github.com/fwd-ford/forward-infra) (Postgres + Supabase), app [forward-mobile](https://github.com/fwd-ford/forward-mobile) (Expo). Excluído: serviço ML, web vazio, n8n.
 
 ---
 
@@ -18,15 +18,15 @@ ForwardService manipula dados de cliente Ford (nome, CPF, e-mail, telefone, VIN)
 
 | Camada | Controle principal | Arquivo de referência |
 | --- | --- | --- |
-| Edge | TLS 1.2+ forçado via Fly.io | [fly.toml:18](../../../forward-api-java/fly.toml) |
-| Header | HSTS, CSP, X-Frame-Options DENY | [SecurityHeadersFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
-| AuthN | JWT (HS256 ou JWKS) ou X-API-Key | [AuthFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java) |
-| Integridade S2S | HMAC-SHA256 com timestamp | [HmacValidator.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java) |
-| AuthZ | RLS Postgres por role | [010_rls_policies.sql](../../../forward-infra/supabase/migrations/010_rls_policies.sql) |
-| Rate limit | Bucket4j por IP+sub | [RateLimitFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) |
-| Privacidade | Anonimização LGPD (reaper diário) | [013_lgpd_retention_policy.sql](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql) |
-| Auditoria | append-only audit_log | [009_create_audit_log.sql](../../../forward-infra/supabase/migrations/009_create_audit_log.sql) |
-| CI/CD | Trivy fs (CRITICAL/HIGH gate) + Dependabot | [java-security.yml](../../../.github/.github/workflows/java-security.yml) |
+| Edge | TLS 1.2+ forçado via Fly.io | [fly.toml:18](https://github.com/fwd-ford/forward-api-java/blob/main/fly.toml) |
+| Header | HSTS, CSP, X-Frame-Options DENY | [SecurityHeadersFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
+| AuthN | JWT (HS256 ou JWKS) ou X-API-Key | [AuthFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java) |
+| Integridade S2S | HMAC-SHA256 com timestamp | [HmacValidator.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java) |
+| AuthZ | RLS Postgres por role | [010_rls_policies.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/010_rls_policies.sql) |
+| Rate limit | Bucket4j por IP+sub | [RateLimitFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) |
+| Privacidade | Anonimização LGPD (reaper diário) | [013_lgpd_retention_policy.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/013_lgpd_retention_policy.sql) |
+| Auditoria | append-only audit_log | [009_create_audit_log.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/009_create_audit_log.sql) |
+| CI/CD | Trivy fs (CRITICAL/HIGH gate) + Dependabot | [java-security.yml](https://github.com/fwd-ford/.github/blob/main/.github/workflows/java-security.yml) |
 
 ---
 
@@ -87,7 +87,7 @@ flowchart LR
 
 **Pontos de entrada autenticados:**
 
-- REST `/api/v1/*` (controllers em [web/](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/))
+- REST `/api/v1/*` (controllers em [web/](https://github.com/fwd-ford/forward-api-java/tree/main/src/main/java/com/fwdford/forwardapi/web))
 - SOAP `/soap/vehicles` (operação GetVehicle)
 
 **Pontos públicos por design:**
@@ -105,61 +105,61 @@ flowchart LR
 
 | Ameaça | Cenário | Mitigação | Status |
 | --- | --- | --- | --- |
-| **S** Spoofing | Cliente falsifica origem (host header injection, IP spoof) | Fly.io edge valida TLS handshake; backend lê `X-Forwarded-For` apenas para log, decisões usam `request.getRemoteAddr()` em [RateLimitFilter.java:72](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) | ✅ |
-| **T** Tampering | MITM em trânsito | `force_https = true` em [fly.toml:18](../../../forward-api-java/fly.toml); HSTS `max-age=31536000` em [SecurityHeadersFilter.java:26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) | ✅ |
+| **S** Spoofing | Cliente falsifica origem (host header injection, IP spoof) | Fly.io edge valida TLS handshake; backend lê `X-Forwarded-For` apenas para log, decisões usam `request.getRemoteAddr()` em [RateLimitFilter.java:72](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) | ✅ |
+| **T** Tampering | MITM em trânsito | `force_https = true` em [fly.toml:18](https://github.com/fwd-ford/forward-api-java/blob/main/fly.toml); HSTS `max-age=31536000` em [SecurityHeadersFilter.java:26](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) | ✅ |
 | **R** Repudiation | Cliente nega ação que fez | Body raw + `X-Request-Id` em audit_log; ver §4.6 | ✅ |
-| **I** Information disclosure | Stack trace ou banner do Tomcat vaza tecnologia | [GlobalExceptionHandler.java:67-69](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) retorna mensagem genérica em pt-BR; Tomcat `server-header` removido implicitamente pelo Spring Boot default | ✅ |
-| **D** Denial of service | Flood de requests | Bucket4j 60 req/min por IP+sub ([RateLimitFilter.java:62-68](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java)); Tomcat body limit 1MB ([application.yml:7-8](../../../forward-api-java/src/main/resources/application.yml)) | ✅ |
+| **I** Information disclosure | Stack trace ou banner do Tomcat vaza tecnologia | [GlobalExceptionHandler.java:67-69](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) retorna mensagem genérica em pt-BR; Tomcat `server-header` removido implicitamente pelo Spring Boot default | ✅ |
+| **D** Denial of service | Flood de requests | Bucket4j 60 req/min por IP+sub ([RateLimitFilter.java:62-68](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java)); Tomcat body limit 1MB ([application.yml:7-8](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/resources/application.yml)) | ✅ |
 | **E** Elevation of privilege | Acesso sem TLS expondo token em texto claro | HSTS força HTTPS no browser por 1 ano | ✅ |
 
 ### 4.2 AuthFilter (validação de token)
 
 | Ameaça | Cenário | Mitigação | Status |
 | --- | --- | --- | --- |
-| **S** | Token forjado | JWT validado com chave Supabase (HS256) ou JWKS asymmetric; `AlgAwareJwtValidator` roteia pelo header `alg` ([JwtValidatorFactory.java:30](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/JwtValidatorFactory.java)) | ✅ |
-| **S** | Reuso de X-API-Key vazada | Reduzido por HMAC opcional ([HmacValidator.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java)); fora isso, rotação manual | ⚠️ (rotação manual) |
+| **S** | Token forjado | JWT validado com chave Supabase (HS256) ou JWKS asymmetric; `AlgAwareJwtValidator` roteia pelo header `alg` ([JwtValidatorFactory.java:30](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/JwtValidatorFactory.java)) | ✅ |
+| **S** | Reuso de X-API-Key vazada | Reduzido por HMAC opcional ([HmacValidator.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java)); fora isso, rotação manual | ⚠️ (rotação manual) |
 | **T** | Token modificado em trânsito | Assinatura JWT invalidaria; HTTPS impede inspeção | ✅ |
 | **R** | Usuário nega que chamou endpoint | `sub` do JWT vai pro audit_log; `X-Request-Id` correlaciona logs JSON | ✅ |
-| **I** | Token vaza em log | `Authorization` header nunca é logado; MDC carrega só `request_id` ([RequestIdFilter.java:33](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/RequestIdFilter.java)) | ✅ |
+| **I** | Token vaza em log | `Authorization` header nunca é logado; MDC carrega só `request_id` ([RequestIdFilter.java:33](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/RequestIdFilter.java)) | ✅ |
 | **D** | Brute force em senha | Login fica no Supabase Auth (não na nossa API); rate limit Bucket4j cobre tentativas no nosso lado | ✅ |
-| **E** | Forjar role no JWT | Role vem do claim `role` ou `app_metadata.role` validado pela assinatura ([AuthFilter.java:103-110](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java)); RLS no Postgres é a segunda barreira | ✅ |
+| **E** | Forjar role no JWT | Role vem do claim `role` ou `app_metadata.role` validado pela assinatura ([AuthFilter.java:103-110](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java)); RLS no Postgres é a segunda barreira | ✅ |
 
 ### 4.3 Camada de serviço (RBAC + business logic)
 
 | Ameaça | Cenário | Mitigação | Status |
 | --- | --- | --- | --- |
 | **S** | Service chama outro service como usuário diferente | `AuthPrincipal` é imutável e atravessa a stack por request attribute, não thread-local global | ✅ |
-| **T** | Injection via parâmetro de query | Tudo via `NamedParameterJdbcTemplate` com `:bind` (ver [repository/](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/repository/)); zero concatenação de SQL | ✅ |
-| **R** | Ação destrutiva sem trilha | INSERTs em audit_log via service quando ação for sensível (anonimização em [013_lgpd_retention_policy.sql:46](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)); cobertura para CRUD comum é P1 (ver seção 6) | ⚠️ (cobertura parcial) |
-| **I** | Endpoint vaza customer de outro dealer | Defense-in-depth: validação no service + RLS no Postgres com `auth_role()` ([010_rls_policies.sql:29-50](../../../forward-infra/supabase/migrations/010_rls_policies.sql)) | ✅ |
-| **D** | Query custosa (full table scan) | Limites bounded em `Validations.validateLimit` ([Validations.java:40-66](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java)); índices em audit_log e leads | ✅ |
-| **E** | Cliente acessa churn_score (interno) | RLS `churn_scores_internal` restringe a `analyst`/`admin` ([010_rls_policies.sql:44](../../../forward-infra/supabase/migrations/010_rls_policies.sql)) | ✅ |
+| **T** | Injection via parâmetro de query | Tudo via `NamedParameterJdbcTemplate` com `:bind` (ver [repository/](https://github.com/fwd-ford/forward-api-java/tree/main/src/main/java/com/fwdford/forwardapi/repository)); zero concatenação de SQL | ✅ |
+| **R** | Ação destrutiva sem trilha | INSERTs em audit_log via service quando ação for sensível (anonimização em [013_lgpd_retention_policy.sql:46](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/013_lgpd_retention_policy.sql)); cobertura para CRUD comum é P1 (ver seção 6) | ⚠️ (cobertura parcial) |
+| **I** | Endpoint vaza customer de outro dealer | Defense-in-depth: validação no service + RLS no Postgres com `auth_role()` ([010_rls_policies.sql:29-50](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/010_rls_policies.sql)) | ✅ |
+| **D** | Query custosa (full table scan) | Limites bounded em `Validations.validateLimit` ([Validations.java:40-66](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/Validations.java)); índices em audit_log e leads | ✅ |
+| **E** | Cliente acessa churn_score (interno) | RLS `churn_scores_internal` restringe a `analyst`/`admin` ([010_rls_policies.sql:44](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/010_rls_policies.sql)) | ✅ |
 
 ### 4.4 Validação de entrada
 
 | Vetor | Mitigação | Arquivo |
 | --- | --- | --- |
-| UUID malformado | Regex RFC 4122 | [Validations.java:11-26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
-| VIN inválido | Regex ISO 3779 (17 chars, sem I/O/Q) | [Validations.java:14, 30-36](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
-| Enum fora do whitelist | `validateEnum` com lista fixa | [Validations.java:70-78](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
-| Limit overflow | Clamp `[1, max]` | [Validations.java:40-66](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
-| Body gigante | Tomcat `max-http-form-post-size: 1MB`, env `MAX_BODY_BYTES` | [application.yml:7-8](../../../forward-api-java/src/main/resources/application.yml) |
-| JSON malformado | `HttpMessageNotReadableException` mapeado para 400 RFC 7807 | [GlobalExceptionHandler.java:52-61](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) |
-| Bean Validation failure | `MethodArgumentNotValidException` mapeado, mensagem agregada por campo | [GlobalExceptionHandler.java:34-50](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) |
+| UUID malformado | Regex RFC 4122 | [Validations.java:11-26](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
+| VIN inválido | Regex ISO 3779 (17 chars, sem I/O/Q) | [Validations.java:14, 30-36](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
+| Enum fora do whitelist | `validateEnum` com lista fixa | [Validations.java:70-78](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
+| Limit overflow | Clamp `[1, max]` | [Validations.java:40-66](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
+| Body gigante | Tomcat `max-http-form-post-size: 1MB`, env `MAX_BODY_BYTES` | [application.yml:7-8](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/resources/application.yml) |
+| JSON malformado | `HttpMessageNotReadableException` mapeado para 400 RFC 7807 | [GlobalExceptionHandler.java:52-61](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) |
+| Bean Validation failure | `MethodArgumentNotValidException` mapeado, mensagem agregada por campo | [GlobalExceptionHandler.java:34-50](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) |
 
 ### 4.5 CORS e cabeçalhos
 
 | Cabeçalho | Valor | Por que |
 | --- | --- | --- |
-| `Access-Control-Allow-Origin` | Allowlist explícita de `ALLOWED_ORIGINS` em [fly.toml:11](../../../forward-api-java/fly.toml) | Nunca `*`; expo.dev, expo.io, localhost dev. Validado em [CorsConfig.java:26](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) |
+| `Access-Control-Allow-Origin` | Allowlist explícita de `ALLOWED_ORIGINS` em [fly.toml:11](https://github.com/fwd-ford/forward-api-java/blob/main/fly.toml) | Nunca `*`; expo.dev, expo.io, localhost dev. Validado em [CorsConfig.java:26](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | HSTS preload-ready, evita downgrade |
 | `X-Frame-Options` | `DENY` | Anti-clickjacking |
 | `X-Content-Type-Options` | `nosniff` | Anti-MIME-sniffing |
-| `Content-Security-Policy` | `default-src 'none'; frame-ancestors 'none'` (default), `'self'` + `'unsafe-inline'` para `/swagger-ui` apenas | Lockdown total fora do Swagger ([SecurityHeadersFilter.java:35-46](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java)) |
+| `Content-Security-Policy` | `default-src 'none'; frame-ancestors 'none'` (default), `'self'` + `'unsafe-inline'` para `/swagger-ui` apenas | Lockdown total fora do Swagger ([SecurityHeadersFilter.java:35-46](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java)) |
 | `Referrer-Policy` | `no-referrer` | Evita leak de URL em outbound |
 | `Permissions-Policy` | `geolocation=()`, `microphone=()`, `camera=()` | Negação de APIs sensíveis |
 
-CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/SecurityConfig.java)) para garantir que 401 ainda carregue `Access-Control-Allow-Origin` (sem isso o browser bloqueava como erro CORS antes do dev ver o 401 real).
+CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/SecurityConfig.java)) para garantir que 401 ainda carregue `Access-Control-Allow-Origin` (sem isso o browser bloqueava como erro CORS antes do dev ver o 401 real).
 
 ### 4.6 Auditoria e logs
 
@@ -167,8 +167,8 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 | --- | --- |
 | `RequestIdFilter` | Gera `X-Request-Id` (UUID) ou aceita o do cliente; injeta no MDC do SLF4J |
 | `logback-spring.xml` | JSON estruturado em prod via Logstash encoder; `service: forward-api` como custom field |
-| `audit_log` | Tabela append-only ([009_create_audit_log.sql](../../../forward-infra/supabase/migrations/009_create_audit_log.sql)); `REVOKE UPDATE, DELETE ON audit_log FROM PUBLIC`. Campos: `actor_id`, `actor_role`, `action`, `resource_type`, `resource_id`, `ip_address`, `user_agent`, `request_id`, `payload` JSONB |
-| Erros não tratados | Logados via `log.error(...)` com stack interno; **resposta** ao cliente é genérica ([GlobalExceptionHandler.java:66-69](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java)) |
+| `audit_log` | Tabela append-only ([009_create_audit_log.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/009_create_audit_log.sql)); `REVOKE UPDATE, DELETE ON audit_log FROM PUBLIC`. Campos: `actor_id`, `actor_role`, `action`, `resource_type`, `resource_id`, `ip_address`, `user_agent`, `request_id`, `payload` JSONB |
+| Erros não tratados | Logados via `log.error(...)` com stack interno; **resposta** ao cliente é genérica ([GlobalExceptionHandler.java:66-69](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java)) |
 
 ### 4.7 Dados em repouso e privacidade (LGPD)
 
@@ -176,16 +176,16 @@ CORS subiu antes da auth no chain ([SecurityConfig.java:27, 34](../../../forward
 | --- | --- |
 | VIN | Pseudonimizado pela Ford com SHA1 (testado: 5M tentativas de reversão = 0 matches, conforme [02e Parte 5](../../project/02e_DATASET_OFICIAL_E_FONTES.md)) |
 | PII em DB | Cifrado em repouso pelo Supabase (AES-256 no storage layer). Sem cifragem adicional aplicação (decisão Sprint 1; ver seção 6) |
-| Direito ao esquecimento | `anonymize_customer(uuid)` ([013_lgpd_retention_policy.sql:21-57](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)); preserva FK setando PII para NULL ou `[ANONYMIZED]` |
-| Retenção | `anonymize_expired_customers()` reaper diário ([013_lgpd_retention_policy.sql:66-93](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)); critério: deletion request com cooling-off de 30d, OU sem consentimento LGPD com idade > 12m |
+| Direito ao esquecimento | `anonymize_customer(uuid)` ([013_lgpd_retention_policy.sql:21-57](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/013_lgpd_retention_policy.sql)); preserva FK setando PII para NULL ou `[ANONYMIZED]` |
+| Retenção | `anonymize_expired_customers()` reaper diário ([013_lgpd_retention_policy.sql:66-93](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/013_lgpd_retention_policy.sql)); critério: deletion request com cooling-off de 30d, OU sem consentimento LGPD com idade > 12m |
 | Não-repúdio | Cada anonimização emite linha em audit_log com `reason` e `at` |
-| Anonimização para ML | VIN_Hash já é seguro; pipeline ML em [forward-ml/](../../../forward-ml/) consome somente o feature store derivado, sem PII direta |
+| Anonimização para ML | VIN_Hash já é seguro; pipeline ML em [forward-ml/](https://github.com/fwd-ford/forward-ml) consome somente o feature store derivado, sem PII direta |
 
 ### 4.8 Pipeline CI/CD
 
 | Risco | Mitigação |
 | --- | --- |
-| Dependência com CVE | **Trivy filesystem scan** em CI com gate em CRITICAL/HIGH ([java-security.yml:11-23](../../../.github/.github/workflows/java-security.yml)); **Dependabot** abre PRs automáticas para atualizações |
+| Dependência com CVE | **Trivy filesystem scan** em CI com gate em CRITICAL/HIGH ([java-security.yml:11-23](https://github.com/fwd-ford/.github/blob/main/.github/workflows/java-security.yml)); **Dependabot** abre PRs automáticas para atualizações |
 | Segredo commitado | `secrets-scan.yml` (gitleaks) bloqueia push com segredo identificado |
 | Build supply chain | Maven wrapper pinado, `actions/checkout@v4` e `actions/setup-java@v4` em versões fixas |
 
