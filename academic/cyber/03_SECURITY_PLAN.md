@@ -103,7 +103,7 @@ Itens marcados como **risco residual aceito** no [01_THREAT_MODEL.md §6](./01_T
 | Artigo / requisito | Implementação |
 | --- | --- |
 | Art. 5 — base legal e consentimento | Coluna `lgpd_consent_at` em `customers`; mobile precisa coletar (R11) |
-| Art. 16 — eliminação após término | Reaper `anonymize_expired_customers()` diário ([013](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql)) |
+| Art. 16 — eliminação após término | Reaper `anonymize_expired_customers()` diário ([013](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/013_lgpd_retention_policy.sql)) |
 | Art. 18 — direitos do titular (deletion request) | `lgpd_deletion_requested_at` + cooling-off 30d + `anonymize_customer()` |
 | Art. 37 — registro de operações | `audit_log` append-only com `actor_id`, `action`, `resource_*`, `created_at` |
 | Art. 46 — segurança (medidas técnicas) | TLS, HSTS, AES-256 em repouso, JWT assinado, rate limit, RLS |
@@ -119,23 +119,23 @@ Todos os controles abaixo são código ou configuração versionada — nada é 
 
 | Controle | Tipo | Arquivo |
 | --- | --- | --- |
-| Force HTTPS | Config | [fly.toml:18](../../../forward-api-java/fly.toml) |
-| Security headers | Filter | [SecurityHeadersFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
-| CORS allowlist | Config + Bean | [CorsConfig.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) + [fly.toml:11](../../../forward-api-java/fly.toml) |
-| Spring Security chain | Bean | [SecurityConfig.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/SecurityConfig.java) |
-| JWT validators (HS256, JWKS, Alg-aware) | Class | [security/](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/) |
-| Auth filter | Filter | [AuthFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java) |
-| Rate limit | Filter | [RateLimitFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) |
-| HMAC validator | Class | [HmacValidator.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java) |
-| Input validation | Class | [Validations.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
-| Request ID | Filter | [RequestIdFilter.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/web/RequestIdFilter.java) |
-| Global exception handler | Advice | [GlobalExceptionHandler.java](../../../forward-api-java/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) |
-| RLS Postgres | Migration | [010_rls_policies.sql](../../../forward-infra/supabase/migrations/010_rls_policies.sql) |
-| Audit log | Migration | [009_create_audit_log.sql](../../../forward-infra/supabase/migrations/009_create_audit_log.sql) |
-| LGPD retention | Migration | [013_lgpd_retention_policy.sql](../../../forward-infra/supabase/migrations/013_lgpd_retention_policy.sql) |
-| JSON logs | Config | [logback-spring.xml](../../../forward-api-java/src/main/resources/logback-spring.xml) |
-| CI security scan | Workflow | [java-security.yml](../../../.github/.github/workflows/java-security.yml) |
-| Secret scan | Workflow | [secrets-scan.yml](../../../.github/.github/workflows/secrets-scan.yml) |
+| Force HTTPS | Config | [fly.toml:18](https://github.com/fwd-ford/forward-api-java/blob/main/fly.toml) |
+| Security headers | Filter | [SecurityHeadersFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/SecurityHeadersFilter.java) |
+| CORS allowlist | Config + Bean | [CorsConfig.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/CorsConfig.java) + [fly.toml:11](https://github.com/fwd-ford/forward-api-java/blob/main/fly.toml) |
+| Spring Security chain | Bean | [SecurityConfig.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/SecurityConfig.java) |
+| JWT validators (HS256, JWKS, Alg-aware) | Class | [security/](https://github.com/fwd-ford/forward-api-java/tree/main/src/main/java/com/fwdford/forwardapi/security) |
+| Auth filter | Filter | [AuthFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/AuthFilter.java) |
+| Rate limit | Filter | [RateLimitFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/RateLimitFilter.java) |
+| HMAC validator | Class | [HmacValidator.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/security/HmacValidator.java) |
+| Input validation | Class | [Validations.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/Validations.java) |
+| Request ID | Filter | [RequestIdFilter.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/web/RequestIdFilter.java) |
+| Global exception handler | Advice | [GlobalExceptionHandler.java](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/java/com/fwdford/forwardapi/error/GlobalExceptionHandler.java) |
+| RLS Postgres | Migration | [010_rls_policies.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/010_rls_policies.sql) |
+| Audit log | Migration | [009_create_audit_log.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/009_create_audit_log.sql) |
+| LGPD retention | Migration | [013_lgpd_retention_policy.sql](https://github.com/fwd-ford/forward-infra/blob/main/supabase/migrations/013_lgpd_retention_policy.sql) |
+| JSON logs | Config | [logback-spring.xml](https://github.com/fwd-ford/forward-api-java/blob/main/src/main/resources/logback-spring.xml) |
+| CI security scan | Workflow | [java-security.yml](https://github.com/fwd-ford/.github/blob/main/.github/workflows/java-security.yml) |
+| Secret scan | Workflow | [secrets-scan.yml](https://github.com/fwd-ford/.github/blob/main/.github/workflows/secrets-scan.yml) |
 | Dependabot | Config | configurado por repo |
 
 ---
@@ -196,7 +196,7 @@ Ver [01_THREAT_MODEL.md §7](./01_THREAT_MODEL.md#7-procedimento-de-resposta-a-i
 | 1 | Threat model documentado | ✅ pronto | Cyber |
 | 2 | OWASP Top 10 mapeado | ✅ pronto | Cyber |
 | 3 | Plano de segurança (este doc) | ✅ pronto | Cyber |
-| 4 | Demonstrar HMAC funcional via teste | ✅ ([HmacValidatorTest](../../../forward-api-java/src/test/java/)) | já existente |
+| 4 | Demonstrar HMAC funcional via teste | ✅ ([HmacValidatorTest](https://github.com/fwd-ford/forward-api-java/tree/main/src/test/java)) | já existente |
 | 5 | Demonstrar reaper LGPD em execução local | ⚠️ rodar `SELECT anonymize_expired_customers();` em DB com fixture | Quem fizer demo |
 | 6 | Vídeo de pitch: incluir slide rápido sobre LGPD + RLS + audit_log | ⚠️ pendente | Quem grava pitch |
 

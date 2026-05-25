@@ -379,7 +379,7 @@ Das 14 hipóteses críticas: **10 validadas**, **2 parcialmente validadas**, **2
 6. **Bloco I → DOC 04 + Performance Console:** VIN Share como hero metric; % migração entre perfis como leading.
 7. **Bloco J → mentalidade do time:** comunicar com o grupo (Salatiel + 2 outros) que disciplinas pesam no mesmo bloco — alinhamento de prioridade e zero retrabalho disciplinar.
 
-**Pesquisas 🟡 importantes** (~25 itens) e 🟢 enriquecimento (~16 itens) seguem catalogadas em [project_research_map_v2.md](../../../C--Users-jotin--claude-projects-c--Users-jotin-Documents-Ford/memory/project_research_map_v2.md) para execução conforme prioridade durante a Sprint.
+**Pesquisas 🟡 importantes** (~25 itens) e 🟢 enriquecimento (~16 itens) seguem catalogadas no mapa de pesquisa v2 (memory local do lider) para execução conforme prioridade durante a Sprint.
 
 ---
 
