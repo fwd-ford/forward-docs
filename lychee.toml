@@ -3,11 +3,17 @@
 # require a logged-in session, or are blocked from GitHub-hosted runners. We only
 # fail CI on internal/relative link breakage; external links are validated locally.
 
+# Enforce the policy above: CI checks only links to files inside this repo. Research references
+# rot on their own (sites down, pages moved) and must not block unrelated pull requests; check
+# them locally with `lychee --scheme https './**/*.md'` when updating research.
+scheme = ["file"]
+
 # Treat 200, 206, 403, 429 as acceptable.
 accept = ["200", "206", "403", "429"]
 
 # Match the docs spec - allow project-relative paths and same-repo links.
-include_fragments = false
+# Fragments (#anchors) are not checked: that is lychee's default. Since lychee 0.2x the
+# option takes a mode string ("full", ...) and `false` no longer parses.
 max_concurrency = 4
 max_retries = 1
 timeout = 10
@@ -22,6 +28,16 @@ exclude = [
     # Mail and tel
     '^mailto:',
     '^tel:',
+
+    # Sprint 1 documents written for the old side-by-side workspace (repos cloned next to each
+    # other, research scratch and data files outside this repo). They are graded deliverables, so
+    # the links stay as written; converting them to GitHub URLs is tracked in forward-docs#18.
+    # New documents (produto/, decisions/, guides/) must use links that resolve in this repo.
+    '^file://.*/forward-(api-java|infra|ml|mobile|web)(/|$)',
+    '^file://.*/\.github/\.github/',
+    '^file://.*/tmp_research/',
+    '^file://.*C--Users-',
+    '^file://.*/research/official/data/',
 
     # Brazilian government and academic sites - frequently rate-limit GH IPs
     '^https?://(www\.)?planalto\.gov\.br',
