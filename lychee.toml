@@ -3,6 +3,11 @@
 # require a logged-in session, or are blocked from GitHub-hosted runners. We only
 # fail CI on internal/relative link breakage; external links are validated locally.
 
+# Enforce the policy above: CI checks only links to files inside this repo. Research references
+# rot on their own (sites down, pages moved) and must not block unrelated pull requests; check
+# them locally with `lychee --scheme https './**/*.md'` when updating research.
+scheme = ["file"]
+
 # Treat 200, 206, 403, 429 as acceptable.
 accept = ["200", "206", "403", "429"]
 
