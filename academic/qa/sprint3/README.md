@@ -13,7 +13,7 @@ Comece pelo [**PLANO_AZURE_DEVOPS.md**](PLANO_AZURE_DEVOPS.md): ele explica o pl
 | [`azure_devops_import.py`](azure_devops_import.py) | Publica o plano no Azure DevOps pela REST API 7.1 (só biblioteca padrão, idempotente, com dry-run) |
 | [`gen_csv.py`](gen_csv.py) | Gera o `backlog.csv` a partir do `backlog.json` |
 | [`backlog.csv`](backlog.csv) | Plano B: Boards > Queries > Import work items (hierarquia Title 1 a Title 4; sem predecessoras) |
-| [`tests/test_import_mock.py`](tests/test_import_mock.py) | 37 testes contra um Azure DevOps falso (http.server + unittest) |
+| [`tests/test_import_mock.py`](tests/test_import_mock.py) | 38 testes contra um Azure DevOps falso (http.server + unittest) |
 | [`dry_run_output.txt`](dry_run_output.txt) | Saída do dry-run offline: tudo o que o script criaria |
 | [`wiki/`](wiki/) | As 7 páginas da wiki geradas (mesmo conteúdo publicado no Azure DevOps) |
 

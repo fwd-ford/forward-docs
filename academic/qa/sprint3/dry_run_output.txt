@@ -246,7 +246,7 @@
 == 6/8 Consultas compartilhadas ==
 [dry-run] criaria a pasta Shared Queries/ForwardService - Plano com 6 consultas
 [dry-run]   consulta: 01 Backlog ordenado (PBIs por ordem de implementação)
-[dry-run]   consulta: 02 Hierarquia Épico > Feature > PBI
+[dry-run]   consulta: 02 Hierarquia de épicos, features e PBIs
 [dry-run]   consulta: 03 Dependências (item e suas predecessoras)
 [dry-run]   consulta: 04 Sprint 3 PBIs e tarefas
 [dry-run]   consulta: 05 Release plan (PBIs por sprint)
@@ -267,5 +267,5 @@
 
 == Resumo ==
 [info] itens que seriam criados: 123
-[info] requisições de escrita não enviadas (dry-run): 0
+[info] modo offline: nenhuma requisição HTTP foi enviada
 [info] concluído com código 0 (sucesso)

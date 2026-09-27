@@ -120,6 +120,10 @@
       "Requirements",
       "Testing"
     ],
+    "board_column_texts": {
+      "Approved": "Definition of Ready: história Como/quero/para; BDD com caminho feliz e erro ou borda; estimado em Planning Poker (até 13 pontos); predecessoras resolvidas; tags ArchiMate e REQ; MoSCoW e valor de negócio definidos. Detalhes na wiki (Definition of Done).",
+      "Committed": "Definition of Done: cenários BDD verificados com evidência; PR revisado e integrado à main; CI verde (build, testes, SAST, SCA e secret scan); testes de sucesso e de erro; sem High/Critical nem segredos e LGPD atendida; REQ aplicáveis medidos; documentação e rastreabilidade atualizadas; aceito pelo PO na Sprint Review. Detalhes na wiki."
+    },
     "velocity_target_points": 50,
     "balance_rule": "Totais de pontos por sprint dentro de ±20% entre a maior e a menor sprint."
   },

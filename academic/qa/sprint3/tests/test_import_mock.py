@@ -77,7 +77,7 @@ class MockState:
     """Estado em memória do Azure DevOps falso."""
 
     def __init__(self, project_exists=False, process="Scrum", preexisting_sprints=("Sprint 1", "Sprint 2", "Sprint 3"),
-                 fail_titles=(), throttle_first_wiql=False, entitlement_exists=False):
+                 fail_titles=(), throttle_first_wiql=False, entitlement_exists=False, iteration_lag=0):
         self.lock = threading.Lock()
         self.requests = []
         self.base = None
@@ -91,6 +91,7 @@ class MockState:
         self.pages = {}
         self.fail_titles = set(fail_titles)
         self.throttle_first_wiql = throttle_first_wiql
+        self.iteration_lag = iteration_lag
         self.entitlements = []
         self.columns = [
             {"id": str(uuid.uuid4()), "name": "New", "itemLimit": 0, "stateMappings": {"Product Backlog Item": "New", "Bug": "New"}, "columnType": "incoming"},
@@ -309,6 +310,12 @@ def route_project(st, proj, method, s, query, body, headers):
         if headers.get("Content-Type") != "application/json-patch+json":
             return 415, {"message": "Content-Type deve ser application/json-patch+json"}, None
         title = next(o["value"] for o in body if o["path"] == "/fields/System.Title")
+        tags = next((o["value"] for o in body if o["path"] == "/fields/System.Tags"), "")
+        if any(sep in t for t in tags.split("; ") for sep in (",", ";")):
+            return 400, {"message": "tag com separador proibido"}, None
+        if st.iteration_lag:
+            st.iteration_lag -= 1
+            return 400, {"message": "TF401347: Invalid tree name given for work item -1, field 'System.IterationPath'."}, None
         if title in st.fail_titles:
             return 400, {"message": "TF401320: falha simulada para %s" % title}, None
         st.next_id += 1
@@ -345,6 +352,8 @@ def route_project(st, proj, method, s, query, body, headers):
         if method == "POST":
             assert node.get("isFolder")
             assert all(c["name"] != body["name"] for c in node["children"])
+            if any(ch in body["name"] for ch in '/\\<>*?"+|:'):
+                return 400, {"message": "TF401243: nome de consulta com caractere proibido: %s" % body["name"]}, None
             if not body.get("isFolder"):
                 assert body["wiql"].strip().upper().startswith("SELECT")
                 if "MODE (RECURSIVE)" in body["wiql"].upper():
@@ -610,6 +619,7 @@ class ImportFlowTest(unittest.TestCase):
         self.assertEqual(len(folder["children"]), 6)
         for q in folder["children"]:
             self.assertIn("@project", q["wiql"])
+            self.assertFalse(any(ch in q["name"] for ch in '/\\<>*?"+|:'), q["name"])
 
     def test_wiki_pages_created_with_ids(self):
         self.assertEqual(len(self.state.wikis), 1)
@@ -717,6 +727,14 @@ class ResilienceTest(unittest.TestCase):
         wiql = [r for r in state.requests if r["segs"][-1] == "wiql"]
         self.assertEqual(len(wiql), 2)
         self.assertIn("HTTP 429", out)
+
+    def test_iteration_propagation_lag_is_retried(self):
+        state = MockState(project_exists=True, iteration_lag=2)
+        with MockServer(state) as srv:
+            code, out = run_main(srv.org_url, "--steps", "iterations,workitems")
+        self.assertEqual(code, 0, out[-2000:])
+        self.assertEqual(len(state.work_items), 123)
+        self.assertIn("sprint ainda não disponível", out)
 
     def test_existing_professor_is_promoted(self):
         state = MockState(project_exists=True, entitlement_exists=True)

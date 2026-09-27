@@ -736,6 +736,7 @@ class Importer:
         self.query_ids = OrderedDict()
         self.wiki = None
         self.warned_fields = set()
+        self.lag_retries_left = 12   # orçamento total de novas tentativas por atraso de propagação da sprint
         self.assign_map = {}
         if args.assign_map:
             with open(args.assign_map, encoding="utf-8") as fh:
@@ -930,7 +931,7 @@ class Importer:
         self.c.title("3/8 Definition of Done nas colunas do board")
         dor = self.model.raw["definition_of_ready"]
         dod = self.model.raw["definition_of_done"]["Product Backlog Item"]
-        texts = {
+        texts = self.model.conventions.get("board_column_texts") or {
             "Approved": "Pronto para a sprint (Definition of Ready):\n" + "\n".join("- " + x for x in dor),
             "Committed": "Definition of Done do PBI:\n" + "\n".join("- " + x for x in dod),
         }
@@ -1062,7 +1063,7 @@ class Importer:
                 self.s.inc("itens que seriam criados")
                 continue
             try:
-                r = self.client.request("POST", url, ops, content_type="application/json-patch+json")
+                r = self._create_with_retry(url, ops)
                 wid = (r.data or {}).get("id")
                 self.ids[item.key] = wid
                 self.new_keys.add(item.key)
@@ -1072,6 +1073,19 @@ class Importer:
             except HttpError as exc:
                 self.c.error("%s: %s" % (item.key, exc))
                 self.s.error("criar %s: %s" % (item.key, exc.message))
+
+    def _create_with_retry(self, url, ops, attempts=4):
+        """Cria o item; repete se a sprint recém-criada ainda não propagou (TF401347 / IterationPath)."""
+        for n in range(1, attempts + 1):
+            try:
+                return self.client.request("POST", url, ops, content_type="application/json-patch+json")
+            except HttpError as exc:
+                lag = exc.status == 400 and ("TF401347" in exc.message or "IterationPath" in exc.message)
+                if not lag or n == attempts or self.lag_retries_left <= 0:
+                    raise
+                self.lag_retries_left -= 1
+                self.c.warn("sprint ainda não disponível para itens (%s); nova tentativa em 5s" % exc.message[:80])
+                self.client.sleep(5)
 
     def _ensure_parent(self, item, existing):
         if not item.parent:
@@ -1184,7 +1198,7 @@ class Importer:
             ("01 Backlog ordenado (PBIs por ordem de implementação)",
              "SELECT %s FROM WorkItems WHERE [System.TeamProject] = @project AND [System.WorkItemType] = 'Product Backlog Item' "
              "AND [System.Tags] CONTAINS 'fwd-import' ORDER BY [Microsoft.VSTS.Common.BacklogPriority] ASC" % cols),
-            ("02 Hierarquia Épico > Feature > PBI",
+            ("02 Hierarquia de épicos, features e PBIs",
              "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.State], [Microsoft.VSTS.Scheduling.Effort], [System.IterationPath] "
              "FROM WorkItemLinks WHERE ([Source].[System.TeamProject] = @project AND [Source].[System.WorkItemType] = 'Epic') "
              "AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward') "
@@ -1846,7 +1860,9 @@ def main(argv=None, env=None, out=None, sleep=time.sleep, prompt=getpass.getpass
     console.title("Resumo")
     for k, v in summary.counts.items():
         console.info("%s: %d" % (k, v))
-    if args.dry_run:
+    if args.dry_run and not client.online:
+        console.info("modo offline: nenhuma requisição HTTP foi enviada")
+    elif args.dry_run:
         console.info("requisições de escrita não enviadas (dry-run): %d" % len(client.skipped_writes))
     for w in summary.warnings:
         console.warn(w)
