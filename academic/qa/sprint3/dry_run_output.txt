@@ -1,0 +1,271 @@
+
+== ForwardService -> Azure DevOps (DRY-RUN) ==
+[info] organização: https://dev.azure.com/SUA-ORGANIZACAO | projeto: ForwardService | passos: project, iterations, board, workitems, links, queries, wiki, professor
+
+== Backlog validado ==
+[info] arquivo: backlog.json
+[info] épicos 8, features 21, PBIs 60, tarefas 34
+[info] Sprint 1: 49 pontos (-5% da média)
+[info] Sprint 2: 52 pontos (+1% da média)
+[info] Sprint 3: 56 pontos (+8% da média)
+[info] Sprint 4: 49 pontos (-5% da média)
+[info] Sprint 5: 52 pontos (+1% da média)
+[info] Sprint 6: 52 pontos (+1% da média)
+[info] média 51,7 pontos; maior/menor = 1,14
+
+== 1/8 Organização e projeto (processo Scrum) ==
+[dry-run] modo offline: sem PAT, nenhuma chamada HTTP será feita
+[dry-run] verificaria o acesso em GET https://dev.azure.com/SUA-ORGANIZACAO/_apis/projects
+[dry-run] criaria o projeto 'ForwardService' com o processo Scrum (templateTypeId 6b724908-ef14-45cf-84f8-768b5384da45) se ele não existir
+
+== 2/8 Sprints (iterações) e seleção no time ==
+[dry-run] criaria ou atualizaria Sprint 1: 2026-03-02 a 2026-04-19
+[dry-run] criaria ou atualizaria Sprint 2: 2026-04-20 a 2026-05-24
+[dry-run] criaria ou atualizaria Sprint 3: 2026-08-03 a 2026-09-27
+[dry-run] criaria ou atualizaria Sprint 4: 2026-09-28 a 2026-10-11
+[dry-run] criaria ou atualizaria Sprint 5: 2026-10-12 a 2026-11-08
+[dry-run] criaria ou atualizaria Sprint 6: 2026-11-09 a 2026-12-06
+[dry-run] adicionaria as 6 sprints ao time ForwardService Team
+
+== 3/8 Definition of Done nas colunas do board ==
+[dry-run] gravaria a DoR na coluna Approved e a DoD na coluna Committed do board Backlog items
+
+== 4/8 Épicos, features, PBIs e tarefas ==
+[dry-run] criaria Epic [EP-01] Fundação de dados e plataforma [sem sprint, In Progress]
+[dry-run] criaria Epic [EP-08] Governança de produto, qualidade e entregas [sem sprint, In Progress]
+[dry-run] criaria Epic [EP-03] Portão Único SOA: forward-api-java [sem sprint, In Progress]
+[dry-run] criaria Epic [EP-04] Experience Layer: app do atendente e do cliente [sem sprint, In Progress]
+[dry-run] criaria Epic [EP-02] Intelligence Hub: scoring e segmentação de churn [sem sprint, In Progress]
+[dry-run] criaria Epic [EP-05] Segurança, privacidade (LGPD) e compliance [sem sprint, In Progress]
+[dry-run] criaria Epic [EP-07] Performance Console e observabilidade [sem sprint, New]
+[dry-run] criaria Epic [EP-06] Action Engine: n8n e WhatsApp [sem sprint, New]
+[dry-run] criaria Feature [FT-01.2] Esteira CI/CD, ambientes e hospedagem [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-08.1] Descoberta, visão e arquitetura do produto [sem sprint, Done]
+[dry-run] criaria Feature [FT-01.1] Modelo de dados, migrations e ambiente de demonstração [sem sprint, Done]
+[dry-run] criaria Feature [FT-03.1] API de consulta REST e SOAP [sem sprint, Done]
+[dry-run] criaria Feature [FT-04.1] App do atendente (MVP) [sem sprint, Done]
+[dry-run] criaria Feature [FT-02.1] Segmentação e scoring de churn (Scoring Service) [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-05.1] Privacidade e LGPD [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-03.2] Autenticação e autorização (Auth/RBAC Service) [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-03.3] Contrato REST, documentação e testes da API [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-04.2] Integração segura, primeiro acesso e release do app [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-05.2] DevSecOps e hardening [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-05.3] Observabilidade de segurança, incidentes e conformidade [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-08.2] Planejamento ágil e garantia da qualidade [sem sprint, In Progress]
+[dry-run] criaria Feature [FT-07.3] Desempenho e monitoramento em produção [sem sprint, New]
+[dry-run] criaria Feature [FT-08.3] Entrega final do Challenge [sem sprint, New]
+[dry-run] criaria Feature [FT-06.1] Notificações WhatsApp via n8n [sem sprint, New]
+[dry-run] criaria Feature [FT-04.3] Engajamento e Modo Cliente [sem sprint, New]
+[dry-run] criaria Feature [FT-07.1] Performance Console: painel web e Analytics [sem sprint, New]
+[dry-run] criaria Feature [FT-02.2] Recomendador e MLOps (Flywheel de Dados) [sem sprint, New]
+[dry-run] criaria Feature [FT-06.2] Recall Gateway e agendamento digital [sem sprint, New]
+[dry-run] criaria Feature [FT-07.2] Closed-Loop ROI [sem sprint, New]
+[dry-run] criaria Product Backlog Item [PBI-001] Setup do time: papéis Scrum, organização GitHub, repositórios e CI mínimo [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-002] Pesquisa de mercado e validação de hipóteses (30 pesquisas) [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-003] Base Fundacional: tese, 4 pilares, 9 lógicas de negócio e personas [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-004] Solution Design e arquitetura-alvo com decisões registradas (ADRs) [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-005] Schema PostgreSQL com migrations versionadas e seed sintético [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-006] Protótipo da API e congelamento dos contratos compartilhados [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-007] Scaffold do app mobile com login, lista de leads e i18n [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-008] Ambiente de ML reprodutível e EDA inicial [Sprint 1, Done]
+[dry-run] criaria Product Backlog Item [PBI-009] API REST em camadas: veículos, clientes, scores e leads [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-010] Operação SOAP GetVehicle com WSDL contract-first [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-011] Registro de evento de serviço com erros RFC 7807 e contrato OpenAPI [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-012] App do atendente: dashboard, leads priorizados e Vista 360 [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-013] Features comportamentais e segmentação K-means em 4 perfis [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-014] Classificador de churn calibrado (XGBoost two-stage) [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-015] Baseline de segurança de dados: RLS, audit_log e retenção LGPD [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-016] Pitch, Canvas, Quadro de Valor e arquitetura TOGAF/ArchiMate [Sprint 2, Done]
+[dry-run] criaria Product Backlog Item [PBI-017] Perfil demo autocontido (PostgreSQL embarcado + seed) e banco de produção no Supabase [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-018] Emissão de JWT próprio no login da API [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-019] Autorização por papel (ATENDENTE, GESTOR, ADMIN) [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-020] Maturidade REST nível 2: recursos, verbos e códigos de status [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-021] Erros RFC 7807 padronizados e OpenAPI com autenticação bearer [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-022] Testes automatizados da API com relatório de evidências [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-023] Diagrama de arquitetura SOA e README de execução [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-024] App consome a API com JWT guardado no SecureStore [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-025] Modo demo/offline com dados de fallback [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-026] Release APK com identidade visual consolidada e README ilustrado [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-027] Pipeline DevSecOps no GitHub Actions [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-028] Hardening de código e infraestrutura com evidências [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-029] Plano de observabilidade e resposta a incidentes [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-030] Checklist de conformidade (OWASP ASVS, API e Mobile Top 10, LGPD) [Sprint 3, Approved]
+[dry-run] criaria Product Backlog Item [PBI-031] Comparação de modelos de churn da Sprint 3 [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-032] Plano do projeto no Azure DevOps (backlog, BDD, DoD e release) [Sprint 3, Committed]
+[dry-run] criaria Product Backlog Item [PBI-033] Deploy da API no Render (Blueprint) com banco Supabase e smoke test pós-deploy [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-034] Refresh token e revogação de sessão [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-035] Criptografia de PII em nível de campo [Sprint 4, New]
+[dry-run] criaria Product Backlog Item [PBI-036] Logs sem PII e auditoria de ações sensíveis [Sprint 4, New]
+[dry-run] criaria Product Backlog Item [PBI-037] Primeiro acesso: consentimento LGPD e onboarding guiado [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-038] Testes E2E do fluxo crítico do app [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-039] Teste de desempenho da API (p95 < 300 ms) [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-040] Vídeo pitch técnico (até 6 minutos) [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-041] Pacote final de entrega e ensaio da banca [Sprint 4, New]
+[dry-run] criaria Product Backlog Item [PBI-042] Hospedagem na Azure VM com Docker e VNet [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-043] Ordens de ação da API para o n8n (outbox e HMAC) [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-044] Lembrete de revisão via WhatsApp Business [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-045] Respostas do cliente e opt-out pelo WhatsApp [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-046] Push de lead crítico no app (Expo Push) [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-047] Serviço de Analytics: segmentos, Curva da Morte e IHC [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-048] Painel web Visão da Frota [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-049] Monitoramento com Grafana e alertas de SLA [Sprint 5, New]
+[dry-run] criaria Product Backlog Item [PBI-050] Recomendador de ação por ML (camada 3) [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-051] Monitor de modelo e retreino mensal (Flywheel de Dados) [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-052] Recall Gateway: recall pendente vira convite de retorno [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-053] Agendamento digital da revisão [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-054] Closed-Loop ROI: da ação à receita [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-055] Anonimização completa e direito ao esquecimento [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-056] Modo Cliente no app (Fluxo Simplificado) [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-057] Automação dos critérios de aceite BDD no pipeline [Sprint 6, New]
+[dry-run] criaria Product Backlog Item [PBI-058] Rede Invertida: mapa de desertos de serviço [sem sprint, New]
+[dry-run] criaria Product Backlog Item [PBI-059] Ponte Serviço-Venda [sem sprint, New]
+[dry-run] criaria Product Backlog Item [PBI-060] Integração com o DMS das concessionárias [sem sprint, New]
+[dry-run] criaria Task [TSK-3.01] Criar perfil demo com PostgreSQL embarcado e migrations Flyway [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.02] Seed de demonstração com concessionárias, clientes, veículos, leads e usuários por papel [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.03] Endpoint POST /api/v1/auth/login com BCrypt e emissão de JWT HS256 [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.04] Filtro de validação do bearer token com segredo por variável de ambiente [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.05] Testes unitários de emissão, validação e expiração do token [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.06] Matriz de permissões por papel e rotas públicas [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.07] Aplicar regras de autorização no SecurityFilterChain e em @PreAuthorize [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.08] Revisar recursos, verbos e códigos de status (201 com Location, 204, 400, 404 e 409) [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.09] Handlers de 401 e 403 em application/problem+json [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.10] Esquema de segurança bearer no OpenAPI e Swagger UI público [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.11] Testes de integração MockMvc: sucesso, validação, 401 e 403 por endpoint [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.12] Publicar relatórios Surefire e JaCoCo como artefato do CI [Sprint 3, To Do]
+[dry-run] criaria Task [TSK-3.13] Diagrama de arquitetura SOA com camadas, componentes e fluxo do JWT [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.14] README com execução do perfil demo, credenciais de teste e exemplos curl [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.15] Cliente HTTP com bearer token e armazenamento no expo-secure-store [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.16] Tratar 401 e expiração: limpar a sessão e voltar ao login com aviso [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.17] Fallback para dados de demonstração com banner quando a API não responde [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.18] Consolidar identidade visual: tokens, ícone, splash e tipografia [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.19] Gerar APK de release assinado com URL da API por ambiente [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.20] Smoke test do APK no emulador Android com roteiro e evidências [Sprint 3, To Do]
+[dry-run] criaria Task [TSK-3.21] README com screenshots de todas as telas e instruções de instalação [Sprint 3, To Do]
+[dry-run] criaria Task [TSK-3.22] Workflow SAST com Semgrep e CodeQL [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.23] SCA com Dependabot e dependency-review e secret scanning com Gitleaks [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.24] Trivy para imagem Docker e IaC com gate por severidade [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.25] Corrigir achados High/Critical e registrar evidências de antes e depois [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.26] Plano de observabilidade: logs JSON, métricas e alertas de p95 e disponibilidade [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.27] Runbook de resposta a incidentes com fluxo LGPD e ANPD [Sprint 3, To Do]
+[dry-run] criaria Task [TSK-3.28] Checklist OWASP ASVS, API Top 10, Mobile Top 10 e LGPD com evidência por item [Sprint 3, To Do]
+[dry-run] criaria Task [TSK-3.29] Notebook comparando regressão logística, Random Forest e XGBoost com validação temporal [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.30] Relatório de métricas (AUC e falsos positivos) e atualização do model card [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.31] Estruturar épicos, features e PBIs rastreáveis ao ArchiMate [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.32] Critérios BDD, DoD, MoSCoW e estimativas em Planning Poker [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.33] Script de importação com testes em mock e publicação no Azure DevOps [Sprint 3, In Progress]
+[dry-run] criaria Task [TSK-3.34] Convidar o professor (Basic e Project Administrators) e publicar o link no Teams [Sprint 3, To Do]
+
+== 5/8 Dependências (predecessora -> sucessora) ==
+[dry-run] PBI-003 teria como predecessoras PBI-002
+[dry-run] PBI-004 teria como predecessoras PBI-003
+[dry-run] PBI-005 teria como predecessoras PBI-001, PBI-004
+[dry-run] PBI-006 teria como predecessoras PBI-004, PBI-005
+[dry-run] PBI-007 teria como predecessoras PBI-001
+[dry-run] PBI-008 teria como predecessoras PBI-001
+[dry-run] PBI-009 teria como predecessoras PBI-006
+[dry-run] PBI-010 teria como predecessoras PBI-009
+[dry-run] PBI-011 teria como predecessoras PBI-009
+[dry-run] PBI-012 teria como predecessoras PBI-007, PBI-009
+[dry-run] PBI-013 teria como predecessoras PBI-008
+[dry-run] PBI-014 teria como predecessoras PBI-013
+[dry-run] PBI-015 teria como predecessoras PBI-005
+[dry-run] PBI-016 teria como predecessoras PBI-004
+[dry-run] PBI-017 teria como predecessoras PBI-009
+[dry-run] PBI-018 teria como predecessoras PBI-017
+[dry-run] PBI-019 teria como predecessoras PBI-018
+[dry-run] PBI-020 teria como predecessoras PBI-009
+[dry-run] PBI-021 teria como predecessoras PBI-019, PBI-020
+[dry-run] PBI-022 teria como predecessoras PBI-017, PBI-021
+[dry-run] PBI-023 teria como predecessoras PBI-017, PBI-019
+[dry-run] PBI-024 teria como predecessoras PBI-018
+[dry-run] PBI-025 teria como predecessoras PBI-024
+[dry-run] PBI-026 teria como predecessoras PBI-024, PBI-025
+[dry-run] PBI-027 teria como predecessoras PBI-001
+[dry-run] PBI-028 teria como predecessoras PBI-027
+[dry-run] PBI-029 teria como predecessoras PBI-015
+[dry-run] PBI-030 teria como predecessoras PBI-028, PBI-029
+[dry-run] PBI-031 teria como predecessoras PBI-014
+[dry-run] PBI-032 teria como predecessoras PBI-016
+[dry-run] PBI-033 teria como predecessoras PBI-017, PBI-027
+[dry-run] PBI-034 teria como predecessoras PBI-018, PBI-024
+[dry-run] PBI-035 teria como predecessoras PBI-015
+[dry-run] PBI-036 teria como predecessoras PBI-028
+[dry-run] PBI-037 teria como predecessoras PBI-026
+[dry-run] PBI-038 teria como predecessoras PBI-026
+[dry-run] PBI-039 teria como predecessoras PBI-022, PBI-033
+[dry-run] PBI-040 teria como predecessoras PBI-022, PBI-026
+[dry-run] PBI-041 teria como predecessoras PBI-030, PBI-040
+[dry-run] PBI-042 teria como predecessoras PBI-033
+[dry-run] PBI-043 teria como predecessoras PBI-035, PBI-042
+[dry-run] PBI-044 teria como predecessoras PBI-043
+[dry-run] PBI-045 teria como predecessoras PBI-044, PBI-037
+[dry-run] PBI-046 teria como predecessoras PBI-043
+[dry-run] PBI-047 teria como predecessoras PBI-031
+[dry-run] PBI-048 teria como predecessoras PBI-047
+[dry-run] PBI-049 teria como predecessoras PBI-042, PBI-039
+[dry-run] PBI-050 teria como predecessoras PBI-031, PBI-045
+[dry-run] PBI-051 teria como predecessoras PBI-050, PBI-049
+[dry-run] PBI-052 teria como predecessoras PBI-044
+[dry-run] PBI-053 teria como predecessoras PBI-045
+[dry-run] PBI-054 teria como predecessoras PBI-053, PBI-047
+[dry-run] PBI-055 teria como predecessoras PBI-035, PBI-036
+[dry-run] PBI-056 teria como predecessoras PBI-053, PBI-037
+[dry-run] PBI-057 teria como predecessoras PBI-032, PBI-038
+[dry-run] PBI-058 teria como predecessoras PBI-048
+[dry-run] PBI-059 teria como predecessoras PBI-054
+[dry-run] PBI-060 teria como predecessoras PBI-053
+[dry-run] TSK-3.02 teria como predecessoras TSK-3.01
+[dry-run] TSK-3.03 teria como predecessoras TSK-3.02
+[dry-run] TSK-3.04 teria como predecessoras TSK-3.03
+[dry-run] TSK-3.05 teria como predecessoras TSK-3.04
+[dry-run] TSK-3.06 teria como predecessoras TSK-3.04
+[dry-run] TSK-3.07 teria como predecessoras TSK-3.06
+[dry-run] TSK-3.08 teria como predecessoras TSK-3.01
+[dry-run] TSK-3.09 teria como predecessoras TSK-3.07
+[dry-run] TSK-3.10 teria como predecessoras TSK-3.09
+[dry-run] TSK-3.11 teria como predecessoras TSK-3.08, TSK-3.09
+[dry-run] TSK-3.12 teria como predecessoras TSK-3.11
+[dry-run] TSK-3.13 teria como predecessoras TSK-3.07
+[dry-run] TSK-3.14 teria como predecessoras TSK-3.02, TSK-3.13
+[dry-run] TSK-3.15 teria como predecessoras TSK-3.03
+[dry-run] TSK-3.16 teria como predecessoras TSK-3.15
+[dry-run] TSK-3.17 teria como predecessoras TSK-3.15
+[dry-run] TSK-3.19 teria como predecessoras TSK-3.16, TSK-3.17, TSK-3.18
+[dry-run] TSK-3.20 teria como predecessoras TSK-3.19
+[dry-run] TSK-3.21 teria como predecessoras TSK-3.20
+[dry-run] TSK-3.23 teria como predecessoras TSK-3.22
+[dry-run] TSK-3.24 teria como predecessoras TSK-3.22
+[dry-run] TSK-3.25 teria como predecessoras TSK-3.23, TSK-3.24
+[dry-run] TSK-3.27 teria como predecessoras TSK-3.26
+[dry-run] TSK-3.28 teria como predecessoras TSK-3.25, TSK-3.27
+[dry-run] TSK-3.30 teria como predecessoras TSK-3.29
+[dry-run] TSK-3.32 teria como predecessoras TSK-3.31
+[dry-run] TSK-3.33 teria como predecessoras TSK-3.32
+[dry-run] TSK-3.34 teria como predecessoras TSK-3.33
+
+== 6/8 Consultas compartilhadas ==
+[dry-run] criaria a pasta Shared Queries/ForwardService - Plano com 6 consultas
+[dry-run]   consulta: 01 Backlog ordenado (PBIs por ordem de implementação)
+[dry-run]   consulta: 02 Hierarquia de épicos, features e PBIs
+[dry-run]   consulta: 03 Dependências (item e suas predecessoras)
+[dry-run]   consulta: 04 Sprint 3 PBIs e tarefas
+[dry-run]   consulta: 05 Release plan (PBIs por sprint)
+[dry-run]   consulta: 06 MoSCoW Must (Priority 1)
+
+== 7/8 Wiki do projeto ==
+[dry-run] criaria a wiki do projeto e 7 páginas:
+[dry-run]   /Visão Geral do Plano
+[dry-run]   /Definition of Done
+[dry-run]   /Critérios de Priorização (MoSCoW) e Estimativa (Planning Poker)
+[dry-run]   /Release Plan e Roadmap
+[dry-run]   /Sprint 3 — Detalhamento
+[dry-run]   /Rastreabilidade TOGAF e ArchiMate
+[dry-run]   /BDD — Guia de Critérios de Aceite
+
+== 8/8 Acesso do professor ==
+[info] --professor não informado; passo ignorado
+
+== Resumo ==
+[info] itens que seriam criados: 123
+[info] modo offline: nenhuma requisição HTTP foi enviada
+[info] concluído com código 0 (sucesso)
