@@ -826,3 +826,4 @@ Os 29 itens parciais concentram-se em autenticação, autorização por objeto e
 | `observability/mock/*.html` | Simulação estática do dashboard com dados sintéticos |
 | `iot/` | Desenho proposto: `mosquitto.conf`, `acl`, `telemetry.schema.json` |
 | `evidencias/devsecops-achados-2026-09-27.json` | Achados por repositório, ferramenta e severidade |
+| `tools/` | Scripts que regeneram o HTML/PDF (`build_html.mjs`), o dashboard (`gen_dashboard.py`) e a simulação (`gen_mock.py`) |
