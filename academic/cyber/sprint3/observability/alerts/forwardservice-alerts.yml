@@ -1,0 +1,290 @@
+# Prometheus alerting rules for ForwardService (Cybersecurity Sprint 3).
+# Load with `rule_files: [forwardservice-alerts.yml]` in prometheus.yml and route
+# through Alertmanager. Thresholds follow the quality requirements of the
+# TOGAF deliverable: REQ-01 (API p95 < 300 ms) and REQ-02 (availability >= 99%).
+#
+# Metric sources:
+#   http_server_requests_seconds_*     Micrometer (Spring Boot Actuator) - planned: needs
+#                                      micrometer-registry-prometheus + histogram buckets
+#   probe_success                      blackbox exporter probing https://forward-api-java.fly.dev/health
+#   fly_edge_http_*                    Fly.io managed Prometheus (available without code changes)
+#   forward_auth_*, forward_ml_*,      custom metrics described in ENTREGA_CYBER_SPRINT3.md section 3
+#   forward_mobile_*, forward_mqtt_*,
+#   forward_telemetry_*, forward_devsecops_*
+#
+# Severity: critical = page the on-call now; warning = handle in business hours;
+# info = ticket. Every alert links to the incident response section.
+
+groups:
+  - name: forwardservice-recording
+    interval: 30s
+    rules:
+      - record: forward:http_request_duration_seconds:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(http_server_requests_seconds_bucket{application="forward-api", uri!~"/actuator.*|/health|/ready"}[5m])))
+      - record: forward:http_requests:error5xx_ratio_5m
+        expr: |
+          sum(rate(http_server_requests_seconds_count{application="forward-api", outcome="SERVER_ERROR"}[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count{application="forward-api"}[5m]))
+      - record: forward:probe_unavailability:ratio_5m
+        expr: 1 - avg_over_time(probe_success{job="blackbox-forward-api"}[5m])
+      - record: forward:probe_unavailability:ratio_30m
+        expr: 1 - avg_over_time(probe_success{job="blackbox-forward-api"}[30m])
+      - record: forward:probe_unavailability:ratio_1h
+        expr: 1 - avg_over_time(probe_success{job="blackbox-forward-api"}[1h])
+      - record: forward:probe_unavailability:ratio_6h
+        expr: 1 - avg_over_time(probe_success{job="blackbox-forward-api"}[6h])
+
+  - name: forwardservice-api-slo
+    rules:
+      - alert: ApiLatencyP95AboveSLO
+        expr: forward:http_request_duration_seconds:p95_5m > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          service: forward-api
+          requirement: REQ-01
+        annotations:
+          summary: "API p95 acima de 300 ms ({{ $value | humanizeDuration }})"
+          description: "Latência p95 da forward-api-java acima do REQ-01 por 10 minutos. Verificar pool HikariCP, Supabase e deploy recente."
+          runbook_url: "https://github.com/fwd-ford/forward-docs/blob/main/academic/cyber/sprint3/ENTREGA_CYBER_SPRINT3.md#36-plano-de-resposta-a-incidentes"
+
+      - alert: ApiEdgeLatencyP95AboveSLO
+        # Same SLO measured at the Fly.io edge; works before Micrometer is enabled.
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(fly_edge_http_response_time_seconds_bucket{app="forward-api-java"}[5m]))) > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          service: forward-api
+          requirement: REQ-01
+        annotations:
+          summary: "p95 na borda Fly.io acima de 300 ms"
+          description: "Latência medida no edge do Fly.io acima do REQ-01 por 10 minutos."
+
+      - alert: ApiAvailabilityFastBurn
+        # Multi-window burn rate for a 99% SLO (error budget = 1%): 14.4x burns 2% of the
+        # monthly budget in 1 hour. Both windows must agree to avoid flapping.
+        expr: |
+          forward:probe_unavailability:ratio_1h > (14.4 * 0.01)
+          and
+          forward:probe_unavailability:ratio_5m > (14.4 * 0.01)
+        for: 2m
+        labels:
+          severity: critical
+          service: forward-api
+          requirement: REQ-02
+        annotations:
+          summary: "Queima rápida do error budget de disponibilidade (REQ-02)"
+          description: "Indisponibilidade acima de 14,4x o orçamento na última hora. Acionar plano de resposta (SEV2)."
+          runbook_url: "https://github.com/fwd-ford/forward-docs/blob/main/academic/cyber/sprint3/ENTREGA_CYBER_SPRINT3.md#36-plano-de-resposta-a-incidentes"
+
+      - alert: ApiAvailabilitySlowBurn
+        expr: |
+          forward:probe_unavailability:ratio_6h > (6 * 0.01)
+          and
+          forward:probe_unavailability:ratio_30m > (6 * 0.01)
+        for: 15m
+        labels:
+          severity: warning
+          service: forward-api
+          requirement: REQ-02
+        annotations:
+          summary: "Queima lenta do error budget de disponibilidade (REQ-02)"
+          description: "Tendência de violar 99% no mês. Abrir ticket e revisar incidentes recentes."
+
+      - alert: ApiDown
+        expr: probe_success{job="blackbox-forward-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: forward-api
+          requirement: REQ-02
+        annotations:
+          summary: "forward-api-java não responde em /health"
+          description: "Sonda sintética falhando há 2 minutos. Verificar `fly status`, logs e último deploy."
+
+      - alert: ApiHigh5xxRatio
+        expr: forward:http_requests:error5xx_ratio_5m > 0.02
+        for: 5m
+        labels:
+          severity: critical
+          service: forward-api
+        annotations:
+          summary: "Mais de 2% das respostas são 5xx"
+          description: "Erros internos acima de 2% por 5 minutos. Correlacionar com logs level=ERROR pelo request_id."
+
+  - name: forwardservice-api-security
+    rules:
+      - alert: AuthFailuresSpike
+        # Many 401 in a short window: token stuffing, leaked or expired tokens in bulk.
+        expr: sum(rate(http_server_requests_seconds_count{application="forward-api", status="401"}[5m])) * 60 > 60
+        for: 5m
+        labels:
+          severity: warning
+          service: forward-api
+          category: security
+        annotations:
+          summary: "Pico de 401 ({{ $value | printf \"%.0f\" }} por minuto)"
+          description: "Possível ataque de força bruta ou vazamento de token. Ver eventos auth.token_rejected no Loki."
+
+      - alert: ForbiddenSpike
+        # 403 bursts usually mean someone probing object or function level authorization.
+        expr: sum(rate(http_server_requests_seconds_count{application="forward-api", status="403"}[5m])) * 60 > 20
+        for: 5m
+        labels:
+          severity: warning
+          service: forward-api
+          category: security
+        annotations:
+          summary: "Pico de 403 (possível sondagem de autorização)"
+          description: "Verificar eventos authz.denied por user_id e rota (API1/API5 OWASP API Top 10)."
+
+      - alert: LoginBruteForce
+        expr: sum(increase(forward_auth_login_total{result="failure"}[5m])) > 20
+        for: 1m
+        labels:
+          severity: warning
+          service: forward-api
+          category: security
+        annotations:
+          summary: "Mais de 20 falhas de login em 5 minutos"
+          description: "Checar src_ip e username_hash dos eventos auth.login_failed; bloquear IP se confirmado."
+
+      - alert: LoginCredentialStuffing
+        # Gauge computed in the API (distinct hashed e-mails with a failed login in the last
+        # 5 min). Avoids a high-cardinality username label in Prometheus.
+        expr: max_over_time(forward_auth_login_failed_distinct_accounts[5m]) > 10
+        for: 5m
+        labels:
+          severity: critical
+          service: forward-api
+          category: security
+        annotations:
+          summary: "Falhas de login distribuídas em muitas contas"
+          description: "Padrão de credential stuffing (várias contas, poucas tentativas cada). Acionar SEV2."
+
+      - alert: RateLimitSaturation
+        expr: sum(rate(http_server_requests_seconds_count{application="forward-api", status="429"}[5m])) * 60 > 60
+        for: 10m
+        labels:
+          severity: warning
+          service: forward-api
+          category: security
+        annotations:
+          summary: "Rate limit rejeitando mais de 60 requisições por minuto"
+          description: "Cliente abusivo, bot ou integração mal configurada (N8N). Identificar chave IP+sub nos logs."
+
+      - alert: PrivilegedRoleChange
+        # Any role change to ADMIN is a critical change and must be confirmed by a second person.
+        expr: increase(forward_admin_role_changes_total{to_role="ADMIN"}[5m]) > 0
+        labels:
+          severity: warning
+          service: forward-api
+          category: security
+        annotations:
+          summary: "Usuário promovido a ADMIN"
+          description: "Confirmar a mudança com o responsável; evento admin.user.role_changed no audit_log."
+
+  - name: forwardservice-ml
+    rules:
+      - alert: MlScoreDriftWarning
+        expr: max(forward_ml_score_psi{model="churn_scorer_v3"}) > 0.1
+        for: 1h
+        labels:
+          severity: info
+          service: forward-ml
+        annotations:
+          summary: "Drift moderado no score de churn (PSI > 0,1)"
+          description: "Acompanhar próximos lotes; revisar mudanças de origem dos dados."
+
+      - alert: MlScoreDriftCritical
+        expr: max(forward_ml_score_psi{model="churn_scorer_v3"}) > 0.25
+        for: 1h
+        labels:
+          severity: warning
+          service: forward-ml
+        annotations:
+          summary: "Drift relevante no score de churn (PSI > 0,25)"
+          description: "Congelar geração automática de leads críticos e investigar dados de entrada (possível envenenamento)."
+
+      - alert: MlAucBelowRetrainThreshold
+        expr: forward_ml_auc{model="churn_scorer_v3"} < 0.78
+        labels:
+          severity: warning
+          service: forward-ml
+          requirement: REQ-03
+        annotations:
+          summary: "AUC abaixo de 0,78: retreino necessário"
+          description: "REQ-03 exige AUC >= 0,82. Abrir tarefa de retreino e comparar com o baseline do model card."
+
+      - alert: MlScoringJobStale
+        expr: (time() - forward_ml_scoring_last_success_timestamp_seconds) > 26 * 3600
+        labels:
+          severity: warning
+          service: forward-ml
+        annotations:
+          summary: "Scoring diário atrasado há mais de 26 h"
+          description: "Leads proativos deixam de ser gerados. Verificar cron e credenciais do banco."
+
+  - name: forwardservice-mobile
+    rules:
+      - alert: MobileCrashFreeBelowTarget
+        expr: forward_mobile_crash_free_sessions_ratio < 0.995
+        for: 1h
+        labels:
+          severity: warning
+          service: forward-mobile
+        annotations:
+          summary: "Sessões sem crash abaixo de 99,5%"
+          description: "Avaliar rollback do último EAS Update/APK."
+
+  - name: forwardservice-iot
+    # Proposed: applies once the MQTT broker and the ingestion service exist.
+    rules:
+      - alert: TelemetryIngestionLagHigh
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(forward_telemetry_ingest_lag_seconds_bucket[5m]))) > 60
+        for: 10m
+        labels:
+          severity: warning
+          service: telemetry-ingest
+        annotations:
+          summary: "Atraso de ingestão p95 acima de 60 s"
+          description: "Fila do broker crescendo ou banco lento; dados de odômetro chegam atrasados ao scoring."
+
+      - alert: MqttAuthFailuresSpike
+        expr: sum(rate(forward_mqtt_auth_failures_total[5m])) * 60 > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: mqtt-broker
+          category: security
+        annotations:
+          summary: "Falhas de autenticação mTLS no broker"
+          description: "Certificados inválidos ou revogados tentando conectar (dispositivo clonado?)."
+
+      - alert: MqttAclDenied
+        expr: sum by (client_id) (increase(forward_mqtt_acl_denied_total[5m])) > 0
+        labels:
+          severity: warning
+          service: mqtt-broker
+          category: security
+        annotations:
+          summary: "Dispositivo {{ $labels.client_id }} tentou tópico de outro veículo"
+          description: "Revogar o certificado do dispositivo e investigar (movimento lateral)."
+
+  - name: forwardservice-devsecops
+    rules:
+      - alert: DevSecOpsCriticalFindingOverdue
+        expr: max(forward_devsecops_oldest_open_alert_age_days{severity="critical"}) > 7
+        labels:
+          severity: warning
+          service: devsecops
+          category: security
+        annotations:
+          summary: "Achado crítico aberto há mais de 7 dias"
+          description: "SLA de correção de críticos estourado. Ver aba Security > Code scanning do repositório."

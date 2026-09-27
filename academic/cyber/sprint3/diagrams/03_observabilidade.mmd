@@ -1,0 +1,33 @@
+flowchart LR
+  subgraph SRC["Fontes"]
+    API["forward-api-java<br/>Logstash JSON + Micrometer"]
+    FLY["Fly.io edge<br/>métricas nativas HTTP"]
+    MOB["forward-mobile<br/>crash reporting"]
+    MLS["forward-ml<br/>job de scoring"]
+    BRK["Broker MQTT<br/>(proposto)"]
+    DB[("Supabase<br/>audit_log")]
+  end
+  subgraph COL["Coleta"]
+    SHIP["Fly log shipper<br/>Vector"]
+    PROM["Prometheus<br/>scrape + regras"]
+    PGW["Pushgateway<br/>métricas batch"]
+  end
+  subgraph STORE["Armazenamento"]
+    LOKI["Loki<br/>logs 90 dias"]
+    TSDB["TSDB Prometheus<br/>métricas 30 dias"]
+  end
+  GRAF["Grafana<br/>forwardservice-overview"]
+  AM["Alertmanager"]
+  ONC["Plantão do grupo<br/>e-mail, Slack"]
+  IR["Plano de resposta<br/>a incidentes"]
+  API -- "stdout JSON" --> SHIP --> LOKI
+  API -- "/actuator/prometheus" --> PROM
+  FLY --> PROM
+  MOB -- "exporter" --> PROM
+  MLS --> PGW --> PROM
+  BRK -.-> PROM
+  PROM --> TSDB
+  LOKI --> GRAF
+  TSDB --> GRAF
+  DB -- "SQL read-only" --> GRAF
+  PROM -- "regras de alerta" --> AM --> ONC --> IR

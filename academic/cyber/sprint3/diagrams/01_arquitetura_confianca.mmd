@@ -1,0 +1,42 @@
+flowchart LR
+  subgraph NET["Internet: zona não confiável"]
+    MOB["App mobile Expo<br/>token no SecureStore"]
+    WEB["Web SvelteKit"]
+    N8N["N8N server-to-server<br/>X-API-Key + HMAC"]
+    CAR["Veículo conectado TCU<br/>(proposto)"]
+  end
+  subgraph EDGE["Fly.io edge gru"]
+    TLS["TLS 1.2+<br/>force_https"]
+  end
+  subgraph API["forward-api-java: container non-root"]
+    SEC["Spring Security<br/>CORS allowlist + AuthFilter JWT"]
+    FIL["RequestId, SecurityHeaders,<br/>RateLimit Bucket4j"]
+    CTL["Controllers REST/SOAP<br/>Validations + RFC 7807"]
+    RBAC["RBAC por papel<br/>ATENDENTE, GESTOR, ADMIN"]
+  end
+  subgraph IOT["Ingestão IoT (proposto)"]
+    BRK["Broker MQTT<br/>mTLS :8883 + ACL"]
+    ING["Serviço de ingestão"]
+  end
+  subgraph DATA["Supabase sa-east-1"]
+    AUTH["Supabase Auth / JWKS"]
+    PG[("Postgres<br/>RLS + audit_log")]
+    CRON["pg_cron<br/>reaper LGPD"]
+  end
+  subgraph MLZ["forward-ml"]
+    SCORE["Scoring churn XGBoost<br/>sem PII direta"]
+  end
+  subgraph OBS["Observabilidade"]
+    LOGS["Logs JSON<br/>request_id"]
+    MET["Prometheus + Grafana<br/>alertas SLO"]
+  end
+  MOB --> TLS
+  WEB --> TLS
+  N8N --> TLS
+  TLS --> SEC --> FIL --> CTL --> RBAC --> PG
+  SEC -. "valida assinatura" .-> AUTH
+  CAR -. "MQTT sobre TLS, cert X.509 por veículo" .-> BRK --> ING --> PG
+  SCORE -- "features pseudonimizadas" --> PG
+  CRON --> PG
+  CTL -. "stdout" .-> LOGS
+  CTL -. "métricas" .-> MET

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forwardservice:telemetry:v1",
+  "title": "ForwardService vehicle telemetry message (PROPOSTO)",
+  "description": "Payload publicado em fwd/v1/telemetry/<device_id>/<tipo>. Validado pelo servico de ingestao antes de gravar. Sem VIN em claro, sem nome ou contato do cliente; localizacao reduzida a 2 casas decimais (cerca de 1 km).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "device_id", "seq", "ts", "type"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "device_id": { "type": "string", "pattern": "^dev-[0-9a-f]{8}$" },
+    "seq": { "type": "integer", "minimum": 0, "description": "Contador monotonico por dispositivo; mensagens com seq <= ultimo seq aceito sao descartadas (anti-replay)." },
+    "ts": { "type": "string", "format": "date-time", "description": "Rejeitar se estiver mais de 5 minutos no futuro ou mais de 24 h no passado." },
+    "type": { "enum": ["odometer", "dtc", "battery", "location", "oil_life"] },
+    "odometer_km": { "type": "integer", "minimum": 0, "maximum": 2000000 },
+    "dtc_codes": { "type": "array", "maxItems": 20, "items": { "type": "string", "pattern": "^[PCBU][0-9A-F]{4}$" } },
+    "battery_v": { "type": "number", "minimum": 0, "maximum": 60 },
+    "oil_life_pct": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lat", "lon"],
+      "properties": {
+        "lat": { "type": "number", "minimum": -90, "maximum": 90, "multipleOf": 0.01 },
+        "lon": { "type": "number", "minimum": -180, "maximum": 180, "multipleOf": 0.01 }
+      }
+    }
+  }
+}

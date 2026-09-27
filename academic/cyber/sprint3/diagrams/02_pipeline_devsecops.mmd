@@ -1,0 +1,41 @@
+flowchart LR
+  subgraph TRG["Gatilhos por repositório"]
+    PR["pull_request"]
+    PUSH["push na main"]
+    SCH["agenda semanal"]
+    MAN["workflow_dispatch"]
+  end
+  CALL["Caller devsecops.yml<br/>api, mobile, infra, ml"]
+  RW["Workflow reutilizável<br/>fwd-ford/.github devsecops.yml"]
+  subgraph JOBS["Jobs paralelos, todos report-only"]
+    SAST["SAST<br/>Semgrep CE + CodeQL"]
+    SCA["SCA<br/>Dependency Review, Trivy fs, pip-audit"]
+    SECR["Secrets<br/>Gitleaks histórico completo"]
+    IAC["IaC<br/>Trivy config + política fly.toml"]
+    CONT["Container<br/>docker build + Trivy image"]
+    SBOM["SBOM<br/>CycloneDX"]
+  end
+  SARIF["SARIF por ferramenta"]
+  CS["GitHub Code scanning<br/>aba Security"]
+  SUM["Job Summary<br/>tabela por severidade"]
+  ART["Artefatos<br/>SARIF, JSON, SBOM"]
+  TRI["Triagem pelo time<br/>issue, fix ou exceção"]
+  DEP["Dependabot<br/>PRs semanais com cooldown"]
+  PR --> CALL
+  PUSH --> CALL
+  SCH --> CALL
+  MAN --> CALL
+  CALL --> RW --> SAST & SCA & SECR & IAC & CONT & SBOM
+  SAST --> SARIF
+  SCA --> SARIF
+  SECR --> SARIF
+  IAC --> SARIF
+  CONT --> SARIF
+  SARIF --> CS
+  SBOM --> ART
+  SARIF --> ART
+  ART --> SUM
+  CS --> TRI
+  SUM --> TRI
+  TRI --> DEP
+  DEP --> PR

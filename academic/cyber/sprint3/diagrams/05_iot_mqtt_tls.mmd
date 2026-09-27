@@ -1,0 +1,17 @@
+sequenceDiagram
+  autonumber
+  participant TCU as TCU do veículo
+  participant PKI as PKI de dispositivos
+  participant BRK as Broker MQTT (8883)
+  participant ING as Serviço de ingestão
+  participant DB as Supabase
+  PKI->>TCU: certificado X.509 único (ECDSA P-256, validade 12 meses)
+  TCU->>BRK: TLS 1.2+ handshake com mTLS
+  BRK->>BRK: valida cadeia, CRL, CN = device_id
+  BRK-->>TCU: CONNACK (sem anônimo, sem senha)
+  TCU->>BRK: PUBLISH fwd/v1/telemetry/device_id/odometer QoS 1
+  BRK->>BRK: ACL: device só publica no próprio tópico
+  BRK->>ING: entrega via assinatura compartilhada (mTLS)
+  ING->>ING: valida schema, seq e ts (anti-replay), limites
+  ING->>DB: upsert telemetria pseudonimizada
+  Note over TCU,BRK: Tentativa em tópico de outro veículo é negada e gera métrica acl_denied
