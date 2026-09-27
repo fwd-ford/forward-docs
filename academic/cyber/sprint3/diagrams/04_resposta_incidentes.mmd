@@ -4,7 +4,7 @@ flowchart TD
   C{"2. Análise e triagem<br/>é incidente? severidade SEV1 a SEV4<br/>há dado pessoal envolvido?"}
   C -- "falso positivo" --> Z["Encerrar e ajustar alerta"]
   C -- "confirmado" --> D
-  D["3. Contenção<br/>revogar tokens e chaves, bloquear IP,<br/>isolar máquina Fly, desabilitar dispositivo"] --> E
+  D["3. Contenção<br/>revogar tokens e chaves, bloquear IP,<br/>suspender o serviço no Render, desabilitar dispositivo"] --> E
   E["4. Erradicação<br/>corrigir causa raiz, atualizar dependência,<br/>remover segredo do histórico"] --> F
   F["5. Recuperação<br/>deploy corrigido, restore PITR se preciso,<br/>monitoramento reforçado 72h"] --> G
   G["6. Lições aprendidas<br/>post-mortem sem culpa em até 5 dias,<br/>novas regras e testes"]

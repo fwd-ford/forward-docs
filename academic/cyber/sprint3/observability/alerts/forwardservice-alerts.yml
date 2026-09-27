@@ -6,8 +6,9 @@
 # Metric sources:
 #   http_server_requests_seconds_*     Micrometer (Spring Boot Actuator) - planned: needs
 #                                      micrometer-registry-prometheus + histogram buckets
-#   probe_success                      blackbox exporter probing https://forward-api-java.fly.dev/health
-#   fly_edge_http_*                    Fly.io managed Prometheus (available without code changes)
+#   probe_success, probe_duration_*    blackbox exporter probing https://forwardservice-api.onrender.com/health
+#                                      (Render has no Prometheus export on the free plan, so the
+#                                      synthetic probe is the SLO source that needs no code change)
 #   forward_auth_*, forward_ml_*,      custom metrics described in ENTREGA_CYBER_SPRINT3.md section 3
 #   forward_mobile_*, forward_mqtt_*,
 #   forward_telemetry_*, forward_devsecops_*
@@ -51,19 +52,19 @@ groups:
           description: "Latência p95 da forward-api-java acima do REQ-01 por 10 minutos. Verificar pool HikariCP, Supabase e deploy recente."
           runbook_url: "https://github.com/fwd-ford/forward-docs/blob/main/academic/cyber/sprint3/ENTREGA_CYBER_SPRINT3.md#36-plano-de-resposta-a-incidentes"
 
-      - alert: ApiEdgeLatencyP95AboveSLO
-        # Same SLO measured at the Fly.io edge; works before Micrometer is enabled.
+      - alert: ApiProbeLatencyP95AboveSLO
+        # Same SLO seen from outside (synthetic probe through Render's edge); works before
+        # Micrometer is enabled. Probes every 30 s, so 30 min holds about 60 samples.
         expr: |
-          histogram_quantile(0.95,
-            sum by (le) (rate(fly_edge_http_response_time_seconds_bucket{app="forward-api-java"}[5m]))) > 0.3
+          quantile_over_time(0.95, probe_duration_seconds{job="blackbox-forward-api"}[30m]) > 0.3
         for: 10m
         labels:
           severity: warning
           service: forward-api
           requirement: REQ-01
         annotations:
-          summary: "p95 na borda Fly.io acima de 300 ms"
-          description: "Latência medida no edge do Fly.io acima do REQ-01 por 10 minutos."
+          summary: "p95 da sonda sintética acima de 300 ms"
+          description: "Latência de /health medida de fora (borda do Render) acima do REQ-01. Descontar cold start do plano free."
 
       - alert: ApiAvailabilityFastBurn
         # Multi-window burn rate for a 99% SLO (error budget = 1%): 14.4x burns 2% of the
@@ -105,7 +106,7 @@ groups:
           requirement: REQ-02
         annotations:
           summary: "forward-api-java não responde em /health"
-          description: "Sonda sintética falhando há 2 minutos. Verificar `fly status`, logs e último deploy."
+          description: "Sonda sintética falhando há 2 minutos. Verificar eventos e logs do serviço no Render e o último deploy."
 
       - alert: ApiHigh5xxRatio
         expr: forward:http_requests:error5xx_ratio_5m > 0.02

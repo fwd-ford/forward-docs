@@ -40,8 +40,8 @@
         },
         "enable": true,
         "iconColor": "red",
-        "name": "Deploys (Fly.io)",
-        "expr": "changes(fly_instance_up{app=\"forward-api-java\"}[2m]) > 0",
+        "name": "Deploys e reinícios (Render)",
+        "expr": "changes(process_start_time_seconds{application=\"$app\"}[5m]) > 0",
         "step": "60s",
         "titleFormat": "deploy/restart"
       }
@@ -510,8 +510,8 @@
     {
       "id": 12,
       "type": "timeseries",
-      "title": "Latência p95 na borda Fly.io (sem instrumentação)",
-      "description": "Métrica nativa do Fly.io (Prometheus gerenciado): mede o SLO mesmo antes da instrumentação Micrometer.",
+      "title": "Latência p95 da sonda sintética (/health, de fora)",
+      "description": "Blackbox exporter passando pela borda do Render: mede o SLO sem depender da instrumentação Micrometer.",
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -525,8 +525,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(fly_edge_http_response_time_seconds_bucket{app=\"forward-api-java\"}[5m])))",
-          "legendFormat": "edge p95",
+          "expr": "quantile_over_time(0.95, probe_duration_seconds{job=\"blackbox-forward-api\"}[30m])",
+          "legendFormat": "sonda p95",
           "datasource": {
             "type": "prometheus",
             "uid": "${ds_prom}"

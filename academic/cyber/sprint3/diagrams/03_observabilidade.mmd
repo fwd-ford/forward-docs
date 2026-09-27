@@ -1,14 +1,14 @@
 flowchart LR
   subgraph SRC["Fontes"]
     API["forward-api-java<br/>Logstash JSON + Micrometer"]
-    FLY["Fly.io edge<br/>métricas nativas HTTP"]
+    PROBE["Sonda sintética<br/>blackbox em /health"]
     MOB["forward-mobile<br/>crash reporting"]
     MLS["forward-ml<br/>job de scoring"]
     BRK["Broker MQTT<br/>(proposto)"]
     DB[("Supabase<br/>audit_log")]
   end
   subgraph COL["Coleta"]
-    SHIP["Fly log shipper<br/>Vector"]
+    SHIP["Render Log Stream<br/>logs da API e da plataforma<br/>syslog com TLS"]
     PROM["Prometheus<br/>scrape + regras"]
     PGW["Pushgateway<br/>métricas batch"]
   end
@@ -20,9 +20,9 @@ flowchart LR
   AM["Alertmanager"]
   ONC["Plantão do grupo<br/>e-mail, Slack"]
   IR["Plano de resposta<br/>a incidentes"]
-  API -- "stdout JSON" --> SHIP --> LOKI
   API -- "/actuator/prometheus" --> PROM
-  FLY --> PROM
+  API -- "stdout JSON" --> SHIP --> LOKI
+  PROBE -- "probe_success, latência" --> PROM
   MOB -- "exporter" --> PROM
   MLS --> PGW --> PROM
   BRK -.-> PROM

@@ -47,10 +47,10 @@ PANELS = [
          thresholds=[(None, "green"), (0.3, "red")], threshold_line=True,
          targets=[(f'histogram_quantile(0.95, sum by (le, uri) (rate(http_server_requests_seconds_bucket{{{APP}, {NOT_PROBES}}}[5m])))', "{{uri}}")],
          desc="p95 por endpoint; linha vermelha = limite do REQ-01."),
-    dict(kind="timeseries", title="Latência p95 na borda Fly.io (sem instrumentação)", grid=(12, 6, 12, 7), unit="s",
+    dict(kind="timeseries", title="Latência p95 da sonda sintética (/health, de fora)", grid=(12, 6, 12, 7), unit="s",
          thresholds=[(None, "green"), (0.3, "red")], threshold_line=True,
-         targets=[('histogram_quantile(0.95, sum by (le) (rate(fly_edge_http_response_time_seconds_bucket{app="forward-api-java"}[5m])))', "edge p95")],
-         desc="Métrica nativa do Fly.io (Prometheus gerenciado): mede o SLO mesmo antes da instrumentação Micrometer."),
+         targets=[('quantile_over_time(0.95, probe_duration_seconds{job="blackbox-forward-api"}[30m])', "sonda p95")],
+         desc="Blackbox exporter passando pela borda do Render: mede o SLO sem depender da instrumentação Micrometer."),
     # ---- Row: API security ----------------------------------------------------------------
     dict(kind="timeseries", title="Respostas 4xx e 5xx (req/s)", grid=(0, 14, 8, 8), unit="reqps",
          thresholds=[(None, "green")],
@@ -195,8 +195,8 @@ def build():
         "annotations": {"list": [
             {"builtIn": 1, "datasource": {"type": "grafana", "uid": "-- Grafana --"}, "enable": True,
              "hide": True, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard"},
-            {"datasource": PROM, "enable": True, "iconColor": "red", "name": "Deploys (Fly.io)",
-             "expr": 'changes(fly_instance_up{app="forward-api-java"}[2m]) > 0', "step": "60s",
+            {"datasource": PROM, "enable": True, "iconColor": "red", "name": "Deploys e reinícios (Render)",
+             "expr": 'changes(process_start_time_seconds{application="$app"}[5m]) > 0', "step": "60s",
              "titleFormat": "deploy/restart"},
         ]},
         "templating": {"list": [

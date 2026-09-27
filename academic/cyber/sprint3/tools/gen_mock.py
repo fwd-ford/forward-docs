@@ -49,8 +49,8 @@ DATA = {
         "/api/v1/customers/{id}": series(0.12, 0.01, daily=0.015),
         "/soap/vehicles": series(0.19, 0.015, daily=0.02),
     }},
-    "Latência p95 na borda Fly.io (sem instrumentação)": {"lines": {
-        "edge p95": series(0.23, 0.015, [(168, 0.17, 3)], daily=0.03)}},
+    "Latência p95 da sonda sintética (/health, de fora)": {"lines": {
+        "sonda p95": series(0.23, 0.015, [(168, 0.17, 3)], daily=0.03)}},
     "Respostas 4xx e 5xx (req/s)": {"lines": {
         "CLIENT_ERROR": series(0.12, 0.03, [(157, 1.6, 2)], daily=0.05),
         "SERVER_ERROR": series(0.006, 0.003, [(170, 0.05, 3)])}},
