@@ -1,0 +1,124 @@
+{
+  "repository": "fwd-ford/forward-api-java",
+  "ref": "main",
+  "event": "push",
+  "sha": "89dfab15c0d71dc0924368e700fe48b9fe1b5fe9",
+  "run_url": "https://github.com/fwd-ford/forward-api-java/actions/runs/36307904817",
+  "tools": [
+    {
+      "stage": "SAST",
+      "tool": "Semgrep CE",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 2,
+        "low": 0
+      },
+      "total": 2
+    },
+    {
+      "stage": "SAST",
+      "tool": "CodeQL (actions)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 4,
+        "low": 0
+      },
+      "total": 4
+    },
+    {
+      "stage": "SAST",
+      "tool": "CodeQL (java-kotlin)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "total": 1
+    },
+    {
+      "stage": "SCA",
+      "tool": "Trivy fs (deps)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 4,
+        "low": 0
+      },
+      "total": 4
+    },
+    {
+      "stage": "Secrets",
+      "tool": "Gitleaks (history)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "total": 0
+    },
+    {
+      "stage": "IaC",
+      "tool": "Trivy config",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 1
+      },
+      "total": 1
+    },
+    {
+      "stage": "IaC",
+      "tool": "PaaS policy (render.yaml/fly.toml)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "total": 0
+    },
+    {
+      "stage": "Container",
+      "tool": "Trivy image",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 29,
+        "low": 16
+      },
+      "total": 45
+    },
+    {
+      "stage": "SBOM",
+      "tool": "CycloneDX (imagem)",
+      "status": "ok",
+      "result": "234 componentes inventariados"
+    },
+    {
+      "stage": "SBOM",
+      "tool": "CycloneDX (codigo-fonte)",
+      "status": "ok",
+      "result": "100 componentes inventariados"
+    }
+  ],
+  "totals": {
+    "critical": 0,
+    "high": 1,
+    "medium": 39,
+    "low": 17
+  },
+  "nota": "Resumo do pipeline DevSecOps no push do merge de forward-api-java#50 (89dfab1) na main, 27/09/2026. O único High é o resultado java/spring-disabled-csrf-protection do CodeQL (SecurityConfig.java:73), dispensado como falso positivo no code scanning (alerta #125); o SARIF bruto continua contando o resultado. Os 4 Medium do Trivy fs são jackson-databind 2.21.4 e log4j-api 2.24.3. Gate java-security.yml no mesmo commit: pom.xml com 0 CRITICAL/HIGH, https://github.com/fwd-ford/forward-api-java/actions/runs/36307904777/job/108588036936"
+}

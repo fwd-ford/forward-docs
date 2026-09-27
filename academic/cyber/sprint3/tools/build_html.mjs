@@ -1,8 +1,10 @@
 // Regenerates ENTREGA_CYBER_SPRINT3.html (self-contained) and, with Edge/Chrome, the PDF.
 //
 //   cd academic/cyber/sprint3/tools && npm install
-//   node build_html.mjs ../ENTREGA_CYBER_SPRINT3.md ../ENTREGA_CYBER_SPRINT3.html //     https://github.com/fwd-ford/forward-docs/blob/main/academic/cyber/sprint3/
-//   msedge --headless=new --no-pdf-header-footer //     --print-to-pdf=../ENTREGA_CYBER_SPRINT3.pdf file:///<abs-path>/ENTREGA_CYBER_SPRINT3.html
+//   node build_html.mjs ../ENTREGA_CYBER_SPRINT3.md ../ENTREGA_CYBER_SPRINT3.html \
+//     https://github.com/fwd-ford/forward-docs/blob/main/academic/cyber/sprint3/
+//   msedge --headless=new --no-pdf-header-footer \
+//     --print-to-pdf=../ENTREGA_CYBER_SPRINT3.pdf file:///<abs-path>/ENTREGA_CYBER_SPRINT3.html
 //
 // Builds a self-contained HTML (images embedded as base64 PNG) from the Markdown
 // deliverable. Heading ids use github-slugger so the table of contents and the
