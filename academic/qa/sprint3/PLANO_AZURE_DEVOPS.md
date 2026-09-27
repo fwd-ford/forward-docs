@@ -4,7 +4,7 @@ Entrega da disciplina **Testing, Compliance and Quality Assurance** (Prof. Elias
 
 Produto: **ForwardService**, Desafio 02 da Ford (VIN Share e retenção pós-venda). Score de churn por VIN, leads priorizados para o atendente da concessionária e ações proativas medidas de ponta a ponta.
 
-> **Link do projeto no Azure DevOps (preencher depois de publicar):** `https://dev.azure.com/<organizacao>/ForwardService`
+> **Projeto publicado no Azure DevOps:** [https://dev.azure.com/fwd-ford-3espz/ForwardService](https://dev.azure.com/fwd-ford-3espz/ForwardService) (organização `fwd-ford-3espz`, processo Scrum, publicado em 27/09/2026: 123 itens, 6 sprints, 114 dependências, 6 consultas e 7 páginas de wiki).
 >
 > O professor precisa estar na organização com acesso **Basic** e no grupo **Project Administrators** do projeto (seção 7.6).
 
@@ -837,7 +837,7 @@ Se a organização estiver ligada ao Microsoft Entra ID e o e-mail do professor 
 Mensagem sugerida:
 
 ```text
-Projeto ForwardService no Azure DevOps (Scrum): https://dev.azure.com/<organizacao>/ForwardService
+Projeto ForwardService no Azure DevOps (Scrum): https://dev.azure.com/fwd-ford-3espz/ForwardService
 Backlog: Boards > Backlogs | Sprint atual: Boards > Sprints > Sprint 3 | Wiki: Overview > Wiki
 Prof. Elias adicionado com acesso Basic e como Project Administrator.
 Plano detalhado: forward-docs/academic/qa/sprint3/PLANO_AZURE_DEVOPS.md
