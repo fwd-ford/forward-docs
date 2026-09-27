@@ -76,7 +76,7 @@
 [dry-run] criaria Product Backlog Item [PBI-014] Classificador de churn calibrado (XGBoost two-stage) [Sprint 2, Done]
 [dry-run] criaria Product Backlog Item [PBI-015] Baseline de segurança de dados: RLS, audit_log e retenção LGPD [Sprint 2, Done]
 [dry-run] criaria Product Backlog Item [PBI-016] Pitch, Canvas, Quadro de Valor e arquitetura TOGAF/ArchiMate [Sprint 2, Done]
-[dry-run] criaria Product Backlog Item [PBI-017] Perfil demo autocontido (H2 + seed) substituindo o Supabase removido [Sprint 3, Done]
+[dry-run] criaria Product Backlog Item [PBI-017] Perfil demo autocontido (PostgreSQL embarcado + seed) e banco de produção no Supabase [Sprint 3, Done]
 [dry-run] criaria Product Backlog Item [PBI-018] Emissão de JWT próprio no login da API [Sprint 3, Done]
 [dry-run] criaria Product Backlog Item [PBI-019] Autorização por papel (ATENDENTE, GESTOR, ADMIN) [Sprint 3, Done]
 [dry-run] criaria Product Backlog Item [PBI-020] Maturidade REST nível 2: recursos, verbos e códigos de status [Sprint 3, Done]
@@ -92,7 +92,7 @@
 [dry-run] criaria Product Backlog Item [PBI-030] Checklist de conformidade (OWASP ASVS, API e Mobile Top 10, LGPD) [Sprint 3, Approved]
 [dry-run] criaria Product Backlog Item [PBI-031] Comparação de modelos de churn da Sprint 3 [Sprint 3, Committed]
 [dry-run] criaria Product Backlog Item [PBI-032] Plano do projeto no Azure DevOps (backlog, BDD, DoD e release) [Sprint 3, Committed]
-[dry-run] criaria Product Backlog Item [PBI-033] Deploy de demonstração com Docker Compose e smoke test pós-deploy [Sprint 4, Approved]
+[dry-run] criaria Product Backlog Item [PBI-033] Deploy da API no Render (Blueprint) com banco Supabase e smoke test pós-deploy [Sprint 4, Approved]
 [dry-run] criaria Product Backlog Item [PBI-034] Refresh token e revogação de sessão [Sprint 4, Approved]
 [dry-run] criaria Product Backlog Item [PBI-035] Criptografia de PII em nível de campo [Sprint 4, New]
 [dry-run] criaria Product Backlog Item [PBI-036] Logs sem PII e auditoria de ações sensíveis [Sprint 4, New]
@@ -120,7 +120,7 @@
 [dry-run] criaria Product Backlog Item [PBI-058] Rede Invertida: mapa de desertos de serviço [sem sprint, New]
 [dry-run] criaria Product Backlog Item [PBI-059] Ponte Serviço-Venda [sem sprint, New]
 [dry-run] criaria Product Backlog Item [PBI-060] Integração com o DMS das concessionárias [sem sprint, New]
-[dry-run] criaria Task [TSK-3.01] Criar perfil demo com H2 em memória e migrations compatíveis [Sprint 3, Done]
+[dry-run] criaria Task [TSK-3.01] Criar perfil demo com PostgreSQL embarcado e migrations Flyway [Sprint 3, Done]
 [dry-run] criaria Task [TSK-3.02] Seed de demonstração com concessionárias, clientes, veículos, leads e usuários por papel [Sprint 3, Done]
 [dry-run] criaria Task [TSK-3.03] Endpoint POST /api/v1/auth/login com BCrypt e emissão de JWT HS256 [Sprint 3, Done]
 [dry-run] criaria Task [TSK-3.04] Filtro de validação do bearer token com segredo por variável de ambiente [Sprint 3, Done]
@@ -263,7 +263,7 @@
 [dry-run]   /BDD — Guia de Critérios de Aceite
 
 == 8/8 Acesso do professor ==
-[dry-run] adicionaria profelias.bernardo@fiap.com.br com acesso Basic (express) e grupo Project Administrators no projeto
+[info] --professor não informado; passo ignorado
 
 == Resumo ==
 [info] itens que seriam criados: 123

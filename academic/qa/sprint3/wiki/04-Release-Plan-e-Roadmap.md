@@ -78,7 +78,7 @@ Objetivo: Segurança e qualidade de ponta a ponta: JWT e RBAC próprios, contrat
 
 | PBI | Título | MoSCoW | Pontos | Estado |
 | --- | --- | --- | --- | --- |
-| PBI-017 | Perfil demo autocontido (H2 + seed) substituindo o Supabase removido | Must | 3 | Done |
+| PBI-017 | Perfil demo autocontido (PostgreSQL embarcado + seed) e banco de produção no Supabase | Must | 3 | Done |
 | PBI-018 | Emissão de JWT próprio no login da API | Must | 5 | Done |
 | PBI-019 | Autorização por papel (ATENDENTE, GESTOR, ADMIN) | Must | 3 | Done |
 | PBI-020 | Maturidade REST nível 2: recursos, verbos e códigos de status | Must | 3 | Done |
@@ -103,7 +103,7 @@ Objetivo: Entrega final do Challenge: vídeo pitch técnico, ambiente de demonst
 
 | PBI | Título | MoSCoW | Pontos | Estado |
 | --- | --- | --- | --- | --- |
-| PBI-033 | Deploy de demonstração com Docker Compose e smoke test pós-deploy | Must | 5 | Approved |
+| PBI-033 | Deploy da API no Render (Blueprint) com banco Supabase e smoke test pós-deploy | Must | 5 | Approved |
 | PBI-034 | Refresh token e revogação de sessão | Should | 5 | Approved |
 | PBI-035 | Criptografia de PII em nível de campo | Should | 5 | New |
 | PBI-036 | Logs sem PII e auditoria de ações sensíveis | Should | 5 | New |

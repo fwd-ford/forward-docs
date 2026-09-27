@@ -510,7 +510,7 @@
             {
               "key": "PBI-033",
               "type": "Product Backlog Item",
-              "title": "Deploy de demonstração com Docker Compose e smoke test pós-deploy",
+              "title": "Deploy da API no Render (Blueprint) com banco Supabase e smoke test pós-deploy",
               "iteration": "Sprint 4",
               "state": "Approved",
               "moscow": "Must",
@@ -524,7 +524,7 @@
                 "quero": "um ambiente de demonstração estável acessível pela internet",
                 "para": "testar app e API no dia da apresentação"
               },
-              "context": "Imagem Docker da forward-api-java com o perfil demo, HTTPS na borda e smoke test automático após o deploy (health, login e leads).",
+              "context": "Blueprint render.yaml da forward-api-java (Docker, plano gratuito, HTTPS na borda) apontando para o PostgreSQL do Supabase via session pooler; JWT_SECRET gerado pelo provedor; smoke test após o deploy (health, login, leads, 401 e 403).",
               "archimate": [
                 "Docker Engine",
                 "forward-api-java.jar",
@@ -797,7 +797,7 @@
             {
               "key": "PBI-017",
               "type": "Product Backlog Item",
-              "title": "Perfil demo autocontido (H2 + seed) substituindo o Supabase removido",
+              "title": "Perfil demo autocontido (PostgreSQL embarcado + seed) e banco de produção no Supabase",
               "iteration": "Sprint 3",
               "state": "Done",
               "moscow": "Must",
@@ -811,7 +811,7 @@
                 "quero": "executar a API com um único comando e dados de demonstração",
                 "para": "avaliar a solução mesmo sem o projeto Supabase antigo, que foi removido"
               },
-              "context": "Perfil Spring demo com H2 em memória, migrations compatíveis e seed com concessionárias, clientes, veículos, leads e usuários de teste por papel.",
+              "context": "Perfil Spring demo com PostgreSQL 16 embarcado (sem Docker), migrations Flyway e seed com concessionárias, clientes, veículos, leads e usuários de teste por papel. Em produção a API usa o PostgreSQL do Supabase (baseline das migrations 001 a 013 já aplicadas e bootstrap idempotente dos usuários de demonstração).",
               "archimate": [
                 "forward-api-java",
                 "Supabase / PostgreSQL",
@@ -877,8 +877,8 @@
                   "key": "TSK-3.01",
                   "type": "Task",
                   "parent": "PBI-017",
-                  "title": "Criar perfil demo com H2 em memória e migrations compatíveis",
-                  "description": "Adicionar application-demo.yml com H2 em modo PostgreSQL e ajustar as migrations para rodarem nos dois bancos.",
+                  "title": "Criar perfil demo com PostgreSQL embarcado e migrations Flyway",
+                  "description": "Adicionar application-demo.yml com PostgreSQL embarcado (Zonky), migrations Flyway V1 a V13 copiadas do forward-infra e V14+ da API; baseline 13 no banco do Supabase em produção.",
                   "activity": "Development",
                   "estimate_hours": 4,
                   "remaining_hours": 0,

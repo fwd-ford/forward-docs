@@ -12,7 +12,7 @@ Período: 03/08/2026 a 27/09/2026 (sprint atual). Objetivo: Segurança e qualida
 
 | PBI | Título | Responsável | Pontos | Estado | Predecessoras |
 | --- | --- | --- | --- | --- | --- |
-| PBI-017 | Perfil demo autocontido (H2 + seed) substituindo o Supabase removido | Ruan Melo Vieira | 3 | Done | PBI-009 |
+| PBI-017 | Perfil demo autocontido (PostgreSQL embarcado + seed) e banco de produção no Supabase | Ruan Melo Vieira | 3 | Done | PBI-009 |
 | PBI-018 | Emissão de JWT próprio no login da API | Ruan Melo Vieira | 5 | Done | PBI-017 |
 | PBI-019 | Autorização por papel (ATENDENTE, GESTOR, ADMIN) | Ruan Melo Vieira | 3 | Done | PBI-018 |
 | PBI-020 | Maturidade REST nível 2: recursos, verbos e códigos de status | Ruan Melo Vieira | 3 | Done | PBI-009 |
@@ -33,7 +33,7 @@ Período: 03/08/2026 a 27/09/2026 (sprint atual). Objetivo: Segurança e qualida
 
 | Tarefa | PBI | Título | Atividade | Estimativa (h) | Restante (h) | Complexidade | Estado | Responsável | Predecessoras |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TSK-3.01 | PBI-017 | Criar perfil demo com H2 em memória e migrations compatíveis | Development | 4 | 0 | 2 | Done | Ruan Melo Vieira | - |
+| TSK-3.01 | PBI-017 | Criar perfil demo com PostgreSQL embarcado e migrations Flyway | Development | 4 | 0 | 2 | Done | Ruan Melo Vieira | - |
 | TSK-3.02 | PBI-017 | Seed de demonstração com concessionárias, clientes, veículos, leads e usuários por papel | Development | 3 | 0 | 2 | Done | Ruan Melo Vieira | TSK-3.01 |
 | TSK-3.03 | PBI-018 | Endpoint POST /api/v1/auth/login com BCrypt e emissão de JWT HS256 | Development | 6 | 0 | 3 | Done | Ruan Melo Vieira | TSK-3.02 |
 | TSK-3.04 | PBI-018 | Filtro de validação do bearer token com segredo por variável de ambiente | Development | 4 | 0 | 2 | Done | Ruan Melo Vieira | TSK-3.03 |
