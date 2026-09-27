@@ -88,6 +88,11 @@ def main(argv=None):
     p.add_argument("--include-state", action="store_true",
                    help="inclui a coluna State (não recomendado para itens novos, veja a docstring)")
     args = p.parse_args(argv)
+    for stream in (sys.stdout, sys.stderr):
+        try:  # acentos não derrubam o script em consoles com code page antigo
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
     try:
         model = load_backlog(args.backlog)
     except BacklogError as exc:

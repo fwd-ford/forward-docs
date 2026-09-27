@@ -809,6 +809,8 @@ O script pede o PAT com a digitação oculta (ou lê a variável de ambiente `AZ
 
 Código de saída: 0 sucesso, 1 concluído com erros não fatais (o resumo lista cada erro), 2 erro fatal (acesso, projeto ou processo), 3 entrada inválida. Para refazer só uma parte: `--steps wiki` ou `--steps workitems,links`.
 
+Numa reexecução, os itens que já existem não são duplicados nem sobrescritos: o script só completa a hierarquia e as predecessoras que faltarem. Depois de mudar o `backlog.json`, use `--sync-fields` para regravar os campos que divergirem (título, descrição, critérios, prioridade, esforço, sprint e tags) e `--sync-state` para alinhar os estados.
+
 ### 7.6 Conferir e dar acesso ao professor
 
 Checklist de conferência:
@@ -891,7 +893,7 @@ python azure_devops_import.py --org https://dev.azure.com/<organizacao> --dry-ru
 python gen_csv.py
 ```
 
-Os testes sobem um Azure DevOps falso em `127.0.0.1` e verificam: formato das requisições e Content-Type (`application/json-patch+json` nos itens), cabeçalho de autenticação e `api-version=7.1` em todas as chamadas, criação do projeto Scrum com polling da operação, sprints com datas, hierarquia pai/filho e predecessoras iguais ao `backlog.json`, estados, filtragem de campos inexistentes, wiki, consultas, convite do professor, reexecução sem criar nada novo, dry-run sem nenhuma escrita, PAT nunca impresso, repetição em HTTP 429, falha isolada sem interromper a importação e as regras de conteúdo (tamanho do backlog, BDD, DoD, MoSCoW, Fibonacci, balanceamento e nomes ArchiMate).
+Os testes sobem um Azure DevOps falso em `127.0.0.1` e verificam: formato das requisições e Content-Type (`application/json-patch+json` nos itens), cabeçalho de autenticação e `api-version=7.1` em todas as chamadas, criação do projeto Scrum com polling da operação, sprints com datas, hierarquia pai/filho e predecessoras iguais ao `backlog.json`, estados, filtragem de campos inexistentes, wiki, consultas, convite do professor, reexecução sem criar nada novo, sincronização só dos campos alterados (`--sync-fields`), dry-run sem nenhuma escrita, PAT nunca impresso, repetição em HTTP 429, falha isolada sem interromper a importação e as regras de conteúdo (tamanho do backlog, BDD, DoD, MoSCoW, Fibonacci, balanceamento e nomes ArchiMate).
 
 ## 9. Referências
 

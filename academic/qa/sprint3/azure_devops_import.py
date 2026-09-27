@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 """Importa o plano do ForwardService (backlog.json) para o Azure DevOps.
 
-Cria ou reconcilia, de forma idempotente:
+Cria, de forma idempotente (itens já existentes são reconhecidos pela chave no título e não são
+duplicados; numa reexecução só a hierarquia e as predecessoras que faltarem são completadas, e
+--sync-fields / --sync-state também alinham campos e estado ao backlog.json):
   1. o projeto com o processo Scrum (ou valida o processo de um projeto existente);
   2. as sprints (iterações) com datas e a seleção delas no time padrão;
   3. a Definition of Done nas colunas do board de Backlog items;
@@ -871,6 +873,8 @@ class Importer:
         root = self.client.request("GET", self.urls.papi("wit/classificationnodes/Iterations", **{"$depth": 2})).data or {}
         children = {c.get("name"): c for c in (root.get("children") or [])}
         for it in wanted:
+            # Datas de sprint são "date-only, correct unadjusted at midnight in UTC" (TeamIterationAttributes,
+            # Microsoft Learn); os exemplos de Classification Nodes usam o mesmo formato T00:00:00Z.
             attrs = {"startDate": "%sT00:00:00Z" % it["start"], "finishDate": "%sT00:00:00Z" % it["finish"]}
             node = children.get(it["name"])
             try:
@@ -1041,6 +1045,8 @@ class Importer:
                 self.c.skip("%s %s (#%s)" % (item.type, item.title, ex["id"]))
                 self.s.inc("itens já existentes")
                 self._ensure_parent(item, ex)
+                if self.args.sync_fields:
+                    self._sync_fields(item, ex)
                 if self.args.sync_state:
                     self._ensure_state(item, ex["id"], (ex["fields"] or {}).get(F_STATE))
                 continue
@@ -1073,6 +1079,26 @@ class Importer:
             except HttpError as exc:
                 self.c.error("%s: %s" % (item.key, exc))
                 self.s.error("criar %s: %s" % (item.key, exc.message))
+
+    def _sync_fields(self, item, existing):
+        """Regrava no Azure só os campos que divergem do backlog.json (opção --sync-fields)."""
+        current = existing.get("fields") or {}
+        ops = []
+        for op in self._ops_for(item):
+            ref = op["path"][len("/fields/"):]
+            if ref != F_HISTORY and not _same_value(ref, current.get(ref), op["value"]):
+                ops.append(op)
+        if not ops:
+            return
+        names = ", ".join(op["path"][len("/fields/"):] for op in ops)
+        try:
+            self.client.request("PATCH", self.urls.papi("wit/workitems/%s" % existing["id"]), ops,
+                                content_type="application/json-patch+json")
+            self.c.updated("%s: %s" % (item.key, names))
+            self.s.inc("itens com campos atualizados")
+        except HttpError as exc:
+            self.c.error("campos de %s: %s" % (item.key, exc))
+            self.s.error("campos %s: %s" % (item.key, exc.message))
 
     def _create_with_retry(self, url, ops, attempts=4):
         """Cria o item; repete se a sprint recém-criada ainda não propagou (TF401347 / IterationPath)."""
@@ -1457,6 +1483,34 @@ class Importer:
             self.c.info("%s: %s" % (label, link))
 
 
+def _norm_text(value):
+    """Normaliza texto/HTML para comparação: entidades, variações de <br> e espaços."""
+    s = html.unescape(str(value))
+    s = re.sub(r"<br\s*/?>", "<br>", s, flags=re.IGNORECASE)
+    return " ".join(s.split())
+
+
+def _same_value(ref, current, desired):
+    """Compara o valor gravado no Azure com o do backlog.json sem acusar diferenças só de formato."""
+    if current is None:
+        return desired in (None, "")
+    if ref == F_TAGS:
+        def tagset(v):
+            return {t.strip().lower() for t in str(v).split(";") if t.strip()}
+        return tagset(current) == tagset(desired)
+    if isinstance(desired, (int, float)) and not isinstance(desired, bool):
+        try:
+            return abs(float(current) - float(desired)) < 1e-9
+        except (TypeError, ValueError):
+            return False
+    if ref in (F_START, F_TARGET):
+        return str(current)[:10] == str(desired)[:10]
+    if isinstance(current, dict):  # campo de identidade (Assigned To) volta como IdentityRef
+        names = {str(current.get(k, "")).lower() for k in ("uniqueName", "displayName")}
+        return str(desired).lower() in names
+    return _norm_text(current) == _norm_text(desired)
+
+
 def _rel_target(rel):
     return str(rel.get("url", "")).rstrip("/").rsplit("/", 1)[-1]
 
@@ -1783,6 +1837,9 @@ def build_parser():
     p.add_argument("--dry-run", action="store_true", help="não altera nada; sem PAT roda totalmente offline")
     p.add_argument("--steps", default="all", help="passos separados por vírgula: %s (padrão: all)" % ",".join(ALL_STEPS))
     p.add_argument("--sync-state", action="store_true", help="também ajusta o estado de itens que já existiam")
+    p.add_argument("--sync-fields", action="store_true",
+                   help="também regrava os campos (título, descrição, critérios, prioridade, esforço, sprint, tags...) "
+                        "de itens que já existiam e divergem do backlog.json")
     p.add_argument("--assign-map", help="JSON {\"JOTA\": \"email\", ...} para preencher Assigned To")
     p.add_argument("--suppress-notifications", action="store_true",
                    help="usa suppressNotifications=true (exige a permissão Suppress notifications for work item updates)")

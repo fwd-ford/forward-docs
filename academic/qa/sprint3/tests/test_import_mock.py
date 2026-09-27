@@ -736,6 +736,37 @@ class ResilienceTest(unittest.TestCase):
         self.assertEqual(len(state.work_items), 123)
         self.assertIn("sprint ainda não disponível", out)
 
+    def test_sync_fields_rewrites_only_what_changed(self):
+        state = MockState(project_exists=True)
+        with MockServer(state) as srv:
+            code, out = run_main(srv.org_url, "--steps", "workitems")
+            self.assertEqual(code, 0, out[-2000:])
+            state.by_key()["PBI-018"]["fields"]["Microsoft.VSTS.Scheduling.Effort"] = 13  # alterado no portal
+            start = len(state.requests)
+            code, out = run_main(srv.org_url, "--steps", "workitems")
+            self.assertEqual(code, 0, out[-2000:])
+            unexpected = [(r["method"], r["path"]) for r in state.writes(start)
+                          if not (r["method"] == "POST" and r["segs"][-1] in ("wiql", "workitemsbatch"))]
+            self.assertEqual(unexpected, [], "sem --sync-fields nada é regravado")
+            start = len(state.requests)
+            code, out = run_main(srv.org_url, "--steps", "workitems", "--sync-fields")
+        self.assertEqual(code, 0, out[-2000:])
+        patches = [r for r in state.requests[start:] if r["method"] == "PATCH"]
+        self.assertEqual(len(patches), 1, [r["path"] for r in patches])
+        self.assertEqual(patches[0]["headers"].get("content-type"), "application/json-patch+json")
+        self.assertEqual(patches[0]["body"], [{"op": "add", "path": "/fields/Microsoft.VSTS.Scheduling.Effort", "value": 5}])
+        self.assertEqual(state.by_key()["PBI-018"]["fields"]["Microsoft.VSTS.Scheduling.Effort"], 5)
+        self.assertIn("itens com campos atualizados: 1", out)
+
+    def test_same_value_ignores_format_only_differences(self):
+        self.assertTrue(adi._same_value(adi.F_TAGS, "b; A", "a; b"))
+        self.assertTrue(adi._same_value(adi.F_EFFORT, 5.0, 5))
+        self.assertTrue(adi._same_value(adi.F_START, "2026-08-03T12:00:00Z", "2026-08-03T12:00:00Z"))
+        self.assertTrue(adi._same_value(adi.F_DESCRIPTION, "<p>It&#39;s ok<br/></p>", "<p>It&#x27;s ok<br></p>"))
+        self.assertTrue(adi._same_value("System.AssignedTo", {"uniqueName": "a@b.com", "displayName": "A"}, "a@b.com"))
+        self.assertFalse(adi._same_value(adi.F_TITLE, "[PBI-001] Antigo", "[PBI-001] Novo"))
+        self.assertFalse(adi._same_value(adi.F_TAGS, None, "fwd-import"))
+
     def test_existing_professor_is_promoted(self):
         state = MockState(project_exists=True, entitlement_exists=True)
         with MockServer(state) as srv:
