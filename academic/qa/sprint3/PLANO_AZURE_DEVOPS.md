@@ -861,6 +861,16 @@ Depois do CSV, complete o plano com `python azure_devops_import.py --org ... --s
 | Aviso de campo ignorado | O processo não tem o campo naquele tipo | Nada: o valor continua na descrição do item |
 | Convite do professor recusado | Organização ligada ao Entra ID ou sem licença Basic livre | Siga o passo manual de 7.6 |
 | HTTP 429 | Limite de requisições do Azure DevOps | O script espera e repete; se persistir, rode de novo |
+| Acentos trocados por símbolos no Git Bash | Terminal em UTF-8 e Python no code page do Windows | Rode com `python -X utf8 azure_devops_import.py ...` ou use o PowerShell |
+
+### 7.10 Pontos que a documentação não detalha e como o script se protege
+
+- **Transição direta de estado** (por exemplo New para Done): o script tenta a transição direta e, se ela for recusada, percorre os estados intermediários do fluxo Scrum.
+- **Campos por tipo de item** (Business Value e Priority no PBI, Start Date e Target Date em épicos e features): o script lê os campos de cada tipo (Work Item Types Field - List) e ignora os que não existirem, com aviso no resumo; a informação continua na descrição do item.
+- **Tamanho do texto da DoD nas colunas do board:** se o Azure recusar, a DoD continua na wiki e em cada PBI (passo não fatal).
+- **Sprint recém-criada ainda indisponível para itens:** o script repete a criação algumas vezes antes de registrar o erro.
+- **Alteração de acesso de um usuário que já existe na organização** (inclusão em projectEntitlements): se a API recusar, o script imprime o passo a passo manual da seção 7.6.
+- **CSV com Title 3 e Title 4:** a documentação mostra o formato com dois níveis; se o importador recusar quatro níveis, use o script.
 
 ## 8. Arquivos, testes e evidências
 
