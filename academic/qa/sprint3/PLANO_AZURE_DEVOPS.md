@@ -32,6 +32,7 @@ O plano é mantido em um único arquivo, [`backlog.json`](backlog.json), e publi
 | Lucca Saraiva Borges | 554608 | ML e dados | Time de desenvolvimento |
 | Ruan Melo Vieira | 557599 | Backend e SOA | Time de desenvolvimento |
 | Rodrigo César Jimenez | 558148 | QA e produto | Product Owner e time de desenvolvimento |
+| Bruno Leão | 555563 | Desenvolvimento | Time de desenvolvimento |
 
 ### Números do plano
 

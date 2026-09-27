@@ -39,4 +39,4 @@ O PAT nunca é impresso nem salvo. Use um PAT com validade de 1 dia e revogue de
 
 ## Equipe
 
-João Victor Franco (Jota, RM 556790), Lucca Saraiva Borges (RM 554608), Ruan Melo Vieira (RM 557599) e Rodrigo César Jimenez (RM 558148). Turma 3ESPZ, Engenharia de Software FIAP.
+João Victor Franco (Jota, RM 556790), Lucca Saraiva Borges (RM 554608), Ruan Melo Vieira (RM 557599), Rodrigo César Jimenez (RM 558148) e Bruno Leão (RM 555563). Turma 3ESPZ, Engenharia de Software FIAP.
