@@ -84,7 +84,7 @@
     "planning_poker_rules": [
       "Cada integrante vota em segredo e as cartas são reveladas juntas.",
       "Se os votos divergem mais de dois valores da escala, os extremos explicam e há nova rodada (no máximo três).",
-      "A história de referência de 3 pontos é o PBI-011 (registro de evento de serviço com erros RFC 7807).",
+      "A história de referência (5 pontos) é o PBI-011, registro de evento de serviço com erros RFC 7807: conhecida por todo o time e com esforço estável.",
       "Itens acima de 13 pontos não entram em sprint: são quebrados (o 21 aparece apenas no backlog futuro).",
       "Tarefas são estimadas em horas (Remaining Work) com uma nota de complexidade em pontos Fibonacci."
     ],
@@ -160,13 +160,18 @@
       "uso": "Responde pela conformidade com a LGPD."
     },
     {
+      "nome": "Integrador de sistema legado da concessionária",
+      "archimate": "Concessionária (Dealer)",
+      "uso": "Consome a operação SOAP GetVehicle."
+    },
+    {
       "nome": "Desenvolvedor da Equipe ForwardService",
       "archimate": "Equipe ForwardService",
       "uso": "Constrói e mantém a plataforma."
     },
     {
       "nome": "Banca avaliadora FIAP x Ford",
-      "archimate": "Ford Brasil (Diretoria)",
+      "archimate": "n/a (stakeholder acadêmico)",
       "uso": "Avalia as entregas do Challenge."
     },
     {
@@ -212,6 +217,16 @@
       "Evidência registrada no PBI quando a tarefa é de teste ou de documentação."
     ]
   },
+  "definition_of_done_evolution": [
+    {
+      "sprints": "Sprints 1 e 2",
+      "note": "DoD inicial: PR revisado, CI mínimo (lint e build), critérios de aceite demonstrados ao PO e documentação no README."
+    },
+    {
+      "sprints": "Sprint 3 em diante",
+      "note": "DoD atual: soma testes automatizados com relatório, pipeline DevSecOps (SAST, SCA, secret scan e Trivy), requisitos de qualidade REQ-01 a REQ-07 medidos e rastreabilidade ArchiMate nas tags."
+    }
+  ],
   "releases": [
     {
       "key": "R1",

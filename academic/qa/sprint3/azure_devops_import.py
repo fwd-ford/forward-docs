@@ -48,6 +48,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -1474,6 +1475,11 @@ def _md_cell(text):
     return _md(text).replace("|", "\\|").replace("\n", " ")
 
 
+def _page(lines):
+    """Junta as linhas da página sem linhas em branco duplicadas no fim (markdownlint MD012/MD047)."""
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
 def _num(value, digits=1):
     return ("%%.%df" % digits % value).replace(".", ",")
 
@@ -1528,7 +1534,7 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
     lines += ["## Páginas desta wiki", ""]
     for path in WIKI_PAGES[1:]:
         lines.append("- %s" % path.strip("/"))
-    pages[WIKI_PAGES[0]] = "\n".join(lines) + "\n"
+    pages[WIKI_PAGES[0]] = _page(lines)
 
     # 2. Definition of Done --------------------------------------------------
     dod = raw["definition_of_done"]
@@ -1541,7 +1547,11 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
     for level, label in (("Product Backlog Item", "PBI"), ("Feature", "Feature"), ("Epic", "Épico"), ("Task", "Tarefa")):
         lines += ["", "## DoD de %s" % label, ""]
         lines += ["%d. %s" % (n, _md(x)) for n, x in enumerate(dod[level], start=1)]
-    pages[WIKI_PAGES[1]] = "\n".join(lines) + "\n"
+    if raw.get("definition_of_done_evolution"):
+        lines += ["", "## Evolução da DoD", "", "| Sprints | DoD vigente |", "| --- | --- |"]
+        for ev in raw["definition_of_done_evolution"]:
+            lines.append("| %s | %s |" % (_md_cell(ev["sprints"]), _md_cell(ev["note"])))
+    pages[WIKI_PAGES[1]] = _page(lines)
 
     # 3. Priorização e estimativa -------------------------------------------
     conv = model.conventions
@@ -1563,11 +1573,16 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
     ref = model.items.get(conv["reference_story"])
     if ref:
         lines += ["", "História de referência: **%s %s** (%d pontos)." % (ref.key, _md(ref.get("title")), ref.get("effort"))]
-    lines += ["",
-              "## Valor de negócio", "",
-              "Business Value de 1 a 100: Must de 60 a 95, Should de 55 a 85, Could de 55 a 70, Won't abaixo de 45 "
-              "(o valor desempata itens com a mesma prioridade).", ""]
-    pages[WIKI_PAGES[2]] = "\n".join(lines) + "\n"
+    ranges = OrderedDict()
+    for p in pbis:
+        ranges.setdefault(p.get("moscow"), []).append(p.get("business_value"))
+    lines += ["", "## Valor de negócio", "",
+              "Business Value de 1 a 100, definido pelo PO a partir do Quadro de Valor; desempata itens com a mesma prioridade.", "",
+              "| MoSCoW | Faixa de Business Value |", "| --- | --- |"]
+    for k, bvs in ranges.items():
+        lines.append("| %s | %d a %d |" % (k, min(bvs), max(bvs)))
+    lines.append("")
+    pages[WIKI_PAGES[2]] = _page(lines)
 
     # 4. Release plan --------------------------------------------------------
     vals = list(totals.values())
@@ -1609,7 +1624,7 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
         for pred in p.get("predecessors", []):
             lines.append("    %s --> %s" % (pred.replace("-", ""), p.key.replace("-", "")))
     lines += ["```", ""]
-    pages[WIKI_PAGES[3]] = "\n".join(lines) + "\n"
+    pages[WIKI_PAGES[3]] = _page(lines)
 
     # 5. Sprint 3 -------------------------------------------------------------
     s3 = model.iteration_by_name.get("Sprint 3")
@@ -1657,7 +1672,7 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
         for pred in t.get("predecessors", []):
             lines.append("    %s --> %s" % (pred.replace("-", "").replace(".", "_"), t.key.replace("-", "").replace(".", "_")))
     lines += ["```", ""]
-    pages[WIKI_PAGES[4]] = "\n".join(lines) + "\n"
+    pages[WIKI_PAGES[4]] = _page(lines)
 
     # 6. Rastreabilidade ------------------------------------------------------
     lines = ["# Rastreabilidade TOGAF e ArchiMate", "",
@@ -1681,7 +1696,7 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
     for el in sorted(element_map, key=lambda s: s.lower()):
         lines.append("| %s | %s |" % (_md_cell(el), ", ".join(element_map[el])))
     lines.append("")
-    pages[WIKI_PAGES[5]] = "\n".join(lines) + "\n"
+    pages[WIKI_PAGES[5]] = _page(lines)
 
     # 7. Guia BDD -------------------------------------------------------------
     example = model.items.get("PBI-018") or (pbis[0] if pbis else None)
@@ -1709,14 +1724,15 @@ def render_wiki_pages(model, urls, team, ids=None, query_ids=None, query_folder=
               "- Existe cenário de erro para cada regra de negócio ou de segurança?",
               "- O resultado esperado é único e sem ambiguidade?",
               "- O critério não descreve a implementação (como), só o comportamento (o quê)?", ""]
-    pages[WIKI_PAGES[6]] = "\n".join(lines) + "\n"
+    pages[WIKI_PAGES[6]] = _page(lines)
     return pages
 
 
 def export_wiki(pages, directory, console):
     os.makedirs(directory, exist_ok=True)
     for n, (path, content) in enumerate(pages.items(), start=1):
-        name = re.sub(r"[^0-9A-Za-zÀ-ÿ]+", "-", path.strip("/")).strip("-")
+        ascii_name = unicodedata.normalize("NFKD", path.strip("/")).encode("ascii", "ignore").decode("ascii")
+        name = re.sub(r"[^0-9A-Za-z]+", "-", ascii_name).strip("-")
         fname = os.path.join(directory, "%02d-%s.md" % (n, name))
         with open(fname, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(content)

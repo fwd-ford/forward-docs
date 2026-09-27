@@ -37,7 +37,7 @@ import gen_csv  # noqa: E402
 
 BACKLOG = os.path.join(SPRINT3, "backlog.json")
 ARCHIMATE_SCRIPT = os.path.normpath(os.path.join(SPRINT3, "..", "..", "togaf", "gen_archimate.py"))
-PAT = "pat-de-teste-nao-real-0123456789"
+PAT = "dummy-pat-de-teste-nao-real"  # valor fictício (allowlist do gitleaks: dummy)
 ORG = "fakeorg"
 PROJECT = "ForwardService"
 PROFESSOR = "profelias.bernardo@fiap.com.br"

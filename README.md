@@ -15,6 +15,7 @@ academic/         # Academic deliverables per discipline
   togaf/          # Archi .archimate file
   video/          # Pitch video link/script
   cyber/          # Cybersecurity documentation
+  qa/             # Testing/QA: Azure DevOps plan (backlog, BDD, DoD, release plan)
 api/              # Swagger/OpenAPI specs, Postman collections
 decisions/        # Architecture Decision Records (ADRs)
 ```
