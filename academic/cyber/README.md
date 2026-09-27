@@ -6,6 +6,15 @@
 
 > Documentação de segurança do ForwardService para a disciplina Cybersecurity do Desafio 02 Ford-FIAP 2026.
 
+## Sprint 3 (entrega de 27/09/2026)
+
+Documento único com as quatro atividades da rubrica (pipeline DevSecOps, segurança em código e infraestrutura, observabilidade e resposta, compliance e segurança contínua):
+
+- [sprint3/ENTREGA_CYBER_SPRINT3.md](./sprint3/ENTREGA_CYBER_SPRINT3.md) (versões [HTML](./sprint3/ENTREGA_CYBER_SPRINT3.html) e [PDF](./sprint3/ENTREGA_CYBER_SPRINT3.pdf))
+- Artefatos: [dashboard Grafana](./sprint3/observability/dashboards/forwardservice-overview.json), [regras de alerta](./sprint3/observability/alerts/forwardservice-alerts.yml), [exemplos de log](./sprint3/observability/logs/), [desenho IoT](./sprint3/iot/) e [achados do pipeline](./sprint3/evidencias/devsecops-achados-2026-09-27.json)
+
+As seções abaixo descrevem a entrega da Sprint 1.
+
 ## Sumário
 
 | Doc | Conteúdo | Para que serve |

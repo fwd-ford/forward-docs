@@ -1,0 +1,124 @@
+{
+  "repository": "fwd-ford/forward-api-java",
+  "ref": "main",
+  "event": "push",
+  "sha": "c4b55263e933c5fe3486c7420bc3e27a80a6e5d1",
+  "run_url": "https://github.com/fwd-ford/forward-api-java/actions/runs/36305755636",
+  "tools": [
+    {
+      "stage": "SAST",
+      "tool": "Semgrep CE",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 2,
+        "low": 0
+      },
+      "total": 2
+    },
+    {
+      "stage": "SAST",
+      "tool": "CodeQL (actions)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 4,
+        "low": 0
+      },
+      "total": 4
+    },
+    {
+      "stage": "SAST",
+      "tool": "CodeQL (java-kotlin)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "total": 1
+    },
+    {
+      "stage": "SCA",
+      "tool": "Trivy fs (deps)",
+      "status": "ok",
+      "counts": {
+        "critical": 3,
+        "high": 11,
+        "medium": 19,
+        "low": 4
+      },
+      "total": 37
+    },
+    {
+      "stage": "Secrets",
+      "tool": "Gitleaks (history)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "total": 0
+    },
+    {
+      "stage": "IaC",
+      "tool": "Trivy config",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 1
+      },
+      "total": 1
+    },
+    {
+      "stage": "IaC",
+      "tool": "PaaS policy (render.yaml/fly.toml)",
+      "status": "ok",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "total": 0
+    },
+    {
+      "stage": "Container",
+      "tool": "Trivy image",
+      "status": "ok",
+      "counts": {
+        "critical": 3,
+        "high": 11,
+        "medium": 44,
+        "low": 20
+      },
+      "total": 78
+    },
+    {
+      "stage": "SBOM",
+      "tool": "CycloneDX (imagem)",
+      "status": "ok",
+      "result": "233 componentes inventariados"
+    },
+    {
+      "stage": "SBOM",
+      "tool": "CycloneDX (codigo-fonte)",
+      "status": "ok",
+      "result": "99 componentes inventariados"
+    }
+  ],
+  "totals": {
+    "critical": 6,
+    "high": 23,
+    "medium": 69,
+    "low": 25
+  },
+  "nota": "Resumo do pipeline DevSecOps no push do merge de forward-api-java#48 (c4b5526) na main, 27/09/2026. Gate java-security.yml no mesmo commit: Total 14 (HIGH 11, CRITICAL 3), https://github.com/fwd-ford/forward-api-java/actions/runs/36305755673/job/108581970255"
+}

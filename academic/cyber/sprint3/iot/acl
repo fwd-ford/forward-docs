@@ -1,0 +1,21 @@
+# PROPOSTO / NAO IMPLEMENTADO: ACL do broker MQTT de telemetria (Mosquitto 2.x).
+# Usuario MQTT = CN do certificado X.509 (use_identity_as_username true).
+#
+# Convencao de topicos (versionados):
+#   fwd/v1/telemetry/<device_id>/<tipo>   veiculo -> nuvem (odometer, dtc, battery, location)
+#   fwd/v1/config/<device_id>             nuvem -> veiculo (intervalo de envio, sem comandos remotos)
+#
+# Regra geral: negar tudo que nao estiver explicitamente permitido.
+
+# Cada veiculo so publica nos proprios topicos e so le a propria configuracao.
+pattern write fwd/v1/telemetry/%u/+
+pattern read fwd/v1/config/%u
+
+# Servico de ingestao (certificado CN=svc-telemetry-ingest, CA de servicos).
+user svc-telemetry-ingest
+topic read $share/ingest/fwd/v1/telemetry/#
+topic read fwd/v1/telemetry/#
+
+# Servico de configuracao (CN=svc-telemetry-config): publica configuracao, nao le telemetria.
+user svc-telemetry-config
+topic write fwd/v1/config/#

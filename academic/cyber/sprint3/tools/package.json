@@ -1,0 +1,10 @@
+{
+  "name": "cyber-sprint3-tools",
+  "private": true,
+  "type": "module",
+  "description": "Builds the HTML/PDF of ENTREGA_CYBER_SPRINT3.md (see build_html.mjs).",
+  "dependencies": {
+    "github-slugger": "2.0.0",
+    "marked": "15.0.12"
+  }
+}
