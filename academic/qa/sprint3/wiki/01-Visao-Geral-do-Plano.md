@@ -12,6 +12,7 @@ Processo: **Scrum**. Fonte única do plano: `forward-docs/academic/qa/sprint3/ba
 | Lucca Saraiva Borges | 554608 | ML e dados |
 | Ruan Melo Vieira | 557599 | Backend e SOA |
 | Rodrigo César Jimenez | 558148 | Product Owner; QA e produto |
+| Bruno Leão | 555563 | Time de desenvolvimento |
 
 ## Números do backlog
 

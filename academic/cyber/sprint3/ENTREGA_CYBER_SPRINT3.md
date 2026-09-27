@@ -16,6 +16,7 @@
 | Lucca Saraiva Borges | RM554608 |
 | Ruan Melo Vieira | RM557599 |
 | Rodrigo César Jimenez | RM558148 |
+| Bruno Leão | RM555563 |
 
 **Data:** 27/09/2026 · **Organização GitHub:** [github.com/fwd-ford](https://github.com/fwd-ford)
 

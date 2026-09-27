@@ -19,7 +19,8 @@
         "JOTA",
         "LUCCA",
         "RUAN",
-        "RODRIGO"
+        "RODRIGO",
+        "BRUNO"
       ]
     },
     "team": [
@@ -53,6 +54,14 @@
         "nickname": "Rodrigo",
         "rm": "558148",
         "role": "Product Owner; QA e produto",
+        "email": null
+      },
+      {
+        "key": "BRUNO",
+        "name": "Bruno Leão",
+        "nickname": "Bruno",
+        "rm": "555563",
+        "role": "Time de desenvolvimento",
         "email": null
       }
     ]
